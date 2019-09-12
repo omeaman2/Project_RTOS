@@ -4,5 +4,5 @@ all:
 	gcc -o a a.c -lm
 	./a
 clean:
-	rm a
+	rm a beep.wav 
 
