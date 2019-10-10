@@ -1,0 +1,39 @@
+﻿  cl : Command line warning D9035 : option 'Gm' has been deprecated and will be removed in a future release
+  cl : Command line warning D9002 : ignoring unknown option '/wc4574'
+  RTES.c
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\windows.h(254,17): warning C5031:  #pragma warning(pop): likely mismatch, popping warning state pushed in different file
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\winioctl.h(161,17): message :  #pragma warning(push)
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(53,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(54,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(56,1): warning C4204:  nonstandard extension used: non-constant aggregate initializer
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(47,24): warning C4100:  'pvParameters': unreferenced formal parameter
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(48,14): warning C4189:  'pcTaskName': local variable is initialized but not referenced
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(123,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(124,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(126,1): warning C4204:  nonstandard extension used: non-constant aggregate initializer
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(117,25): warning C4100:  'pvParameters': unreferenced formal parameter
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(118,14): warning C4189:  'pcTaskName': local variable is initialized but not referenced
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(163,35): warning C4100:  'output_frame': unreferenced formal parameter
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(181,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(182,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(184,1): warning C4204:  nonstandard extension used: non-constant aggregate initializer
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(170,28): warning C4100:  'pvParameters': unreferenced formal parameter
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(171,14): warning C4189:  'pcTaskName': local variable is initialized but not referenced
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(276,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(277,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(279,1): warning C4204:  nonstandard extension used: non-constant aggregate initializer
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(270,26): warning C4100:  'pvParameters': unreferenced formal parameter
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(271,14): warning C4189:  'pcTaskName': local variable is initialized but not referenced
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(326,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(327,1): warning C4047:  'initializing': 'TickType_t' differs in levels of indirection from 'TickType_t (__cdecl *)(void)'
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(329,1): warning C4204:  nonstandard extension used: non-constant aggregate initializer
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(319,30): warning C4100:  'pvParameters': unreferenced formal parameter
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(320,14): warning C4189:  'pcTaskName': local variable is initialized but not referenced
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(322,15): warning C4101:  'frame': unreferenced local variable
+C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(380,29): warning C4100:  'pvParameters': unreferenced formal parameter
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\windows.h(161,17): warning C5032:  detected #pragma warning(push) with no corresponding #pragma warning(pop)
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\windows.h(161,17): warning C5032: C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(262) : warning C4702: unreachable code
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\windows.h(161,17): warning C5032: C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(340) : warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\windows.h(161,17): warning C5032: C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(339) : note: index 'i' range checked by comparison on this line
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\windows.h(161,17): warning C5032: C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\RTES.c(340) : note: feeds call on this line
+  WIN32.vcxproj -> C:\Users\MikeS\Documents\FreeRTOS\FreeRTOSv10.2.1\FreeRTOS\Demo\RTES_Noise_Cancelling\.\Debug\RTOSDemo.exe
