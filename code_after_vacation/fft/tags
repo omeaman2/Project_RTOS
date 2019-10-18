@@ -5,7 +5,7 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	0.0.0	/3fdf28bc/
-PI	fft.h	/^double PI;$/;"	v	typeref:typename:double
+PI	fft.h	/^double PI = atan2(1, 1) * 4;$/;"	v	typeref:typename:double
 _fft	fft.h	/^void _fft(cplx buf[], cplx out[], int n, int step)$/;"	f	typeref:typename:void
 cplx	fft.h	/^typedef double complex cplx;$/;"	t	typeref:typename:double complex
 fft	fft.h	/^void fft(cplx buf[], int n)$/;"	f	typeref:typename:void

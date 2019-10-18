@@ -17,32 +17,42 @@
 #include <math.h>
 #include <complex.h>
  
+// Calculates PI based on the unit circle.
+// Four times and angle of 45° is equal to 180° == π radians.
 double PI = atan2(1, 1) * 4;
+// Fourier transform makes use of complex numbers.
 typedef double complex cplx;
  
+// Fourier function to be recursively called.
 void _fft(cplx buf[], cplx out[], int n, int step)
 {
+    // Initially step == 1.
+    // So initially we certainly go into this if statement with an n of 8.
 	if (step < n) {
+        // Why are out and buf switched?
 		_fft(out, buf, n, step * 2);
 		_fft(out + step, buf + step, n, step * 2);
  
-		for (int i = 0; i < n; i += 2 * step) {
-			cplx t = cexp(-I * PI * i / n) * out[i + step];
-			buf[i / 2]     = out[i] + t;
-			buf[(i + n)/2] = out[i] - t;
+		for (int idx = 0; idx < n; idx += 2 * step) {
+            // t = e^(i·π·1/n · out[idx+step])
+			cplx t = cexp(-I * PI * idx / n) * out[idx + step];
+			buf[idx / 2]     = out[idx] + t;
+			buf[(idx + n)/2] = out[idx] - t;
 		}
 	}
 }
  
-void fft(cplx buf[], int n)
+void fft(cplx buf[], int size)
 {
-	cplx out[n];
-	for (int i = 0; i < n; i++) out[i] = buf[i];
- 
-	_fft(buf, out, n, 1);
+	cplx out[size];
+    // Deep copy buf to out.
+	for (int i = 0; i < size; i++)
+        out[i] = buf[i];
+	_fft(buf, out, size, 1);
 }
  
  
+// Show the data.
 void show(const char * s, cplx buf[]) {
 	printf("%s", s);
 	for (int i = 0; i < 8; i++)

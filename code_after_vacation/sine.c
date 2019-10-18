@@ -55,7 +55,7 @@ void write_sine_as_audio(double* sine, char* filename, int n_samples) {
     struct wave_header header;
 
     // Read header parts.
-    int written = 
+    /* int written = */ 
 
     for (int i =  0; i < n_samples; ++i) {
     }

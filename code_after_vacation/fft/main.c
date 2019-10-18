@@ -1,10 +1,14 @@
 #include "fft.h"
 
+#define SIZE 8
+
 int main(void) {
     printf("%f\n", PI);
-	cplx buf[] = {1, 1, 1, 1, 0, 0, 0, 0};
+	cplx buf[SIZE] = {1, 1, 1, 1, 0, 0, 0, 0};
+    // Data before fft.
 	show("Data: ", buf);
-	fft(buf, 8);
+	fft(buf, SIZE);
+    // Data after fft.
 	show("\nFFT : ", buf);
     return 0;
 }
