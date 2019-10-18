@@ -1,7 +1,7 @@
 from scipy.io.wavfile import read
 import numpy
 
-a = read("train2.wav")
+a = read("knock.wav")
 dataarray = numpy.array(a[1], dtype=float)
 length = dataarray.size
 print(length)

@@ -1,32 +1,62 @@
 #include <stdio.h>
-#include "micdata.c"
+#include "trainmicdata.c"
 #include "math.h"
+
+int arraySize = sizeof(dataarray) / sizeof(int);
 
 int main()
 {
-	int arraySize = sizeof(dataarray) / sizeof(int);
 	unsigned long counter = 0;
 	unsigned long medium = 0;
 	unsigned long prevMedium = 0;
-	printf("%d size", arraySize);
-	for(int k = 0; k < (arraySize - 500); k+=500){
+	unsigned int used = 0;
+	printf("%d size \n", arraySize);
+	for(int k = 0; k < (arraySize - 3000); k+=3000){
 		counter = 0;
-		for(int i = k; i < (k + 500); i++)
+		used = 0;
+		for(int i = k; i < (k + 3000); i++)
 		{
 			int data = abs(dataarray[i]);
-			counter += data;
-
+			if( data > 500 ){
+				counter += data;
+				used++;
+			}
 		}
 		prevMedium = medium;
-		medium = counter / 500;
+		if(used != 0){
+			medium = counter / used;
+		} else {
+			medium = 0;
+		}
 		if(k != 0)
 		{
-			unsigned long tempSafeZone = prevMedium / 3;
-			unsigned long safeZone = prevMedium + tempSafeZone;
+			unsigned long safeZone = (prevMedium / 2);
+			unsigned long tempMedium = prevMedium + safeZone;
 			
-			if(safeZone < medium) {
-				printf("%u medium, %u prevmedium, %d timestamp \n ", medium, prevMedium, k);
+			if(tempMedium < medium && prevMedium > 500) {
+				k = recognizeEnd(k, prevMedium - safeZone);
 			}
 		}
 	}
+}
+
+int recognizeEnd(int start, unsigned long startMedium){
+	unsigned long medium = 0;
+	unsigned long counter = 0;
+	printf("start noise %d", start);
+	for(int k = start; k < (arraySize - 250); k++){
+		counter = 0;
+		for(int i = k; i < (k + 250); i++)
+		{
+			counter += abs(dataarray[i]);
+		}
+
+		medium = counter / 250;
+		
+		if(medium <= startMedium) {
+			printf(" end noise %d \n", k);
+			return k;
+		}
+	}
+	return arraySize;
 }
