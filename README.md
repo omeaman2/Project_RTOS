@@ -10,7 +10,7 @@ TODO
  - [] Check KissFFT licensing and with regard to copying of code.
 
 
-All information from last school year.
+All information from last school year
 ---
 
 > Arbitrary information
