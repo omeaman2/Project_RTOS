@@ -1,0 +1,333 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/3fdf28bc/
+$(BENCHFFTW)	kissfft/test/Makefile	/^$(BENCHFFTW): benchfftw.c pstats.c$/;"	t
+$(BENCHKISS)	kissfft/test/Makefile	/^$(BENCHKISS): benchkiss.c $(SRCFILES)$/;"	t
+$(DUMPHDR)	kissfft/tools/Makefile	/^$(DUMPHDR): ..\/kiss_fft.c dumphdr.c$/;"	t
+$(FASTFILT)	kissfft/tools/Makefile	/^$(FASTFILT): ..\/kiss_fft.c kiss_fastfir.c$/;"	t
+$(FASTFILTREAL)	kissfft/tools/Makefile	/^$(FASTFILTREAL): ..\/kiss_fft.c kiss_fastfir.c kiss_fftr.c$/;"	t
+$(FFTUTIL)	kissfft/tools/Makefile	/^$(FFTUTIL): ..\/kiss_fft.c fftutil.c kiss_fftnd.c kiss_fftr.c kiss_fftndr.c$/;"	t
+$(PSDPNG)	kissfft/tools/Makefile	/^$(PSDPNG): ..\/kiss_fft.c psdpng.c kiss_fftr.c$/;"	t
+$(SELFTEST)	kissfft/test/Makefile	/^$(SELFTEST): $(SELFTESTSRC) $(SRCFILES)$/;"	t
+$(TESTKFC)	kissfft/test/Makefile	/^$(TESTKFC): $(SRCFILES) $/;"	t
+$(TESTREAL)	kissfft/test/Makefile	/^$(TESTREAL): test_real.c $(SRCFILES)$/;"	t
+AUTHOR	kissfft/README.md	/^## AUTHOR$/;"	s
+BACKGROUND	kissfft/README.md	/^## BACKGROUND$/;"	s
+BENCHFFTW	kissfft/test/Makefile	/^BENCHFFTW=bm_fftw_$(DATATYPE)$/;"	m
+BENCHKISS	kissfft/test/Makefile	/^BENCHKISS=bm_kiss_$(DATATYPE)$/;"	m
+CFLAGS	kissfft/test/Makefile	/^CFLAGS=-O3 -I.. -I..\/tools $(WARNINGS)$/;"	m
+CFLAGS	kissfft/tools/Makefile	/^CFLAGS=-Wall -O3 $(WARNINGS) $/;"	m
+CHECKNULL	kissfft/tools/psdpng.c	/^#define CHECKNULL(/;"	d	file:
+CHECK_OVERFLOW_OP	kissfft/_kiss_fft_guts.h	/^#  define CHECK_OVERFLOW_OP(/;"	d
+CPXTYPE	kissfft/test/benchfftw.c	/^#define CPXTYPE /;"	d	file:
+CXXFLAGS	kissfft/test/Makefile	/^CXXFLAGS=-O3 -ffast-math -fomit-frame-pointer  -I.. -I..\/tools -W -Wall -march=native -mtune=na/;"	m
+C_ADD	kissfft/_kiss_fft_guts.h	/^#define  C_ADD(/;"	d
+C_ADDTO	kissfft/_kiss_fft_guts.h	/^#define C_ADDTO(/;"	d
+C_FIXDIV	kissfft/_kiss_fft_guts.h	/^#   define C_FIXDIV(/;"	d
+C_MUL	kissfft/_kiss_fft_guts.h	/^#   define C_MUL(/;"	d
+C_MUL	kissfft/_kiss_fft_guts.h	/^#define C_MUL(/;"	d
+C_MULBYSCALAR	kissfft/_kiss_fft_guts.h	/^#   define C_MULBYSCALAR(/;"	d
+C_SUB	kissfft/_kiss_fft_guts.h	/^#define  C_SUB(/;"	d
+C_SUBFROM	kissfft/_kiss_fft_guts.h	/^#define C_SUBFROM(/;"	d
+DATATYPE	kissfft/test/Makefile	/^ DATATYPE=float$/;"	m
+DATATYPE	kissfft/tools/Makefile	/^ DATATYPE=float$/;"	m
+DESTROYPLAN	kissfft/test/benchfftw.c	/^#define DESTROYPLAN /;"	d	file:
+DIVSCALAR	kissfft/_kiss_fft_guts.h	/^#   define DIVSCALAR(/;"	d
+DOFFT	kissfft/test/benchfftw.c	/^#define DOFFT /;"	d	file:
+DUMPHDR	kissfft/tools/Makefile	/^DUMPHDR=dumphdr_$(DATATYPE)$/;"	m
+FAILIF	kissfft/test/doit.c	/^#define FAILIF(/;"	d	file:
+FASTFILT	kissfft/tools/Makefile	/^FASTFILT=fastconv_$(DATATYPE)$/;"	m
+FASTFILTREAL	kissfft/test/Makefile	/^FASTFILTREAL=ffr_$(DATATYPE)$/;"	m
+FASTFILTREAL	kissfft/tools/Makefile	/^FASTFILTREAL=fastconvr_$(DATATYPE)$/;"	m
+FFT	kissfft/test/testcpp.cc	/^    typedef kissfft<T> FFT;$/;"	t	function:dotest	typeref:typename:kissfft<T>	file:
+FFTFREE	kissfft/test/benchfftw.c	/^#define FFTFREE /;"	d	file:
+FFTFWD	kissfft/tools/kiss_fastfir.c	/^#define FFTFWD /;"	d	file:
+FFTINV	kissfft/tools/kiss_fastfir.c	/^#define FFTINV /;"	d	file:
+FFTMALLOC	kissfft/test/benchfftw.c	/^#define FFTMALLOC /;"	d	file:
+FFTUTIL	kissfft/tools/Makefile	/^FFTUTIL=fft_$(DATATYPE)$/;"	m
+FFTWLIB	kissfft/test/Makefile	/^ FFTWLIB=-lfftw3$/;"	m
+FFTWLIB	kissfft/test/Makefile	/^ FFTWLIB=-lfftw3f$/;"	m
+FFTWLIBDIR	kissfft/test/Makefile	/^FFTWLIBDIR=-L\/usr\/local\/lib\/$/;"	m
+FFT_ALLOC	kissfft/tools/kiss_fastfir.c	/^#define FFT_ALLOC /;"	d	file:
+FRACBITS	kissfft/_kiss_fft_guts.h	/^# define FRACBITS /;"	d
+FREQUENTLY ASKED QUESTIONS:	kissfft/README.md	/^## FREQUENTLY ASKED QUESTIONS:$/;"	s
+HALF_OF	kissfft/_kiss_fft_guts.h	/^#  define HALF_OF(/;"	d
+KFC_H	kissfft/tools/kfc.h	/^#define KFC_H$/;"	d
+KFVER	kissfft/Makefile	/^KFVER=131$/;"	m
+KISS FFT [![Build Status](https://travis-ci.com/mborgerding/kissfft.svg?branch=master)](https://travis-ci.com/mborgerding/kissfft)	kissfft/README.md	/^# KISS FFT [![Build Status](https:\/\/travis-ci.com\/mborgerding\/kissfft.svg?branch=master)](ht/;"	c
+KISSFFT_CLASS_HH	kissfft/kissfft.hh	/^#define KISSFFT_CLASS_HH$/;"	d
+KISSFFT_I32_CLASS_HH	kissfft/kissfft_i32.hh	/^#define KISSFFT_I32_CLASS_HH$/;"	d
+KISS_FFTND_H	kissfft/tools/kiss_fftnd.h	/^#define KISS_FFTND_H$/;"	d
+KISS_FFT_COS	kissfft/_kiss_fft_guts.h	/^#  define KISS_FFT_COS(/;"	d
+KISS_FFT_FREE	kissfft/kiss_fft.h	/^#  define KISS_FFT_FREE /;"	d
+KISS_FFT_H	kissfft/kiss_fft.h	/^#define KISS_FFT_H$/;"	d
+KISS_FFT_MALLOC	kissfft/kiss_fft.h	/^#  define KISS_FFT_MALLOC(/;"	d
+KISS_FFT_SIN	kissfft/_kiss_fft_guts.h	/^#  define KISS_FFT_SIN(/;"	d
+KISS_FFT_TMP_ALLOC	kissfft/_kiss_fft_guts.h	/^#define  KISS_FFT_TMP_ALLOC(/;"	d
+KISS_FFT_TMP_FREE	kissfft/_kiss_fft_guts.h	/^#define  KISS_FFT_TMP_FREE(/;"	d
+KISS_FTR_H	kissfft/tools/kiss_fftr.h	/^#define KISS_FTR_H$/;"	d
+KISS_NDR_H	kissfft/tools/kiss_fftndr.h	/^#define KISS_NDR_H$/;"	d
+LICENSE	kissfft/README.md	/^## LICENSE$/;"	s
+MAKEPLAN	kissfft/test/benchfftw.c	/^#define MAKEPLAN /;"	d	file:
+MAX	kissfft/tools/kiss_fftndr.c	/^#define MAX(/;"	d	file:
+MAXFACTORS	kissfft/_kiss_fft_guts.h	/^#define MAXFACTORS /;"	d
+MIN_FFT_LEN	kissfft/tools/kiss_fastfir.c	/^#define MIN_FFT_LEN /;"	d	file:
+NFFT	kissfft/test/Makefile	/^ NFFT=1800$/;"	m
+NUMFFTS	kissfft/test/Makefile	/^ NUMFFTS=10000$/;"	m
+NUMFFTS	kissfft/test/test_real.c	/^#define NUMFFTS /;"	d	file:
+PERFORMANCE	kissfft/README.md	/^## PERFORMANCE$/;"	s
+PLAN	kissfft/test/benchfftw.c	/^#define PLAN /;"	d	file:
+PSDPNG	kissfft/tools/Makefile	/^PSDPNG=psdpng_$(DATATYPE)$/;"	m
+PSTATS_H	kissfft/test/pstats.h	/^#define PSTATS_H$/;"	d
+SAMPPROD	kissfft/_kiss_fft_guts.h	/^# define SAMPPROD /;"	d
+SAMP_MAX	kissfft/_kiss_fft_guts.h	/^#define SAMP_MAX /;"	d
+SAMP_MIN	kissfft/_kiss_fft_guts.h	/^#define SAMP_MIN /;"	d
+SELFTEST	kissfft/test/Makefile	/^SELFTEST=st_$(DATATYPE)$/;"	m
+SELFTESTSRC	kissfft/test/Makefile	/^SELFTESTSRC=twotonetest.c$/;"	m
+SHARED	kissfft/Makefile	/^	SHARED := -Wl,-install_name,libkissfft.dylib -o libkissfft.dylib$/;"	m
+SHARED	kissfft/Makefile	/^	SHARED := -Wl,-soname,libkissfft.so -o libkissfft.so$/;"	m
+SRCFILES	kissfft/test/Makefile	/^SRCFILES=..\/kiss_fft.c ..\/tools\/kiss_fftnd.c ..\/tools\/kiss_fftr.c pstats.c ..\/tools\/kfc.c/;"	m
+S_MUL	kissfft/_kiss_fft_guts.h	/^#   define S_MUL(/;"	d
+TESTKFC	kissfft/test/Makefile	/^TESTKFC=tkfc_$(DATATYPE)$/;"	m
+TESTREAL	kissfft/test/Makefile	/^TESTREAL=tr_$(DATATYPE)$/;"	m
+TODO	kissfft/README.md	/^## TODO$/;"	s
+TYPEFLAGS	kissfft/test/Makefile	/^ TYPEFLAGS=-DFIXED_POINT=16$/;"	m
+TYPEFLAGS	kissfft/test/Makefile	/^ TYPEFLAGS=-DFIXED_POINT=32 $/;"	m
+TYPEFLAGS	kissfft/test/Makefile	/^ TYPEFLAGS=-DUSE_SIMD=1 -msse$/;"	m
+TYPEFLAGS	kissfft/test/Makefile	/^TYPEFLAGS=-Dkiss_fft_scalar=$(DATATYPE)$/;"	m
+TYPEFLAGS	kissfft/tools/Makefile	/^ TYPEFLAGS=-DFIXED_POINT=16$/;"	m
+TYPEFLAGS	kissfft/tools/Makefile	/^ TYPEFLAGS=-DFIXED_POINT=32$/;"	m
+TYPEFLAGS	kissfft/tools/Makefile	/^ TYPEFLAGS=-DUSE_SIMD=1 -msse$/;"	m
+TYPEFLAGS	kissfft/tools/Makefile	/^ TYPEFLAGS=-Dkiss_fft_scalar=$(DATATYPE)$/;"	m
+UNDER THE HOOD	kissfft/README.md	/^## UNDER THE HOOD$/;"	s
+USAGE:	kissfft/README.md	/^## USAGE:$/;"	s
+WARNINGS	kissfft/test/Makefile	/^WARNINGS=-W -Wall -Wstrict-prototypes -Wmissing-prototypes -Waggregate-return \\$/;"	m
+WARNINGS	kissfft/tools/Makefile	/^WARNINGS=-W -Wall -Wstrict-prototypes -Wmissing-prototypes -Waggregate-return \\$/;"	m
+WIN	main.c	/^#define WIN /;"	d	file:
+__anon5b1dcdab0108	kissfft/tools/psdpng.c	/^{$/;"	s	file:
+__anonea769a3d0108	kissfft/kiss_fft.h	/^typedef struct {$/;"	s
+_inverse	kissfft/kissfft.hh	/^        bool _inverse;$/;"	m	class:kissfft	typeref:typename:bool
+_inverse	kissfft/kissfft_i32.hh	/^    bool _inverse;$/;"	m	class:kissfft_i32	typeref:typename:bool
+_nfft	kissfft/kissfft.hh	/^        std::size_t _nfft;$/;"	m	class:kissfft	typeref:typename:std::size_t
+_nfft	kissfft/kissfft_i32.hh	/^    std::size_t _nfft;$/;"	m	class:kissfft_i32	typeref:typename:std::size_t
+_scale_factor	kissfft/kissfft_i32.hh	/^    scalar_type _scale_factor;$/;"	m	class:kissfft_i32	typeref:typename:scalar_type
+_scratchbuf	kissfft/kissfft.hh	/^        mutable std::vector<cpx_t> _scratchbuf;$/;"	m	class:kissfft	typeref:typename:std::vector<cpx_t>
+_stageRadix	kissfft/kissfft.hh	/^        std::vector<std::size_t> _stageRadix;$/;"	m	class:kissfft	typeref:typename:std::vector<std::size_t>
+_stageRadix	kissfft/kissfft_i32.hh	/^    std::vector<std::size_t> _stageRadix;$/;"	m	class:kissfft_i32	typeref:typename:std::vector<std::size_t>
+_stageRemainder	kissfft/kissfft.hh	/^        std::vector<std::size_t> _stageRemainder;$/;"	m	class:kissfft	typeref:typename:std::vector<std::size_t>
+_stageRemainder	kissfft/kissfft_i32.hh	/^    std::vector<std::size_t> _stageRemainder;$/;"	m	class:kissfft_i32	typeref:typename:std::vector<std::size_t>
+_twiddles	kissfft/kissfft.hh	/^        std::vector<cpx_t> _twiddles;$/;"	m	class:kissfft	typeref:typename:std::vector<cpx_t>
+_twiddles	kissfft/kissfft_i32.hh	/^    std::vector<cpx_type> _twiddles;$/;"	m	class:kissfft_i32	typeref:typename:std::vector<cpx_type>
+all	kissfft/Makefile	/^all:$/;"	t
+all	kissfft/test/Makefile	/^all: tools $(BENCHKISS) $(SELFTEST) $(BENCHFFTW) $(TESTREAL) $(TESTKFC)$/;"	t
+all	kissfft/tools/Makefile	/^all: $(FFTUTIL) $(FASTFILT) $(FASTFILTREAL) $/;"	t
+asm	kissfft/Makefile	/^asm: kiss_fft.s$/;"	t
+assign	kissfft/kissfft.hh	/^        void assign( const std::size_t nfft,$/;"	f	class:kissfft	typeref:typename:void
+b	kissfft/tools/psdpng.c	/^    png_byte b;$/;"	m	struct:__anon5b1dcdab0108	typeref:typename:png_byte	file:
+cache_root	kissfft/tools/kfc.c	/^static kfc_cfg cache_root=NULL;$/;"	v	typeref:typename:kfc_cfg	file:
+cached_fft	kissfft/tools/kfc.c	/^struct cached_fft$/;"	s	file:
+can_do	kissfft/test/doit.c	/^int can_do(struct problem *p)$/;"	f
+cfg	kissfft/test/doit.c	/^static kiss_fft_cfg cfg=NULL;$/;"	v	typeref:typename:kiss_fft_cfg	file:
+cfg	kissfft/tools/kfc.c	/^    kiss_fft_cfg cfg;$/;"	m	struct:cached_fft	typeref:typename:kiss_fft_cfg	file:
+cfg_nd	kissfft/tools/kiss_fftndr.c	/^    kiss_fftnd_cfg cfg_nd;$/;"	m	struct:kiss_fftndr_state	typeref:typename:kiss_fftnd_cfg	file:
+cfg_r	kissfft/tools/kiss_fftndr.c	/^    kiss_fftr_cfg cfg_r;$/;"	m	struct:kiss_fftndr_state	typeref:typename:kiss_fftr_cfg	file:
+cfgnd	kissfft/test/doit.c	/^static kiss_fftnd_cfg cfgnd=NULL;$/;"	v	typeref:typename:kiss_fftnd_cfg	file:
+cfgr	kissfft/test/doit.c	/^static kiss_fftr_cfg cfgr=NULL;$/;"	v	typeref:typename:kiss_fftr_cfg	file:
+check	kissfft/tools/kfc.c	/^static void check(int nc)$/;"	f	typeref:typename:void	file:
+clean	kissfft/Makefile	/^clean:$/;"	t
+clean	kissfft/test/Makefile	/^clean:$/;"	t
+clean	kissfft/tools/Makefile	/^clean:$/;"	t
+complex_s	kissfft/kissfft_i32.hh	/^struct complex_s$/;"	s
+config	kissfft/tools/psdpng.c	/^void config(int argc,char** argv)$/;"	f	typeref:typename:void	file:
+cputime	kissfft/test/test_real.c	/^static double cputime(void)$/;"	f	typeref:typename:double	file:
+cpx2pixels	kissfft/tools/psdpng.c	/^void cpx2pixels(rgb_t * res,const float * fbuf,size_t n)$/;"	f	typeref:typename:void	file:
+cpx_t	kissfft/kissfft.hh	/^        typedef std::complex<scalar_t> cpx_t;$/;"	t	class:kissfft	typeref:typename:std::complex<scalar_t>
+cpx_type	kissfft/kissfft_i32.hh	/^    using cpx_type    = complex<int32_t>;$/;"	t	class:kissfft_i32	typeref:typename:complex<int32_t>
+cpx_type	kissfft/test/testcpp.cc	/^    typedef std::complex<T> cpx_type;$/;"	t	function:dotest	typeref:typename:std::complex<T>	file:
+curtime	kissfft/test/testcpp.cc	/^double curtime(void)$/;"	f	typeref:typename:double	file:
+datatype	kissfft/test/testkiss.py	/^datatype = os.environ.get('DATATYPE','float')$/;"	v
+dimOther	kissfft/tools/kiss_fftndr.c	/^    int dimOther;$/;"	m	struct:kiss_fftndr_state	typeref:typename:int	file:
+dimReal	kissfft/tools/kiss_fftndr.c	/^    int dimReal;$/;"	m	struct:kiss_fftndr_state	typeref:typename:int	file:
+dimprod	kissfft/tools/kiss_fftnd.c	/^    int dimprod; \/* dimsum would be mighty tasty right now *\/$/;"	m	struct:kiss_fftnd_state	typeref:typename:int	file:
+dims	kissfft/tools/kiss_fftnd.c	/^    int *dims;$/;"	m	struct:kiss_fftnd_state	typeref:typename:int *	file:
+direct_file_filter	kissfft/tools/kiss_fastfir.c	/^void direct_file_filter($/;"	f	typeref:typename:void	file:
+do_file_filter	kissfft/tools/kiss_fastfir.c	/^void do_file_filter($/;"	f	typeref:typename:void	file:
+doc	kissfft/Makefile	/^doc:$/;"	t
+dofft	kissfft/test/testkiss.py	/^def dofft(x,isreal):$/;"	f
+doit	kissfft/test/doit.c	/^void doit(int iter, struct problem *p)$/;"	f	typeref:typename:void
+done	kissfft/test/doit.c	/^void done(struct problem *p)$/;"	f	typeref:typename:void
+dopack	kissfft/test/testkiss.py	/^def dopack(x,cpx=1):$/;"	f
+doreal	kissfft/test/testkiss.py	/^doreal=0$/;"	v
+dotest	kissfft/test/testcpp.cc	/^void dotest(int nfft)$/;"	f	typeref:typename:void
+dounpack	kissfft/test/testkiss.py	/^def dounpack(x,cpx):$/;"	f
+e	kissfft/test/testkiss.py	/^e=math.e$/;"	v
+factors	kissfft/_kiss_fft_guts.h	/^    int factors[2*MAXFACTORS];$/;"	m	struct:kiss_fft_state	typeref:typename:int[]
+fastconv1buf	kissfft/tools/kiss_fastfir.c	/^static void fastconv1buf(const kiss_fastfir_cfg st,const kffsamp_t * in,kffsamp_t * out)$/;"	f	typeref:typename:void	file:
+fft_file	kissfft/tools/fftutil.c	/^void fft_file(FILE * fin,FILE * fout,int nfft,int isinverse)$/;"	f	typeref:typename:void	file:
+fft_file_real	kissfft/tools/fftutil.c	/^void fft_file_real(FILE * fin,FILE * fout,int nfft,int isinverse)$/;"	f	typeref:typename:void	file:
+fft_filend	kissfft/tools/fftutil.c	/^void fft_filend(FILE * fin,FILE * fout,int *dims,int ndims,int isinverse)$/;"	f	typeref:typename:void	file:
+fft_filend_real	kissfft/tools/fftutil.c	/^void fft_filend_real(FILE * fin,FILE * fout,int *dims,int ndims,int isinverse)$/;"	f	typeref:typename:void	file:
+fftcfg	kissfft/tools/kiss_fastfir.c	/^    kfcfg_t fftcfg;$/;"	m	struct:kiss_fastfir_state	typeref:typename:kfcfg_t	file:
+fin	kissfft/tools/psdpng.c	/^FILE * fin=NULL;$/;"	v	typeref:typename:FILE *
+find_cached_fft	kissfft/tools/kfc.c	/^static kiss_fft_cfg find_cached_fft(int nfft,int inverse)$/;"	f	typeref:typename:kiss_fft_cfg	file:
+fir_freq_resp	kissfft/tools/kiss_fastfir.c	/^    kiss_fft_cpx * fir_freq_resp;$/;"	m	struct:kiss_fastfir_state	typeref:typename:kiss_fft_cpx *	file:
+flatten	kissfft/test/testkiss.py	/^def flatten(x):$/;"	f
+fmt	kissfft/test/testkiss.py	/^    fmt='4f'$/;"	v
+fmt	kissfft/test/testkiss.py	/^    fmt='d'$/;"	v
+fmt	kissfft/test/testkiss.py	/^    fmt='f'$/;"	v
+fmt	kissfft/test/testkiss.py	/^    fmt='h'$/;"	v
+fmt	kissfft/test/testkiss.py	/^    fmt='i'$/;"	v
+fout	kissfft/tools/psdpng.c	/^FILE * fout=NULL;$/;"	v	typeref:typename:FILE *
+freqbuf	kissfft/tools/kiss_fastfir.c	/^    kiss_fft_cpx * freqbuf;$/;"	m	struct:kiss_fastfir_state	typeref:typename:kiss_fft_cpx *	file:
+g	kissfft/tools/psdpng.c	/^    png_byte g;$/;"	m	struct:__anon5b1dcdab0108	typeref:typename:png_byte	file:
+get_dims	kissfft/tools/fftutil.c	/^int get_dims(char * arg,int * dims)$/;"	f	typeref:typename:int	file:
+getdims	kissfft/test/benchkiss.c	/^int getdims(int * dims, char * arg)$/;"	f	typeref:typename:int	file:
+has_times	kissfft/test/pstats.c	/^static int has_times = 0;$/;"	v	typeref:typename:int	file:
+i	kissfft/kiss_fft.h	/^    kiss_fft_scalar i;$/;"	m	struct:__anonea769a3d0108	typeref:typename:kiss_fft_scalar
+ifftcfg	kissfft/tools/kiss_fastfir.c	/^    kfcfg_t ifftcfg;$/;"	m	struct:kiss_fastfir_state	typeref:typename:kfcfg_t	file:
+imag	kissfft/kissfft_i32.hh	/^    DType imag;$/;"	m	struct:complex_s	typeref:typename:DType
+install	kissfft/Makefile	/^install: all$/;"	t
+inverse	kissfft/_kiss_fft_guts.h	/^    int inverse;$/;"	m	struct:kiss_fft_state	typeref:typename:int
+inverse	kissfft/tools/kfc.c	/^    int inverse;$/;"	m	struct:cached_fft	typeref:typename:int	file:
+kf_bfly2	kissfft/kiss_fft.c	/^static void kf_bfly2($/;"	f	typeref:typename:void	file:
+kf_bfly2	kissfft/kissfft.hh	/^        void kf_bfly2( cpx_t * Fout, const size_t fstride, const std::size_t m) const$/;"	f	class:kissfft	typeref:typename:void
+kf_bfly2	kissfft/kissfft_i32.hh	/^    void kf_bfly2(cpx_type *const Fout, const size_t fstride, const std::size_t m) const$/;"	f	class:kissfft_i32	typeref:typename:void
+kf_bfly3	kissfft/kiss_fft.c	/^static void kf_bfly3($/;"	f	typeref:typename:void	file:
+kf_bfly3	kissfft/kissfft.hh	/^        void kf_bfly3( cpx_t * Fout, const std::size_t fstride, const std::size_t m) const$/;"	f	class:kissfft	typeref:typename:void
+kf_bfly3	kissfft/kissfft_i32.hh	/^    void kf_bfly3(cpx_type *Fout, const std::size_t fstride, const std::size_t m) const$/;"	f	class:kissfft_i32	typeref:typename:void
+kf_bfly4	kissfft/kiss_fft.c	/^static void kf_bfly4($/;"	f	typeref:typename:void	file:
+kf_bfly4	kissfft/kissfft.hh	/^        void kf_bfly4( cpx_t * const Fout, const std::size_t fstride, const std::size_t m) const$/;"	f	class:kissfft	typeref:typename:void
+kf_bfly4	kissfft/kissfft_i32.hh	/^    void kf_bfly4(cpx_type *const Fout, const std::size_t fstride, const std::size_t m) const$/;"	f	class:kissfft_i32	typeref:typename:void
+kf_bfly5	kissfft/kiss_fft.c	/^static void kf_bfly5($/;"	f	typeref:typename:void	file:
+kf_bfly5	kissfft/kissfft.hh	/^        void kf_bfly5( cpx_t * const Fout, const std::size_t fstride, const std::size_t m) const$/;"	f	class:kissfft	typeref:typename:void
+kf_bfly5	kissfft/kissfft_i32.hh	/^    void kf_bfly5(cpx_type *const Fout, const std::size_t fstride, const std::size_t m) const$/;"	f	class:kissfft_i32	typeref:typename:void
+kf_bfly_generic	kissfft/kiss_fft.c	/^static void kf_bfly_generic($/;"	f	typeref:typename:void	file:
+kf_bfly_generic	kissfft/kissfft.hh	/^        void kf_bfly_generic($/;"	f	class:kissfft	typeref:typename:void
+kf_bfly_generic	kissfft/kissfft_i32.hh	/^    void kf_bfly_generic(cpx_type * const Fout, const size_t fstride, const std::size_t m, const/;"	f	class:kissfft_i32	typeref:typename:void
+kf_cexp	kissfft/_kiss_fft_guts.h	/^#define  kf_cexp(/;"	d
+kf_factor	kissfft/kiss_fft.c	/^void kf_factor(int n,int * facbuf)$/;"	f	typeref:typename:void	file:
+kf_work	kissfft/kiss_fft.c	/^void kf_work($/;"	f	typeref:typename:void	file:
+kfc_cfg	kissfft/tools/kfc.c	/^typedef struct cached_fft *kfc_cfg;$/;"	t	typeref:struct:cached_fft *	file:
+kfc_cleanup	kissfft/tools/kfc.c	/^void kfc_cleanup(void)$/;"	f	typeref:typename:void
+kfc_fft	kissfft/tools/kfc.c	/^void kfc_fft(int nfft, const kiss_fft_cpx * fin,kiss_fft_cpx * fout)$/;"	f	typeref:typename:void
+kfc_ifft	kissfft/tools/kfc.c	/^void kfc_ifft(int nfft, const kiss_fft_cpx * fin,kiss_fft_cpx * fout)$/;"	f	typeref:typename:void
+kfcfg_t	kissfft/tools/kiss_fastfir.c	/^typedef kiss_fft_cfg kfcfg_t;$/;"	t	typeref:typename:kiss_fft_cfg	file:
+kfcfg_t	kissfft/tools/kiss_fastfir.c	/^typedef kiss_fftr_cfg kfcfg_t;$/;"	t	typeref:typename:kiss_fftr_cfg	file:
+kff_flush	kissfft/tools/kiss_fastfir.c	/^size_t kff_flush(kiss_fastfir_cfg st,const kffsamp_t * inbuf,kffsamp_t * outbuf,size_t n)$/;"	f	typeref:typename:size_t	file:
+kff_nocopy	kissfft/tools/kiss_fastfir.c	/^static size_t kff_nocopy($/;"	f	typeref:typename:size_t	file:
+kffsamp_t	kissfft/tools/kiss_fastfir.c	/^typedef kiss_fft_cpx kffsamp_t;$/;"	t	typeref:typename:kiss_fft_cpx	file:
+kffsamp_t	kissfft/tools/kiss_fastfir.c	/^typedef kiss_fft_scalar kffsamp_t;$/;"	t	typeref:typename:kiss_fft_scalar	file:
+kiss_fastfir	kissfft/tools/kiss_fastfir.c	/^size_t kiss_fastfir($/;"	f	typeref:typename:size_t
+kiss_fastfir_alloc	kissfft/tools/kiss_fastfir.c	/^kiss_fastfir_cfg kiss_fastfir_alloc($/;"	f	typeref:typename:kiss_fastfir_cfg
+kiss_fastfir_cfg	kissfft/tools/kiss_fastfir.c	/^typedef struct kiss_fastfir_state *kiss_fastfir_cfg;$/;"	t	typeref:struct:kiss_fastfir_state *	file:
+kiss_fastfir_state	kissfft/tools/kiss_fastfir.c	/^struct kiss_fastfir_state{$/;"	s	file:
+kiss_fft	kissfft/kiss_fft.c	/^void kiss_fft(kiss_fft_cfg cfg,const kiss_fft_cpx *fin,kiss_fft_cpx *fout)$/;"	f	typeref:typename:void
+kiss_fft.s	kissfft/Makefile	/^kiss_fft.s: kiss_fft.c kiss_fft.h _kiss_fft_guts.h$/;"	t
+kiss_fft_alloc	kissfft/kiss_fft.c	/^kiss_fft_cfg kiss_fft_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem )$/;"	f	typeref:typename:kiss_fft_cfg
+kiss_fft_cfg	kissfft/kiss_fft.h	/^typedef struct kiss_fft_state* kiss_fft_cfg;$/;"	t	typeref:struct:kiss_fft_state *
+kiss_fft_cleanup	kissfft/kiss_fft.c	/^void kiss_fft_cleanup(void)$/;"	f	typeref:typename:void
+kiss_fft_cpx	kissfft/kiss_fft.h	/^}kiss_fft_cpx;$/;"	t	typeref:struct:__anonea769a3d0108
+kiss_fft_free	kissfft/kiss_fft.h	/^#define kiss_fft_free /;"	d
+kiss_fft_next_fast_size	kissfft/kiss_fft.c	/^int kiss_fft_next_fast_size(int n)$/;"	f	typeref:typename:int
+kiss_fft_scalar	kissfft/kiss_fft.h	/^#  define kiss_fft_scalar /;"	d
+kiss_fft_scalar	kissfft/kiss_fft.h	/^# define kiss_fft_scalar /;"	d
+kiss_fft_state	kissfft/_kiss_fft_guts.h	/^struct kiss_fft_state{$/;"	s
+kiss_fft_stride	kissfft/kiss_fft.c	/^void kiss_fft_stride(kiss_fft_cfg st,const kiss_fft_cpx *fin,kiss_fft_cpx *fout,int in_stride)$/;"	f	typeref:typename:void
+kiss_fftnd	kissfft/tools/kiss_fftnd.c	/^void kiss_fftnd(kiss_fftnd_cfg st,const kiss_fft_cpx *fin,kiss_fft_cpx *fout)$/;"	f	typeref:typename:void
+kiss_fftnd_alloc	kissfft/tools/kiss_fftnd.c	/^kiss_fftnd_cfg kiss_fftnd_alloc(const int *dims,int ndims,int inverse_fft,void*mem,size_t*lenmem/;"	f	typeref:typename:kiss_fftnd_cfg
+kiss_fftnd_cfg	kissfft/tools/kiss_fftnd.h	/^typedef struct kiss_fftnd_state * kiss_fftnd_cfg;$/;"	t	typeref:struct:kiss_fftnd_state *
+kiss_fftnd_state	kissfft/tools/kiss_fftnd.c	/^struct kiss_fftnd_state{$/;"	s	file:
+kiss_fftndr	kissfft/tools/kiss_fftndr.c	/^void kiss_fftndr(kiss_fftndr_cfg st,const kiss_fft_scalar *timedata,kiss_fft_cpx *freqdata)$/;"	f	typeref:typename:void
+kiss_fftndr_alloc	kissfft/tools/kiss_fftndr.c	/^kiss_fftndr_cfg kiss_fftndr_alloc(const int *dims,int ndims,int inverse_fft,void*mem,size_t*lenm/;"	f	typeref:typename:kiss_fftndr_cfg
+kiss_fftndr_cfg	kissfft/tools/kiss_fftndr.h	/^typedef struct kiss_fftndr_state *kiss_fftndr_cfg;$/;"	t	typeref:struct:kiss_fftndr_state *
+kiss_fftndr_free	kissfft/tools/kiss_fftndr.h	/^#define kiss_fftndr_free /;"	d
+kiss_fftndr_state	kissfft/tools/kiss_fftndr.c	/^struct kiss_fftndr_state$/;"	s	file:
+kiss_fftndri	kissfft/tools/kiss_fftndr.c	/^void kiss_fftndri(kiss_fftndr_cfg st,const kiss_fft_cpx *freqdata,kiss_fft_scalar *timedata)$/;"	f	typeref:typename:void
+kiss_fftr	kissfft/tools/kiss_fftr.c	/^void kiss_fftr(kiss_fftr_cfg st,const kiss_fft_scalar *timedata,kiss_fft_cpx *freqdata)$/;"	f	typeref:typename:void
+kiss_fftr_alloc	kissfft/tools/kiss_fftr.c	/^kiss_fftr_cfg kiss_fftr_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem)$/;"	f	typeref:typename:kiss_fftr_cfg
+kiss_fftr_cfg	kissfft/tools/kiss_fftr.h	/^typedef struct kiss_fftr_state *kiss_fftr_cfg;$/;"	t	typeref:struct:kiss_fftr_state *
+kiss_fftr_free	kissfft/tools/kiss_fftr.h	/^#define kiss_fftr_free /;"	d
+kiss_fftr_next_fast_size_real	kissfft/kiss_fft.h	/^#define kiss_fftr_next_fast_size_real(/;"	d
+kiss_fftr_state	kissfft/tools/kiss_fftr.c	/^struct kiss_fftr_state{$/;"	s	file:
+kiss_fftri	kissfft/tools/kiss_fftr.c	/^void kiss_fftri(kiss_fftr_cfg st,const kiss_fft_cpx *freqdata,kiss_fft_scalar *timedata)$/;"	f	typeref:typename:void
+kissfft	kissfft/kissfft.hh	/^        kissfft( const std::size_t nfft,$/;"	f	class:kissfft
+kissfft	kissfft/kissfft.hh	/^class kissfft$/;"	c
+kissfft_i32	kissfft/kissfft_i32.hh	/^    kissfft_i32(const std::size_t nfft, const bool inverse, const double scale_factor = 1024.0)$/;"	f	class:kissfft_i32
+kissfft_i32	kissfft/kissfft_i32.hh	/^class kissfft_i32$/;"	c
+main	kissfft/test/benchfftw.c	/^int main(int argc,char ** argv)$/;"	f	typeref:typename:int
+main	kissfft/test/benchfftw.c	/^int main(void)$/;"	f	typeref:typename:int
+main	kissfft/test/benchkiss.c	/^int main(int argc,char ** argv)$/;"	f	typeref:typename:int
+main	kissfft/test/test_real.c	/^int main(int argc,char ** argv)$/;"	f	typeref:typename:int
+main	kissfft/test/testcpp.cc	/^int main(int argc,char ** argv)$/;"	f	typeref:typename:int
+main	kissfft/test/testkiss.py	/^def main():$/;"	f
+main	kissfft/test/twotonetest.c	/^int main(int argc,char ** argv)$/;"	f	typeref:typename:int
+main	kissfft/tools/fftutil.c	/^int main(int argc,char ** argv)$/;"	f	typeref:typename:int
+main	kissfft/tools/kfc.c	/^int main(void)$/;"	f	typeref:typename:int
+main	kissfft/tools/kiss_fastfir.c	/^int main(int argc,char**argv)$/;"	f	typeref:typename:int
+main	kissfft/tools/psdpng.c	/^int main(int argc,char ** argv)$/;"	f	typeref:typename:int
+main	main.c	/^int main()$/;"	f	typeref:typename:int
+make_png	kissfft/tools/psdpng.c	/^void make_png(void)$/;"	f	typeref:typename:void	file:
+make_random	kissfft/test/testkiss.py	/^def make_random(dims=[1]):$/;"	f
+minsnr	kissfft/test/testkiss.py	/^    minsnr=10$/;"	v
+minsnr	kissfft/test/testkiss.py	/^minsnr=90$/;"	v
+n_freq_bins	kissfft/tools/kiss_fastfir.c	/^    size_t n_freq_bins;$/;"	m	struct:kiss_fastfir_state	typeref:typename:size_t	file:
+navg	kissfft/tools/psdpng.c	/^int navg=20;$/;"	v	typeref:typename:int
+ncached	kissfft/tools/kfc.c	/^static int ncached=0;$/;"	v	typeref:typename:int	file:
+ndims	kissfft/tools/kiss_fftnd.c	/^    int ndims; $/;"	m	struct:kiss_fftnd_state	typeref:typename:int	file:
+next	kissfft/tools/kfc.c	/^    kfc_cfg next;$/;"	m	struct:cached_fft	typeref:typename:kfc_cfg	file:
+nfft	kissfft/_kiss_fft_guts.h	/^    int nfft;$/;"	m	struct:kiss_fft_state	typeref:typename:int
+nfft	kissfft/tools/kfc.c	/^    int nfft;$/;"	m	struct:cached_fft	typeref:typename:int	file:
+nfft	kissfft/tools/kiss_fastfir.c	/^    size_t nfft;$/;"	m	struct:kiss_fastfir_state	typeref:typename:size_t	file:
+nfft	kissfft/tools/psdpng.c	/^int nfft=1024;$/;"	v	typeref:typename:int
+ngood	kissfft/tools/kiss_fastfir.c	/^    size_t ngood;$/;"	m	struct:kiss_fastfir_state	typeref:typename:size_t	file:
+nrows	kissfft/tools/psdpng.c	/^int nrows=0;$/;"	v	typeref:typename:int
+pad	kissfft/tools/kiss_fftr.c	/^    void * pad;$/;"	m	struct:kiss_fftr_state	typeref:typename:void *	file:
+pcpx	kissfft/_kiss_fft_guts.h	/^#define pcpx(/;"	d
+pi	kissfft/test/testkiss.py	/^pi=math.pi$/;"	v
+prod	kissfft/tools/kiss_fftndr.c	/^static int prod(const int *dims, int ndims)$/;"	f	typeref:typename:int	file:
+ps_report	kissfft/test/pstats.c	/^static void ps_report(void)$/;"	f	typeref:typename:void	file:
+pstats_init	kissfft/test/pstats.c	/^void pstats_init(void)$/;"	f	typeref:typename:void
+pstats_report	kissfft/test/pstats.c	/^void pstats_report()$/;"	f	typeref:typename:void
+r	kissfft/kiss_fft.h	/^    kiss_fft_scalar r;$/;"	m	struct:__anonea769a3d0108	typeref:typename:kiss_fft_scalar
+r	kissfft/tools/psdpng.c	/^    png_byte r;$/;"	m	struct:__anon5b1dcdab0108	typeref:typename:png_byte	file:
+rand_scalar	kissfft/test/test_real.c	/^kiss_fft_scalar rand_scalar(void) $/;"	f	typeref:typename:kiss_fft_scalar	file:
+randmat	kissfft/test/testkiss.py	/^def randmat( ndims ):$/;"	f
+real	kissfft/kissfft_i32.hh	/^    DType real;$/;"	m	struct:complex_s	typeref:typename:DType
+remove_dc	kissfft/tools/psdpng.c	/^int remove_dc=0;$/;"	v	typeref:typename:int
+rgb_t	kissfft/tools/psdpng.c	/^} rgb_t;$/;"	t	typeref:struct:__anon5b1dcdab0108	file:
+scalar_type	kissfft/kissfft_i32.hh	/^    using scalar_type = int32_t;$/;"	t	class:kissfft_i32	typeref:typename:int32_t
+setup	kissfft/test/doit.c	/^void setup(struct problem *p)$/;"	f	typeref:typename:void
+smul	kissfft/_kiss_fft_guts.h	/^#   define smul(/;"	d
+snr_compare	kissfft/test/test_real.c	/^double snr_compare( kiss_fft_cpx * vec1,kiss_fft_cpx * vec2, int n)$/;"	f	typeref:typename:double	file:
+sround	kissfft/_kiss_fft_guts.h	/^#   define sround(/;"	d
+states	kissfft/tools/kiss_fftnd.c	/^    kiss_fft_cfg *states; \/* cfg states for each dimension *\/$/;"	m	struct:kiss_fftnd_state	typeref:typename:kiss_fft_cfg *	file:
+stereo	kissfft/tools/psdpng.c	/^int stereo=0;$/;"	v	typeref:typename:int
+substate	kissfft/tools/kiss_fftr.c	/^    kiss_fft_cfg substate;$/;"	m	struct:kiss_fftr_state	typeref:typename:kiss_fft_cfg	file:
+super_twiddles	kissfft/tools/kiss_fftr.c	/^    kiss_fft_cpx * super_twiddles;$/;"	m	struct:kiss_fftr_state	typeref:typename:kiss_fft_cpx *	file:
+tarball	kissfft/Makefile	/^tarball: clean$/;"	t
+test	kissfft/test/Makefile	/^test: all$/;"	t
+test_fft	kissfft/test/testkiss.py	/^def test_fft(ndims):$/;"	f
+testall	kissfft/Makefile	/^testall:$/;"	t
+testcpp	kissfft/test/Makefile	/^testcpp: testcpp.cc ..\/kissfft.hh$/;"	t
+tmpbuf	kissfft/tools/kiss_fastfir.c	/^    kffsamp_t * tmpbuf;$/;"	m	struct:kiss_fastfir_state	typeref:typename:kffsamp_t *	file:
+tmpbuf	kissfft/tools/kiss_fftnd.c	/^    kiss_fft_cpx * tmpbuf; \/*buffer capable of hold the entire input *\/$/;"	m	struct:kiss_fftnd_state	typeref:typename:kiss_fft_cpx *	file:
+tmpbuf	kissfft/tools/kiss_fftndr.c	/^    void * tmpbuf;$/;"	m	struct:kiss_fftndr_state	typeref:typename:void *	file:
+tmpbuf	kissfft/tools/kiss_fftr.c	/^    kiss_fft_cpx * tmpbuf;$/;"	m	struct:kiss_fftr_state	typeref:typename:kiss_fft_cpx *	file:
+tms_beg	kissfft/test/pstats.c	/^static struct tms tms_beg;$/;"	v	typeref:struct:tms	file:
+tms_end	kissfft/test/pstats.c	/^static struct tms tms_end;$/;"	v	typeref:struct:tms	file:
+tms_report	kissfft/test/pstats.c	/^static void tms_report(void)$/;"	f	typeref:typename:void	file:
+tools	kissfft/test/Makefile	/^tools:$/;"	t
+transform	kissfft/kissfft.hh	/^        void transform(const cpx_t * fft_in, cpx_t * fft_out, const std::size_t stage = 0, const/;"	f	class:kissfft	typeref:typename:void
+transform	kissfft/kissfft_i32.hh	/^    void transform(const cpx_type * FSrc,$/;"	f	class:kissfft_i32	typeref:typename:void
+transform_real	kissfft/kissfft.hh	/^        void transform_real( const scalar_t * const src,$/;"	f	class:kissfft	typeref:typename:void
+transform_signal	kissfft/tools/psdpng.c	/^void transform_signal(void)$/;"	f	typeref:typename:void	file:
+twiddles	kissfft/_kiss_fft_guts.h	/^    kiss_fft_cpx twiddles[1];$/;"	m	struct:kiss_fft_state	typeref:typename:kiss_fft_cpx[1]
+two_tone_test	kissfft/test/twotonetest.c	/^double two_tone_test( int nfft, int bin1,int bin2)$/;"	f	typeref:typename:double	file:
+util	kissfft/test/testkiss.py	/^util = '..\/tools\/fft_' + datatype$/;"	v
+val2rgb	kissfft/tools/psdpng.c	/^void val2rgb(float x,rgb_t *p)$/;"	f	typeref:typename:void	file:
+vals	kissfft/tools/psdpng.c	/^float * vals=NULL;$/;"	v	typeref:typename:float *
+verbose	kissfft/tools/kiss_fastfir.c	/^static int verbose=0;$/;"	v	typeref:typename:int	file:
