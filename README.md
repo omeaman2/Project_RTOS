@@ -1,6 +1,17 @@
 Project RTOS
 ---
 
+Day notes are added at the end of this file. TODO is up here for clarity.
+
+TODO
+---
+ - [] Test if KissFFT works on FreeRTOS.
+ - [✓] Add KissFFT source (perhaps as submodule) to this git.
+ - [] Check KissFFT licensing and with regard to copying of code.
+
+
+All information from last school year.
+
 > Arbitrary information
 Projectkaders RTES
 
@@ -578,6 +589,21 @@ KissFFT works wihtout a complicated Makefile, yay :D
 If KissFFT works on FreeRTOS we are not required to fully understand the `fft`
 function. We would only have to understand its input and output.
 
-TODO:
- - [] Test if KissFFT works on FreeRTOS.
- - [] Add KissFFT source (perhaps as submodule) to this git.
+## Compilation of the library
+
+Just add the files from the library to the `gcc` command.
+e.g. with a file where the following is included.
+
+```c
+#include <math.h>
+#include "kissfft/kiss_fft.h"
+int main(void) { /* code */ }
+```
+
+The compilation command should look like this:
+
+```c
+gcc -lm main.c kissfft/kiss_fft.{c,h}
+```
+
+Where `-lm` is used to link the `math.h` library.
