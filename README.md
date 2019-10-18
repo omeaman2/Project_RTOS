@@ -570,3 +570,13 @@ works, however.
 
 We could also try to find a library that does have an ifft, however most
 libraries are bit and presumambly hard to integrate with FreeRTOS.
+
+[Someone using KissFFT on a wav file](https://stackoverflow.com/questions/35735803/using-kissfft-on-a-wave-file)
+
+
+KissFFT works wihtout a complicated Makefile, yay :D
+If KissFFT works on FreeRTOS we are not required to fully understand the `fft`
+function. We would only have to understand its input and output.
+
+TODO:
+ - [] Test if it works on FreeRTOS.
