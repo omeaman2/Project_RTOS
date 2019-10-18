@@ -1,0 +1,42 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/3fdf28bc/
+N	fft_old.py	/^N = 600$/;"	v
+T	fft_old.py	/^T = 1.0 \/ 800.0$/;"	v
+ax	fft_old.py	/^fig, ax = plt.subplots()$/;"	v
+cut_off	py.py	/^cut_off = 23000$/;"	v
+fig	fft_old.py	/^fig, ax = plt.subplots()$/;"	v
+filename	py.py	/^filename = "knock.wav"$/;"	v
+flatten_freq	py.py	/^def flatten_freq(freqs, upper_bound):$/;"	f
+fourier	py.py	/^fourier = plot_fourier(signal, sample_rate)$/;"	v
+fourier_freqs	py.py	/^def fourier_freqs(original_signal, fourier_signal, sample_rate): $/;"	f
+freqs	fourier_freqs.py	/^freqs = np.fft.fftfreq(len(x))$/;"	v
+np	fourier_freqs.py	/^import numpy as np$/;"	I
+np	py.py	/^import numpy as np$/;"	I
+np	settings_ticks.py	/^import numpy as np$/;"	I
+plot_file	py.py	/^def plot_file(file):$/;"	f
+plot_fourier	py.py	/^def plot_fourier(data, sample_rate):$/;"	f
+plot_inv_fourier	py.py	/^def plot_inv_fourier(fourier, sample_rate):$/;"	f
+plt	py.py	/^import matplotlib.pyplot as plt$/;"	I
+plt	settings_ticks.py	/^import matplotlib.pyplot as plt$/;"	I
+print_signal_freqs	py.py	/^def print_signal_freqs(signal_freqs):$/;"	f
+sample_rate	py.py	/^signal, sample_rate = plot_file(filename)$/;"	v
+sf	py.py	/^import soundfile as sf$/;"	I
+show_info	py.py	/^def show_info(file):$/;"	f
+signal	py.py	/^signal, sample_rate = plot_file(filename)$/;"	v
+signal2	py.py	/^signal2 = signal$/;"	v
+signal_freqs	py.py	/^signal_freqs = flatten_freq(signal_freqs, cut_off)$/;"	v
+signal_freqs	py.py	/^signal_freqs = fourier_freqs(signal, fourier, sample_rate)$/;"	v
+w	fourier_freqs.py	/^w = np.fft.fft(x)$/;"	v
+write_file	py.py	/^def write_file(data, sample_rate, file):$/;"	f
+x	fft_old.py	/^x = np.linspace(0.0, N*T, N)$/;"	v
+x	fourier_freqs.py	/^x = np.array([1,2,1,0,1,2,1,0])$/;"	v
+x	settings_ticks.py	/^x = [0,15]$/;"	v
+xf	fft_old.py	/^xf = np.linspace(0.0, 1.0\/(2.0*T), N\/2)$/;"	v
+y	fft_old.py	/^y = np.sin(50.0 * 2.0*np.pi*x) + 0.5*np.sin(80.0 * 2.0*np.pi*x)$/;"	v
+y	settings_ticks.py	/^y = [0,1,2,3,4]$/;"	v
+yf	fft_old.py	/^yf = scipy.fftpack.fft(y)$/;"	v
