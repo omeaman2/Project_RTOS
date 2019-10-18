@@ -579,4 +579,5 @@ If KissFFT works on FreeRTOS we are not required to fully understand the `fft`
 function. We would only have to understand its input and output.
 
 TODO:
- - [] Test if it works on FreeRTOS.
+ - [] Test if KissFFT works on FreeRTOS.
+ - [] Add KissFFT source (perhaps as submodule) to this git.
