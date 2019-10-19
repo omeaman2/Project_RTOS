@@ -5,9 +5,10 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] Test if KissFFT works on FreeRTOS.
+ - [✓] Test if KissFFT works on FreeRTOS.
  - [✓] Add KissFFT source (perhaps as submodule) to this git.
- - [] Check KissFFT licensing and with regard to copying of code.
+ - [✓] Check KissFFT licensing and with regard to copying of code.
+ A: Can be used just fine.
 
 
 All information from last school year
