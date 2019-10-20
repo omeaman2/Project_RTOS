@@ -609,3 +609,12 @@ gcc -lm main.c kissfft/kiss_fft.{c,h}
 ```
 
 Where `-lm` is used to link the `math.h` library.
+
+## Sun 20 Oct 2019 03:29:37 PM CEST
+
+How will we validate that _things_ work?
+
+Do we need to plot the signal the input and output signals?
+
+Plotting does not need to work on FreeRTOS, we can simply plot and test on our
+own OS.
