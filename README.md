@@ -5,6 +5,11 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [] Use better comparison of floating point numbers using the epsilon
+   technique. Currently when I use `(double) i` for the imaginary part of the
+   number the numbers do not compare correctly.
+ - [✓] Test if the ifft produces the original signal.
+ A: In a hacky way :-).
  - [✓] Test if KissFFT works on FreeRTOS.
  - [✓] Add KissFFT source (perhaps as submodule) to this git.
  - [✓] Check KissFFT licensing and with regard to copying of code.
