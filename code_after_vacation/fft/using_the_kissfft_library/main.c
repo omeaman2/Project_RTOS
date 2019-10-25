@@ -13,8 +13,16 @@
 // window function will also be zero-valued outside the specified interval.
 //#define WIN 512
 
+// Deprecated
 // Compare and print differences in real || imaginary part of two signals.
 void compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2, int n);
+
+// Use epsilon to compare floating point numbers.
+void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
+        int n);
+
+// The comparison
+int epsilon_compare(double d1, double d2, double epsilon);
 
 // Print a complex numbered signal.
 void print_signal(const kiss_fft_cpx *s, int nfft);
@@ -45,23 +53,24 @@ int main(void) {
     kfft_state = kiss_fft_alloc(nfft, FOURIER, 0, 0);
 
     // Create signal
-    for (int i = 0; i < nfft; i++) {
+    for (int i = 0; i < nfft; ++i) {
         // Fill the real part.
         // I did not want to put only 1's in so I made this if statement up.
-        if (i % 2 == 0) {
-            cx_in[i].r = 0.0;
-        }
-        cx_in[i].r = (double) i;
+        /* if (i % 2 == 0) { */
+        /*     cx_in[i].r = 0.0; */
+        /* } */
+        cx_in[i].r = 1.0;
+        /* cx_in[i].r = (double) i; */
         // No imaginary part.
         cx_in[i].i = 0.0;
         /* cx_in[i].i = (double) i; */
     }
 
-    // Conjugate symmetry of real signal.
-    for (int i = 0; i < nfft/2; ++i) {
-        cx_in[nfft-i].r = cx_in[i].r;
-        cx_in[nfft-i].i = - cx_in[i].i;
-    }
+    /* // Conjugate symmetry of real signal. */
+    /* for (int i = 0; i < nfft/2; ++i) { */
+    /*     cx_in[nfft-i].r = cx_in[i].r; */
+    /*     cx_in[nfft-i].i = - cx_in[i].i; */
+    /* } */
 
 
     // Perform fast fourier transform on a complex input buffer.
@@ -72,8 +81,8 @@ int main(void) {
     kiss_fft(kfft_state, cx_in, cx_out);
 
     // Compare original signal with fourier transform.
-    printf("Comparing cx_in and cx_out\n");
-    compare_signals(cx_in, cx_out, nfft);
+    /* printf("Comparing cx_in and cx_out\n"); */
+    /* epsilon_compare_signals(cx_in, cx_out, nfft); */
 
     /* intensity = sqrt(pow(cx_out[i].r,2) + pow(cx_out[i].i,2)); */
     /* printf("%d - %9.4f\n", i, intensity); */
@@ -89,20 +98,21 @@ int main(void) {
 
     // Compare fourier transformed signal with inverse fourier transformed
     // signal.
-    printf("Comparing cx_in and cx_iout\n");
-    compare_signals(cx_in, cx_iout, nfft);
+    /* printf("Comparing cx_in and cx_iout\n"); */
+    /* epsilon_compare_signals(cx_in, cx_iout, nfft); */
 
-    /* printf("\ncx_in\n"); */
-    /* print_signal(cx_in, nfft); */
-    /* printf("\ncx_out\n"); */
-    /* print_signal(cx_out, nfft); */
-    /* printf("\ncx_iout\n"); */
-    /* print_signal(cx_iout, nfft); */
+    printf("\ncx_in\n");
+    print_signal(cx_in, nfft);
+    printf("\ncx_out\n");
+    print_signal(cx_out, nfft);
+    printf("\ncx_iout\n");
+    print_signal(cx_iout, nfft);
 
     free(kfft_state);
     return 0;
 }
 
+// Deprecated.
 void compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2, int n) {
     int there_is_a_difference = 0;
     for (int i = 0; i < n; ++i) {
@@ -123,6 +133,36 @@ void compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2, int n) {
     } else {
         printf("No difference between the signals.\n");
     }
+}
+
+void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
+        int n) {
+    int there_is_a_difference = 0;
+    double epsilon = 0.0001;
+
+    for (int i = 0; i < n; ++i) {
+        // Compare real and imaginary part of the signals.
+        if (!epsilon_compare(s1[i].r, s2[i].r, epsilon))
+            there_is_a_difference = 1;
+            printf("s1[%d].r = %f\ts2[%d].r = %f\tRe differs.\n", i,
+                    s1[i].r, i, s2[i].r);
+        if (!epsilon_compare(s1[i].i, s2[i].i, epsilon))
+            there_is_a_difference = 1;
+            printf("s1[%d].i = %f\ts2[%d].i = %f\tIm differs.\n",
+                    i, s1[i].i, i, s2[i].i);
+        }
+    if (there_is_a_difference) {
+        putchar('\n');
+    } else {
+        printf("No difference between the signals.\n");
+    }
+}
+
+int epsilon_compare(double d1, double d2, double epsilon) {
+    if (fabs(d1 - d2) < epsilon) {
+        return 1;
+    }
+    return 0;
 }
 
 void print_signal(const kiss_fft_cpx *s, int nfft) {
