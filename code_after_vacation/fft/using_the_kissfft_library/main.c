@@ -18,6 +18,11 @@
 void compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2, int n);
 
 // Use epsilon to compare floating point numbers.
+// epsilon specifies how small of a difference can be ignored. i.e. if
+// i = 0.0001
+// j = 0.0002
+// epsilon = 0.001
+// then i and j equal each other.
 void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
         int n);
 
@@ -59,11 +64,11 @@ int main(void) {
         /* if (i % 2 == 0) { */
         /*     cx_in[i].r = 0.0; */
         /* } */
-        cx_in[i].r = 1.0;
-        /* cx_in[i].r = (double) i; */
+        /* cx_in[i].r = 1.0; */
+        cx_in[i].r = (double) i;
         // No imaginary part.
-        cx_in[i].i = 0.0;
-        /* cx_in[i].i = (double) i; */
+        /* cx_in[i].i = 0.0; */
+        cx_in[i].i = (double) i;
     }
 
     /* // Conjugate symmetry of real signal. */
@@ -138,7 +143,7 @@ void compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2, int n) {
 void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
         int n) {
     int there_is_a_difference = 0;
-    double epsilon = 0.0001;
+    const double epsilon = 0.0001;
 
     for (int i = 0; i < n; ++i) {
         // Compare real and imaginary part of the signals.
