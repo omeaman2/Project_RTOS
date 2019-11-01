@@ -45,23 +45,30 @@ int main(void) {
     kfft_state = kiss_fft_alloc(nfft, FOURIER, 0, 0);
 
     // Create signal
-    for (int i = 0; i < nfft; i++) {
+    
+	//for (int i = 0; i < nfft; ++i) {
         // Fill the real part.
         // I did not want to put only 1's in so I made this if statement up.
-        if (i % 2 == 0) {
-            cx_in[i].r = 0.0;
-        }
-        cx_in[i].r = (double) i;
+        //cx_in[i].r = 1.0;
+		
         // No imaginary part.
-        cx_in[i].i = 0.0;
+        //cx_in[i].i = 0.0;
         /* cx_in[i].i = (double) i; */
-    }
-
+    //}
+	cx_in[0].r = 1.0;
+	cx_in[1].r = 0.0;
+	cx_in[2].r = 0.0;
+	cx_in[3].r = 1.0;
+	cx_in[4].r = 1.0;
+	cx_in[5].r = 0.0;
+	cx_in[6].r = 0.0;
+	cx_in[7].r = 1.0;
+	
     // Conjugate symmetry of real signal.
-    for (int i = 0; i < nfft/2; ++i) {
+    /*for (int i = 0; i < nfft/2; ++i) {
         cx_in[nfft-i].r = cx_in[i].r;
         cx_in[nfft-i].i = - cx_in[i].i;
-    }
+    }*/
 
 
     // Perform fast fourier transform on a complex input buffer.
@@ -70,10 +77,15 @@ int main(void) {
     // cx_in: input buffer which is an complex numbers array.
     // cx_out: output buffer which is an complex numbers array.
     kiss_fft(kfft_state, cx_in, cx_out);
+	
+	printf("orignal: \n");
+	print_signal(cx_in, nfft);
+	printf("FFT: \n");
+	print_signal(cx_out, nfft);
 
     // Compare original signal with fourier transform.
-    printf("Comparing cx_in and cx_out\n");
-    compare_signals(cx_in, cx_out, nfft);
+    //printf("Comparing cx_in and cx_out\n");
+    //compare_signals(cx_in, cx_out, nfft);
 
     /* intensity = sqrt(pow(cx_out[i].r,2) + pow(cx_out[i].i,2)); */
     /* printf("%d - %9.4f\n", i, intensity); */
@@ -89,8 +101,8 @@ int main(void) {
 
     // Compare fourier transformed signal with inverse fourier transformed
     // signal.
-    printf("Comparing cx_in and cx_iout\n");
-    compare_signals(cx_in, cx_iout, nfft);
+    //printf("Comparing cx_in and cx_iout\n");
+    //compare_signals(cx_in, cx_iout, nfft);
 
     /* printf("\ncx_in\n"); */
     /* print_signal(cx_in, nfft); */
@@ -98,7 +110,7 @@ int main(void) {
     /* print_signal(cx_out, nfft); */
     /* printf("\ncx_iout\n"); */
     /* print_signal(cx_iout, nfft); */
-
+	
     free(kfft_state);
     return 0;
 }
