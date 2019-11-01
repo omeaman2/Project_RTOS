@@ -61,11 +61,12 @@ int main(void) {
     for (int i = 0; i < nfft; ++i) {
         // Fill the real part.
         // I did not want to put only 1's in so I made this if statement up.
-        /* if (i % 2 == 0) { */
-        /*     cx_in[i].r = 0.0; */
-        /* } */
+        cx_in[i].r = 0.0;
+        if (i % 2 == 0) {
+            /* cx_in[i].r = 0.0; */
+            cx_in[i].r = (double) i;
+        }
         /* cx_in[i].r = 1.0; */
-        cx_in[i].r = (double) i;
         // No imaginary part.
         /* cx_in[i].i = 0.0; */
         cx_in[i].i = (double) i;
