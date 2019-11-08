@@ -6,6 +6,6 @@ dataarray = numpy.array(a[1], dtype=float)
 length = dataarray.size
 print(length)
 f = open("result.txt", "w+")
-for i in range(0, length):
+for i in range(0, length, 8):
     f.write("%d," % dataarray[i])
 f.close()
