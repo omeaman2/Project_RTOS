@@ -7,15 +7,14 @@
 #define FOURIER 0
 #define INVERSE_FOURIER 1
 
+// Number of samples
+#define NFFT 8
+
 // A window function is a mathematical funtion that is zero-valued outside the
 // specified interval. Usually window functions have a bell shaped curve. The
 // result of applying a window function is that a function multiplied by the
 // window function will also be zero-valued outside the specified interval.
 //#define WIN 512
-
-// Deprecated
-// Compare and print differences in real || imaginary part of two signals.
-void compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2, int n);
 
 // Use epsilon to compare floating point numbers.
 // epsilon specifies how small of a difference can be ignored. i.e. if
@@ -30,35 +29,32 @@ void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
 int epsilon_compare(double d1, double d2, double epsilon);
 
 // Print a complex numbered signal.
-void print_signal(const kiss_fft_cpx *s, int nfft);
+void print_signal(const kiss_fft_cpx *s);
 
 // Do inverse Fourier transform and restore the original signal from a fourier
 // transformed signal.
 void ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
-        kiss_fft_cpx *out, int nfft);
+        kiss_fft_cpx *out);
 
 int main(void) {
-    // Number of samples?
-    int nfft = 8;
-
     // The kiss_fft config.
     kiss_fft_cfg kfft_state;
     // kiss_fft's complex number type.
-    kiss_fft_cpx cx_in[nfft];
-    kiss_fft_cpx cx_out[nfft];
-    kiss_fft_cpx cx_iout[nfft];
+    kiss_fft_cpx cx_in[NFFT];
+    kiss_fft_cpx cx_out[NFFT];
+    kiss_fft_cpx cx_iout[NFFT];
 
     // Initialise the fft's state buffer.
     // kfft_state is used internally by the fft function.
     // Elaboration on params:
-    // nfft: Is this the number of samples?
+    // NFFT: Is this the number of samples?
     // FOURIER:    Do not use ifft.
     // 0:          Do not place the kfft_state in mem.
     // 0:          No length specify for mem, since we do not use it.
-    kfft_state = kiss_fft_alloc(nfft, FOURIER, 0, 0);
+    kfft_state = kiss_fft_alloc(NFFT, FOURIER, 0, 0);
 
     // Create signal
-    for (int i = 0; i < nfft; ++i) {
+    for (int i = 0; i < NFFT; ++i) {
         // Fill the real part.
         // I did not want to put only 1's in so I made this if statement up.
         cx_in[i].r = 0.0;
@@ -73,9 +69,9 @@ int main(void) {
     }
 
     /* // Conjugate symmetry of real signal. */
-    /* for (int i = 0; i < nfft/2; ++i) { */
-    /*     cx_in[nfft-i].r = cx_in[i].r; */
-    /*     cx_in[nfft-i].i = - cx_in[i].i; */
+    /* for (int i = 0; i < NFFT/2; ++i) { */
+    /*     cx_in[NFFT-i].r = cx_in[i].r; */
+    /*     cx_in[NFFT-i].i = - cx_in[i].i; */
     /* } */
 
 
@@ -88,7 +84,7 @@ int main(void) {
 
     // Compare original signal with fourier transform.
     /* printf("Comparing cx_in and cx_out\n"); */
-    /* epsilon_compare_signals(cx_in, cx_out, nfft); */
+    /* epsilon_compare_signals(cx_in, cx_out, NFFT); */
 
     /* intensity = sqrt(pow(cx_out[i].r,2) + pow(cx_out[i].i,2)); */
     /* printf("%d - %9.4f\n", i, intensity); */
@@ -99,46 +95,23 @@ int main(void) {
     free(kfft_state);
 
     // Allocate inverse fourier state.
-    kfft_state = kiss_fft_alloc(nfft, INVERSE_FOURIER, 0, 0);
-    ifft_and_restore(&kfft_state, cx_out, cx_iout, nfft);
+    kfft_state = kiss_fft_alloc(NFFT, INVERSE_FOURIER, 0, 0);
+    ifft_and_restore(&kfft_state, cx_out, cx_iout);
 
     // Compare fourier transformed signal with inverse fourier transformed
     // signal.
     /* printf("Comparing cx_in and cx_iout\n"); */
-    /* epsilon_compare_signals(cx_in, cx_iout, nfft); */
+    /* epsilon_compare_signals(cx_in, cx_iout, NFFT); */
 
     printf("\ncx_in\n");
-    print_signal(cx_in, nfft);
+    print_signal(cx_in);
     printf("\ncx_out\n");
-    print_signal(cx_out, nfft);
+    print_signal(cx_out);
     printf("\ncx_iout\n");
-    print_signal(cx_iout, nfft);
+    print_signal(cx_iout);
 
     free(kfft_state);
     return 0;
-}
-
-// Deprecated.
-void compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2, int n) {
-    int there_is_a_difference = 0;
-    for (int i = 0; i < n; ++i) {
-        // Compare real and imaginary part of the signals.
-        if ((s1[i].r != s2[i].r) ) {
-            there_is_a_difference = 1;
-            printf("s1[%d].r = %f\ts2[%d].r = %f\tRe differs.\n", i,
-                    s1[i].r, i, s2[i].r);
-        }
-        if (s1[i].i != s2[i].i) {
-            there_is_a_difference = 1;
-            printf("s1[%d].i = %f\ts2[%d].i = %f\tIm differs.\n",
-                    i, s1[i].i, i, s2[i].i);
-        }
-    }
-    if (there_is_a_difference) {
-        putchar('\n');
-    } else {
-        printf("No difference between the signals.\n");
-    }
 }
 
 void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
@@ -171,21 +144,21 @@ int epsilon_compare(double d1, double d2, double epsilon) {
     return 0;
 }
 
-void print_signal(const kiss_fft_cpx *s, int nfft) {
-    for (int i = 0; i < nfft; ++i) {
+void print_signal(const kiss_fft_cpx *s) {
+    for (int i = 0; i < NFFT; ++i) {
         printf("s[%d].r = %f\ts[%d].i = %f\n", i, s[i].r, i, s[i].i);
     }
 }
 
 void ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
-        kiss_fft_cpx *out, int nfft) {
+        kiss_fft_cpx *out) {
     // Perform the kiss fft inverse fourier transform.
     kiss_fft(*state, in, out);
-    // We have to divide by nfft to actually restore the original signal, as
-    // the numbers at every index of the signal are multiplied by nfft. I am
+    // We have to divide by NFFT to actually restore the original signal, as
+    // the numbers at every index of the signal are multiplied by NFFT. I am
     // not sure why the numbers are multiplied.
-    for (int i = 0; i < nfft; ++i) {
-        out[i].r /= nfft;
-        out[i].i /= nfft;
+    for (int i = 0; i < NFFT; ++i) {
+        out[i].r /= NFFT;
+        out[i].i /= NFFT;
     }
 }
