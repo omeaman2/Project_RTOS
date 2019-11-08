@@ -43,7 +43,7 @@ int main()
 int recognizeEnd(int start, unsigned long startMedium){
 	unsigned long medium = 0;
 	unsigned long counter = 0;
-	unsigned long maxCount = start + 30000;
+	unsigned long maxCount = start + 24000;
 	unsigned long maxLoop = 0;
 	if(maxCount < arraySize)
 	{	
