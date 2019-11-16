@@ -14,10 +14,10 @@ int main() {
     unsigned long prevAverage = 0;
     unsigned int used = 0;
     printf("arraySize: %d\n", arraySize);
-    for(int k = 0; k < (arraySize - 3000); k+=3000) {
+    for(int k = 0; k < (arraySize - 400); k+=400) {
         counter = 0;
         used = 0;
-        for(int i = k; i < (k + 3000); i++) {
+        for(int i = k; i < (k + 400); i++) {
             int data = abs(dataarray[i]);
             if( data > 500 ) {
                 counter += data;
@@ -44,21 +44,21 @@ int main() {
 int recognizeEnd(int start, unsigned long startMedium) {
     unsigned long average = 0;
     unsigned long counter = 0;
-    unsigned long maxCount = start + 24000;
+    unsigned long maxCount = start + 3000;
     unsigned long maxLoop = 0;
     if(maxCount < arraySize) {	
         maxLoop = maxCount;
     } else {
-        maxLoop = arraySize - 250;
+        maxLoop = arraySize - 30;
     }
     printf("start noise %d", start);
     for(int k = start; k < maxLoop; k++) {
         counter = 0;
-        for(int i = k; i < (k + 250); i++) {
+        for(int i = k; i < (k + 30); i++) {
             counter += abs(dataarray[i]);
         }
 
-        average = counter / 250;
+        average = counter / 30;
 
         if(average <= startMedium) {
             printf(" end noise %d \n", k);
