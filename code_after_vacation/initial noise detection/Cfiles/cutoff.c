@@ -91,7 +91,6 @@ int recognizeEnd(int start, unsigned long startMedium) {
     unsigned long maxCount = start + 3000;
     unsigned long maxLoop = 0;
 
-
     //If the max noise length exeeds the arraysize, use arraysize - safezone as max noise length. Safezone is used because next 30 elements will be looped.
     if(maxCount < arraySize) {
         maxLoop = maxCount;
@@ -126,12 +125,14 @@ int main() {
     unsigned int used = 0;
     int *start_noises = (int *)malloc(MAX_NOISES * (sizeof(*start_noises)));
     int *end_noises = (int *)malloc(MAX_NOISES * (sizeof(*end_noises)));
-
     double *autoCorrelation = (double *)malloc(arraySize * sizeof(*autoCorrelation));
-    if (autoCorrelation == NULL) {
+
+    if (start_noises == NULL || end_noises == NULL || autoCorrelation == NULL) {
         printf("ERROR: Malloc failed\n\n");
         return 0;
     }
+
+    // printf("data_array[683] = %f\n", data_array[683]);
     //Loop compolete array, safezone of 400 because next 400 elements are looped before check is reached
     int NumberOfNoiseSegments = 0;
     for (int k = 0; k < (arraySize - 400); k += 400) {
@@ -187,16 +188,16 @@ int main() {
 
         for (int y = 0; y < sizeOfNoiseArray; ++y) {
             noiseArray[y] = data_array[*(start_noises + i) + y];
-            sum += noiseArray[y];
+            // sum += noiseArray[y];
         }
 
-        average_2 = sum / sizeOfNoiseArray;
-        printf("Average of the noise values from Segment %d: %f\n", i, average_2);
+        // average_2 = sum / sizeOfNoiseArray;
+        // printf("Average of the noise values from Segment %d: %f\n", i, average_2);
 
         autoCorrelation = getAutoCorrelationOfSeries(noiseArray, autoCorrelation, sizeOfNoiseArray);
 
         for (int z = 0; z < sizeOfNoiseArray / 2; ++z) {
-            // printf("%f -- %d -- %d\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
+            // printf("%f -- %d -- %f\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
         }
 
         printf("\n\n");
