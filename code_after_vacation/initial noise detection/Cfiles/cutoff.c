@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "trainshortmicdata.c"
+#include "segment1.c"
+#include "segment2.c"
+#include "segment3.c"
+#include "segment4.c"
 #include "math.h"
 
 // Prototypes
@@ -91,7 +95,6 @@ int recognizeEnd(int start, unsigned long startMedium) {
     unsigned long maxCount = start + 3000;
     unsigned long maxLoop = 0;
 
-
     //If the max noise length exeeds the arraysize, use arraysize - safezone as max noise length. Safezone is used because next 30 elements will be looped.
     if(maxCount < arraySize) {
         maxLoop = maxCount;
@@ -124,14 +127,21 @@ int main() {
     unsigned long average = 0;
     unsigned long prevAverage = 0;
     unsigned int used = 0;
+
     int *start_noises = (int *)malloc(MAX_NOISES * (sizeof(*start_noises)));
     int *end_noises = (int *)malloc(MAX_NOISES * (sizeof(*end_noises)));
-
     double *autoCorrelation = (double *)malloc(arraySize * sizeof(*autoCorrelation));
-    if (autoCorrelation == NULL) {
+    double *seg_1 = (double *)malloc(arraySize * sizeof(*seg_1));
+    double *seg_2 = (double *)malloc(arraySize * sizeof(*seg_2));
+    double *seg_3 = (double *)malloc(arraySize * sizeof(*seg_3));
+    double *seg_4 = (double *)malloc(arraySize * sizeof(*seg_4));
+
+    if (start_noises == NULL || end_noises == NULL || autoCorrelation == NULL) {
         printf("ERROR: Malloc failed\n\n");
         return 0;
     }
+
+    // printf("data_array[683] = %f\n", data_array[683]);
     //Loop compolete array, safezone of 400 because next 400 elements are looped before check is reached
     int NumberOfNoiseSegments = 0;
     for (int k = 0; k < (arraySize - 400); k += 400) {
@@ -176,8 +186,6 @@ int main() {
     printf("Computing Autocorrelation \n\n");
 
     int sizeOfNoiseArray = 0;
-    double sum = 0;
-    double average_2 = 0;
 
     for (int i = 0; i < NumberOfNoiseSegments; ++i) {
         printf("SEGMENT %d\n", i);
@@ -186,21 +194,39 @@ int main() {
         double noiseArray[sizeOfNoiseArray];
 
         for (int y = 0; y < sizeOfNoiseArray; ++y) {
+	    /* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); */
             noiseArray[y] = data_array[*(start_noises + i) + y];
-            sum += noiseArray[y];
-        }
+	    if (i == 0){
+		*(seg_1 + y) = noiseArray[y];
+		printf("%f\n", *(seg_1 + y));
+	    }
+	    if (i == 1){
+		*(seg_2 + y) = noiseArray[y];
+		/* printf("%f\n", *(seg_2 + y)); */
+	    } 
+	    if (i == 2){
+		*(seg_3 + y) = noiseArray[y];
+		/* printf("%f\n", *(seg_3 + y)); */
+	    }
+	    if (i == 3){
+		*(seg_4 + y) = noiseArray[y];
+		/* printf("%f\n", *(seg_4 + y)); */
+	    }
 
-        average_2 = sum / sizeOfNoiseArray;
-        printf("Average of the noise values from Segment %d: %f\n", i, average_2);
+        }
 
         autoCorrelation = getAutoCorrelationOfSeries(noiseArray, autoCorrelation, sizeOfNoiseArray);
 
         for (int z = 0; z < sizeOfNoiseArray / 2; ++z) {
-            printf("%f -- %d -- %d\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
+    //        printf("%f -- %d -- %f\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
         }
 
         printf("\n\n");
     }
+
+    
+    int seg_1_size = sizeof(seg_1) / sizeof(*seg_1);
+    printf("seg_1_size: %d\n", seg_1_size);
 
     printf("\nDONE!");
 
