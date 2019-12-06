@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "kissfft/kiss_fft.h"
+#include "../../initial noise detection/Cfiles/trainmicdata.c"
 
 // Used in allocation of internal state for fourier or inverse fourier
 // transform.
@@ -36,6 +37,9 @@ void print_signal(const kiss_fft_cpx *s);
 void ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
         kiss_fft_cpx *out);
 
+// Create a signal as input to the fast fourier transform.
+void create_signal(kiss_fft_cpx *cx_in);
+
 int main(void) {
     // The kiss_fft config.
     kiss_fft_cfg kfft_state;
@@ -47,33 +51,13 @@ int main(void) {
     // Initialise the fft's state buffer.
     // kfft_state is used internally by the fft function.
     // Elaboration on params:
-    // NFFT: Is this the number of samples?
     // FOURIER:    Do not use ifft.
     // 0:          Do not place the kfft_state in mem.
     // 0:          No length specify for mem, since we do not use it.
     kfft_state = kiss_fft_alloc(NFFT, FOURIER, 0, 0);
 
-    // Create signal
-    for (int i = 0; i < NFFT; ++i) {
-        // Fill the real part.
-        // I did not want to put only 1's in so I made this if statement up.
-        cx_in[i].r = 0.0;
-        if (i % 2 == 0) {
-            /* cx_in[i].r = 0.0; */
-            cx_in[i].r = (double) i;
-        }
-        /* cx_in[i].r = 1.0; */
-        // No imaginary part.
-        /* cx_in[i].i = 0.0; */
-        cx_in[i].i = (double) i;
-    }
-
-    /* // Conjugate symmetry of real signal. */
-    /* for (int i = 0; i < NFFT/2; ++i) { */
-    /*     cx_in[NFFT-i].r = cx_in[i].r; */
-    /*     cx_in[NFFT-i].i = - cx_in[i].i; */
-    /* } */
-
+    // Fill cx_in with data.
+    create_signal(cx_in);
 
     // Perform fast fourier transform on a complex input buffer.
     // Elaboration on params:
@@ -161,4 +145,20 @@ void ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
         out[i].r /= NFFT;
         out[i].i /= NFFT;
     }
+}
+
+void create_signal(kiss_fft_cpx *cx_in) {
+    // Create signal
+    for (int i = 0; i < NFFT; ++i) {
+        // Fill the real part.
+        cx_in[i].r = 1.0;
+        // No imaginary part.
+        /* cx_in[i].i = (double) i; */
+    }
+
+    /* // Conjugate symmetry of real signal. */
+    /* for (int i = 0; i < NFFT/2; ++i) { */
+    /*     cx_in[NFFT-i].r = cx_in[i].r; */
+    /*     cx_in[NFFT-i].i = - cx_in[i].i; */
+    /* } */
 }
