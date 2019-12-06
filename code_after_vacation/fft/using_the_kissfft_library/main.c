@@ -9,7 +9,7 @@
 #define INVERSE_FOURIER 1
 
 // Number of samples
-#define NFFT 8
+#define NFFT 64
 
 // A window function is a mathematical funtion that is zero-valued outside the
 // specified interval. Usually window functions have a bell shaped curve. The
@@ -87,12 +87,12 @@ int main(void) {
     /* printf("Comparing cx_in and cx_iout\n"); */
     /* epsilon_compare_signals(cx_in, cx_iout, NFFT); */
 
-    printf("\ncx_in\n");
-    print_signal(cx_in);
+    /* printf("\ncx_in\n"); */
+    /* print_signal(cx_in); */
     printf("\ncx_out\n");
     print_signal(cx_out);
-    printf("\ncx_iout\n");
-    print_signal(cx_iout);
+    /* printf("\ncx_iout\n"); */
+    /* print_signal(cx_iout); */
 
     free(kfft_state);
     return 0;
