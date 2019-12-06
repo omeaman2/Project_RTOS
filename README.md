@@ -624,3 +624,7 @@ Do we need to plot the signal the input and output signals?
 
 Plotting does not need to work on FreeRTOS, we can simply plot and test on our
 own OS.
+
+## Fri 06 Dec 2019 01:34:16 PM CET
+
+Getting `not a number`
