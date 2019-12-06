@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "trainshortmicdata.c"
+#include "segment1.c"
+#include "segment1.c"
+#include "segment1.c"
+#include "segment1.c"
 #include "math.h"
 
 // Prototypes
@@ -123,6 +127,7 @@ int main() {
     unsigned long average = 0;
     unsigned long prevAverage = 0;
     unsigned int used = 0;
+
     int *start_noises = (int *)malloc(MAX_NOISES * (sizeof(*start_noises)));
     int *end_noises = (int *)malloc(MAX_NOISES * (sizeof(*end_noises)));
     double *autoCorrelation = (double *)malloc(arraySize * sizeof(*autoCorrelation));
@@ -177,8 +182,6 @@ int main() {
     printf("Computing Autocorrelation \n\n");
 
     int sizeOfNoiseArray = 0;
-    double sum = 0;
-    double average_2 = 0;
 
     for (int i = 0; i < NumberOfNoiseSegments; ++i) {
         printf("SEGMENT %d\n", i);
@@ -188,16 +191,12 @@ int main() {
 
         for (int y = 0; y < sizeOfNoiseArray; ++y) {
             noiseArray[y] = data_array[*(start_noises + i) + y];
-            // sum += noiseArray[y];
         }
-
-        // average_2 = sum / sizeOfNoiseArray;
-        // printf("Average of the noise values from Segment %d: %f\n", i, average_2);
 
         autoCorrelation = getAutoCorrelationOfSeries(noiseArray, autoCorrelation, sizeOfNoiseArray);
 
         for (int z = 0; z < sizeOfNoiseArray / 2; ++z) {
-            printf("%f -- %d -- %d\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
+            printf("%f -- %d -- %f\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
         }
 
         printf("\n\n");
