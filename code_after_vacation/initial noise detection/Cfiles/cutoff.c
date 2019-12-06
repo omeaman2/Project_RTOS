@@ -197,7 +197,11 @@ int main() {
         autoCorrelation = getAutoCorrelationOfSeries(noiseArray, autoCorrelation, sizeOfNoiseArray);
 
         for (int z = 0; z < sizeOfNoiseArray / 2; ++z) {
+<<<<<<< HEAD
             // printf("%f -- %d -- %f\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
+=======
+            printf("%f -- %d -- %d\n", *(autoCorrelation + z), sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]);
+>>>>>>> master
         }
 
         printf("\n\n");
