@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "kissfft/kiss_fft.h"
-#include "../../initial noise detection/Cfiles/trainmicdata.c"
+#include "../../initial noise detection/Cfiles/trainshortmicdata.c"
 
 // Used in allocation of internal state for fourier or inverse fourier
 // transform.
