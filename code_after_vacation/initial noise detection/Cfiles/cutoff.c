@@ -1,3 +1,5 @@
+// ********************** DEPRECATED **********************
+// continue work on these functions in using_the_kissfft_library/main.c
 #include <stdio.h>
 #include <stdlib.h>
 #include "trainshortmicdata.h"
@@ -17,7 +19,6 @@ double GetStdev(double data[], int size);
 
 /* Define the size of the global mic data array*/
 int arraySize = sizeof(data_array) / sizeof(*data_array);
-#define MAX_NOISES 10
 
 double GetVariance(double data[], int size) {
     double avg = GetAverage(data, size);
@@ -138,12 +139,12 @@ int main() {
 
     if (start_noises == NULL || end_noises == NULL || autoCorrelation == NULL) {
         printf("ERROR: Malloc failed\n\n");
-        return 0;
+        return EXIT_FAILURE;
     }
 
     // printf("data_array[683] = %f\n", data_array[683]);
     //Loop compolete array, safezone of 400 because next 400 elements are looped before check is reached
-    int NumberOfNoiseSegments = 0;
+    int numberOfNoiseSegments = 0;
     for (int k = 0; k < (arraySize - 400); k += 400) {
         counter = 0;
         used = 0;
@@ -170,10 +171,10 @@ int main() {
             unsigned long safeZone = (prevAverage / 2);
             unsigned long tempAverage = prevAverage + safeZone;
             if (tempAverage < average && prevAverage > 500) {
-                *(start_noises + NumberOfNoiseSegments) = k;
+                *(start_noises + numberOfNoiseSegments) = k;
                 k = recognizeEnd(k, prevAverage - safeZone);
-                *(end_noises + NumberOfNoiseSegments) = k;
-                NumberOfNoiseSegments++;
+                *(end_noises + numberOfNoiseSegments) = k;
+                numberOfNoiseSegments++;
             }
         }
     }
@@ -187,18 +188,21 @@ int main() {
 
     int sizeOfNoiseArray = 0;
 
-    for (int i = 0; i < NumberOfNoiseSegments; ++i) {
+    printf("numberOfNoiseSegments: %d\n", numberOfNoiseSegments);
+    for (int i = 0; i < numberOfNoiseSegments; ++i) {
         printf("SEGMENT %d\n", i);
 
         sizeOfNoiseArray = *(end_noises + i) - *(start_noises + i);
         double noiseArray[sizeOfNoiseArray];
+
+        printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray);
 
         for (int y = 0; y < sizeOfNoiseArray; ++y) {
 	    /* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); */
             noiseArray[y] = data_array[*(start_noises + i) + y];
 	    if (i == 0){
 		*(seg_1 + y) = noiseArray[y];
-		printf("%f\n", *(seg_1 + y));
+		/* printf("%f\n", *(seg_1 + y)); */
 	    }
 	    if (i == 1){
 		*(seg_2 + y) = noiseArray[y];
@@ -225,14 +229,15 @@ int main() {
     }
 
     
-    int seg_1_size = sizeof(seg_1) / sizeof(*seg_1);
-    printf("seg_1_size: %d\n", seg_1_size);
-
     printf("\nDONE!");
 
     free(autoCorrelation);
     free(start_noises);
     free(end_noises);
+    free(seg_1);
+    free(seg_2);
+    free(seg_3);
+    free(seg_4);
 
     return 0;
 }
