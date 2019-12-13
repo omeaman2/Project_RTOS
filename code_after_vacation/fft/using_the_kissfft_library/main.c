@@ -11,9 +11,15 @@
 #define TRUE 1
 #define FALSE 0
 
+
+/*** Prototypes ***/
+
 /* Ideally these 'do' functions should become tasks in FreeRTOS. */
+
 // Perform fourier and inverse fourier functionality. 
-int do_fourier(void);
+int do_fourier(int* startNoise, int* endNoise);
+// Test fourier and inverse fourier functionality. 
+int do_fourier_for_testing_purposes(void);
 // Perform recognize functionality. Previously cutoff.c
 int do_recognize(void);
 
@@ -48,25 +54,48 @@ double GetVariance(double data[], int size);
 double GetStdev(double data[], int size);
 
 
+// Print start and end indices of noises. */
+void print_noises();
+
 /*** Global variables ***/
 
 // Arrays containing the start index and the end index of the noises.
 int startNoise[MAX_NOISES];
 int endNoise[MAX_NOISES];
+// Actual number of noise segments.
+int numberOfNoiseSegments;
 
 
 int main(void) {
     int r;
     r = do_recognize();
     if (r != EXIT_SUCCESS) return EXIT_FAILURE;
-    r = do_fourier();
+    print_noises();
+    r = do_fourier_for_testing_purposes();
+    if (r != EXIT_SUCCESS) return EXIT_FAILURE;
+    r = do_fourier(startNoise, endNoise);
     if (r != EXIT_SUCCESS) return EXIT_FAILURE;
     return r;
 }
 
 
 /*** Function definitions ***/
-int do_fourier(void) {
+int do_fourier(int* startNoise, int* endNoise) {
+    // The kiss_fft config.
+    kiss_fft_cfg kfft_state;
+    // kiss_fft's complex number type.
+    kiss_fft_cpx cx_in[NFFT];
+    kiss_fft_cpx cx_out[NFFT];
+    kiss_fft_cpx cx_iout[NFFT];
+
+
+    // Initialise the fft's state buffer.
+    kfft_state = kiss_fft_alloc(NFFT, FOURIER, 0, 0);
+
+    return EXIT_SUCCESS;
+}
+
+int do_fourier_for_testing_purposes(void) {
     // The kiss_fft config.
     kiss_fft_cfg kfft_state;
     // kiss_fft's complex number type.
@@ -122,6 +151,8 @@ int do_fourier(void) {
     print_signal(cx_iout);
 
     free(kfft_state);
+
+    printf("\nDONE with recognize!\n");
     return EXIT_SUCCESS;
 }
 
@@ -336,7 +367,7 @@ int do_recognize(void) {
     // printf("data_array[683] = %f\n", data_array[683]);
     // Loop complete array, safezone of 400 because next 400 elements are looped
     // before check is reached
-    int numberOfNoiseSegments = 0;
+    numberOfNoiseSegments = 0;
     for (int k = 0; k < (data_array_size - 400); k += 400) {
         counter = 0;
         used = 0;
@@ -423,7 +454,7 @@ int do_recognize(void) {
     }
 
     
-    printf("\nDONE!\n");
+    printf("\nDONE with recognize!\n");
 
     free(autoCorrelation);
     /* free(startNoise); */
@@ -434,4 +465,12 @@ int do_recognize(void) {
     free(seg_4);
 
     return EXIT_SUCCESS;
+}
+
+void print_noises() {
+    printf("\nPrint start and end indices of noises.\n");
+    for (int i = 0; i < numberOfNoiseSegments; ++i) {
+        printf("startNoise[%d]:\t%d\n", i, startNoise[i]);
+        printf("endNoise[%d]:\t%d\n", i, endNoise[i]);
+    }
 }

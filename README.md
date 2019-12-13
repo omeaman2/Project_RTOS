@@ -5,6 +5,7 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [] Create `do_fourier`
  - [✓] Edit the signal and look at the inverse fourier.
  - [✓] Use better comparison of floating point numbers using the epsilon
    technique. Currently when I use `(double) i` for the imaginary part of the
