@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "trainshortmicdata.c"
+#include "trainshortmicdata.h"
 #include "segment1.c"
 #include "segment2.c"
 #include "segment3.c"

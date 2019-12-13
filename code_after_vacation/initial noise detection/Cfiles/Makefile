@@ -1,7 +1,7 @@
 compile:
-	        gcc -o cutoff cutoff.c -lm
+	        gcc -o cutoff cutoff.c trainshortmicdata.h -lm
 all:
-	        gcc -o cutoff cutoff.c -lm
+	        gcc -o cutoff cutoff.c trainshortmicdata.h -lm
 		        ./cutoff
 clean:
 	        rm cutoff
