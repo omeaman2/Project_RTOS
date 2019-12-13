@@ -1,4 +1,4 @@
-// ********************** DEPRECATED **********************
+/* ********************** DEPRECATED ********************** */
 // continue work on these functions in using_the_kissfft_library/main.c
 #include <stdio.h>
 #include <stdlib.h>
