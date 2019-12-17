@@ -3,10 +3,6 @@
 #include <math.h>
 #include "kissfft/kiss_fft.h"
 #include "trainshortmicdata.h"
-#include "segment1.c"
-#include "segment2.c"
-#include "segment3.c"
-#include "segment4.c"
 
 #define TRUE 1
 #define FALSE 0
