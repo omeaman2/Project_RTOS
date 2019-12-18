@@ -5,7 +5,10 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] Fix segmentation fault in do_fourier
+ - [] Remove `make_zero` calls later. They are used for testing and take up
+      unnecessary computation time.
+ - [✓] Fourier does not operate correctly in `do_fourier()`.
+ - [✓] Fix segmentation fault in do_fourier.
  - [✓] Create `do_fourier`
  - [✓] Edit the signal and look at the inverse fourier.
  - [✓] Use better comparison of floating point numbers using the epsilon
@@ -629,4 +632,21 @@ own OS.
 
 ## Fri 06 Dec 2019 01:34:16 PM CET
 
-Getting `not a number`
+Getting `not a number`.
+
+## Wed 18 Dec 2019 03:09:02 PM CET
+
+Confirmed that fourier malfunctions on `data_array`.
+
+FIX:
+
+Changed
+
+```c
+    kfft_state = kiss_fft_alloc(NSAMPLES, INVERSE_FOURIER, 0, 0);
+    // to
+    kfft_state = kiss_fft_alloc(samples, INVERSE_FOURIER, 0, 0);
+```
+
+
+Confitmed working with both `USE_MALLOC` turned on and off.

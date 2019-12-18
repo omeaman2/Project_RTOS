@@ -4,21 +4,23 @@
 #include "kissfft/kiss_fft.h"
 #include "trainshortmicdata.h"
 
-#define TRUE 1
-#define FALSE 0
-
 /*** Prototypes ***/
 
 /* Ideally these 'do' functions should become tasks in FreeRTOS. */
 
 // Perform fourier and inverse fourier functionality. 
 // Params: all start and end indices of the noise.
-int do_fourier(int* startNoise, int* endNoise);
-// Internally called by do_fourier. Computes fourier for a single noise segment.
-int do_fourier_internal(int startNoise, int endNoise);
+int do_cancel();
+// Internally called by do_cancel. Computes fourier for a single noise segment.
+int do_cancel_internal(int start_noise, int end_noise);
 
-// Test fourier and inverse fourier functionality. 
-int do_fourier_for_testing_purposes(void);
+// This function does a fourier on a created signal followed by an inverse
+// fourier to get the original signal again.
+int do_correctly_working_fft_ifft(void);
+
+// Fourier testing
+int do_fourier_test(void);
+
 // Perform recognize functionality. Previously cutoff.c
 int do_recognize(void);
 
@@ -29,9 +31,9 @@ int do_recognize(void);
 // epsilon = 0.001
 // then i and j equal each other.
 void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
-        int n);
+        int n, const double epsilon);
 
-// The comparison
+// The comparison. Returns TRUE if d1 and d2 are equal. FALSE if they are not.
 int epsilon_compare(double d1, double d2, double epsilon);
 
 // Print a complex numbered signal.
@@ -43,7 +45,7 @@ void ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
         kiss_fft_cpx *out, const int n);
 
 // Create a signal and put it in the argument kissfft complex array.
-void create_signal(kiss_fft_cpx* cx_in);
+void create_signal(kiss_fft_cpx* cx_in, const int n);
 
 int recognizeEnd(int start, unsigned long startMedium);
 double *getAutoCorrelationOfSeries(double da[], double *result, int size);
@@ -54,6 +56,7 @@ double GetStdev(double data[], int size);
 
 // Get the signal and put it in the argument kissfft complex array.
 // cx_in must have enough space to hold a segment.
+// the segment is retrieved from data_array.
 int get_noise_segment(kiss_fft_cpx* cx_in, const int start_noise, const int
         end_noise);
 
@@ -77,11 +80,16 @@ void print_segments(const kiss_fft_cpx segments[MAX_NSEGMENTS][MAX_NSAMPLES],
 // Allocates a 2-dimensional array on the heap.
 void** malloc2d(const int nrows, const int ncols , const size_t size);
 
+// Make a complex numbered array zero .
+void cx_make_zero(kiss_fft_cpx* cx_in, const int size);
+
+void make_zero2d(kiss_fft_cpx** cx_in, const int rows, const int cols);
+
 /*** Global variables ***/
 
 // Arrays containing the start index and the end index of the noises.
-int startNoise[MAX_NSEGMENTS];
-int endNoise[MAX_NSEGMENTS];
+int start_noise[MAX_NSEGMENTS];
+int end_noise[MAX_NSEGMENTS];
 // Actual number of noise segments.
 int num_noise_segments = 0;
 
@@ -93,11 +101,13 @@ int main(void) {
         int r;
         r = do_recognize();
         if (r != EXIT_SUCCESS) return EXIT_FAILURE;
-        print_noise_indices();
-        /* r = do_fourier_for_testing_purposes(); */
+        /* print_noise_indices(); */
+        /* r = do_correctly_working_fft_ifft(); */
         /* if (r != EXIT_SUCCESS) return EXIT_FAILURE; */
-        r = do_fourier(startNoise, endNoise);
+        r = do_cancel();
         if (r != EXIT_SUCCESS) return EXIT_FAILURE;
+        /* r = do_fourier_test(); */
+        /* if (r != EXIT_SUCCESS) return EXIT_FAILURE; */
         return r;
     }
 }
@@ -105,35 +115,28 @@ int main(void) {
 
 /*** Function definitions ***/
 
-int do_fourier(int* startNoise, int* endNoise) {
+int do_cancel() {
     int r;
     if (num_noise_segments <= 0) {
-        fprintf(stderr, "do_fourier: num_noise_segments is less than"
+        fprintf(stderr, "do_cancel: num_noise_segments is less than j"
                 "or equal to zero.\n");
         return EXIT_FAILURE;
     }
 
-    // kissfft states.
-    kiss_fft_cfg kfft_fourier_state;
-    kiss_fft_cfg kfft_inverse_fourier_state;
-
     // These will contain the cancelling noise segments that will be output to
     // the speaker.
-    // Simply speaking this is an array of signals (a signal is an array too,
-    // thus we have got a 2d array).
+    // Simply speaking this is an array of signals (an individual signal is an
+    // array too, thus we have got a 2-dimensional array).
 #if USE_MALLOC
         kiss_fft_cpx** cx_cancelling_segments = (kiss_fft_cpx**)
             malloc2d(num_noise_segments, MAX_NSAMPLES, sizeof(kiss_fft_cpx));
+        make_zero2d(cx_cancelling_segments, num_noise_segments, MAX_NSAMPLES);
 #else
         kiss_fft_cpx cx_cancelling_segments[num_noise_segments][MAX_NSAMPLES];
 #endif
+
     // Array of the number of samples of each noise segment.
     int segment_sizes[num_noise_segments];
-
-    // Initialise the kissfft state buffers.
-    kfft_fourier_state = kiss_fft_alloc(NSAMPLES, FOURIER, 0, 0);
-    kfft_inverse_fourier_state = kiss_fft_alloc(NSAMPLES,
-            INVERSE_FOURIER, 0, 0);
 
     // For all noise segments:
     //
@@ -142,65 +145,74 @@ int do_fourier(int* startNoise, int* endNoise) {
     // 3. Invert the frequencies.
     // 4. Compute inverse fourier to generate cancelling noise.
     for (int i = 0; i < num_noise_segments; ++i) {
-        /* if (i == 1 || i == 3) { */
-            /* continue; */
-        /* } */
         // Compute the length of the segment.
-        segment_sizes[i] = endNoise[i] - startNoise[i];
+        segment_sizes[i] = end_noise[i] - start_noise[i];
         if (segment_sizes[i] > MAX_NSAMPLES) {
-            fprintf(stderr, "do_fourier: I cannot fit it in it is too big!\n");
-            fprintf(stderr, "Continuing\n");
-            /* goto fail; */
-            continue;
+            fprintf(stderr, "do_cancel: I cannot fit it in it is too big!\n");
+#if USE_MALLOC
+            free(cx_cancelling_segments);
+#endif
+            return EXIT_FAILURE;
         }
+        // Initialise the kissfft state buffers.
+        kiss_fft_cfg kfft_fourier_state =
+            kiss_fft_alloc(segment_sizes[i], FOURIER, 0, 0);
+        kiss_fft_cfg kfft_inverse_fourier_state =
+            kiss_fft_alloc(segment_sizes[i], INVERSE_FOURIER, 0, 0);
+
 
         // 1. Get a noise segment.
         kiss_fft_cpx cx_noise_segment[segment_sizes[i]];
-        r = get_noise_segment(cx_noise_segment, startNoise[i], endNoise[i]);
+        cx_make_zero(cx_noise_segment, segment_sizes[i]);
+        r = get_noise_segment(cx_noise_segment, start_noise[i], end_noise[i]);
         if (r != EXIT_SUCCESS) {
-            fprintf(stderr, "do_fourier: Could not get noise segment.\n");
-            goto fail;
+            fprintf(stderr, "do_cancel: Could not get noise segment.\n");
+            free(kfft_fourier_state);
+            free(kfft_inverse_fourier_state);
+#if USE_MALLOC
+            free(cx_cancelling_segments);
+#endif
+            return EXIT_FAILURE;
         }
 
 
         // 2. Compute Fourier to get the noise frequencies.
         kiss_fft_cpx cx_noise_segment_fourier[segment_sizes[i]];
-        printf("segment_size[%d]: %d\n", i, segment_sizes[i]);
+        cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
         
-        printf("Awaiting segmentation faults! :D\n");
         // 3. Invert the frequencies.
         invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
         if (r != EXIT_SUCCESS) {
-            fprintf(stderr, "do_fourier: Could not invert frequencies\n");
-            goto fail;
+            fprintf(stderr, "do_cancel: Could not invert frequencies\n");
+            free(kfft_fourier_state);
+            free(kfft_inverse_fourier_state);
+#if USE_MALLOC
+            free(cx_cancelling_segments);
+#endif
+            return EXIT_FAILURE;
         }
 
         // 4. Compute inverse fourier to generate cancelling noise.
         ifft_and_restore(&kfft_inverse_fourier_state, cx_noise_segment_fourier,
                 cx_cancelling_segments[i], segment_sizes[i]);
+
+        // Free configs.
+        free(kfft_fourier_state);
+        free(kfft_inverse_fourier_state);
+        /* epsilon_compare_signals(cx_noise_segment, cx_cancelling_segments[i], */
+        /*         segment_sizes[i], EPSILON); */
     }
 
     print_segments(cx_cancelling_segments, num_noise_segments, segment_sizes);
-    
-    // Free configs.
-    free(kfft_fourier_state);
-    free(kfft_inverse_fourier_state);
 #if USE_MALLOC
     free(cx_cancelling_segments);
 #endif
+    printf("\nDONE with do_cancel!\n");
     return EXIT_SUCCESS;
-
-fail:
-    free(kfft_fourier_state);
-    free(kfft_inverse_fourier_state);
-#if USE_MALLOC
-    free(cx_cancelling_segments);
-#endif
-    return EXIT_FAILURE;
 }
 
-int do_fourier_for_testing_purposes(void) {
+int do_correctly_working_fft_ifft(void) {
     // The kiss_fft config.
     kiss_fft_cfg kfft_state;
     // kiss_fft's complex number type.
@@ -218,7 +230,7 @@ int do_fourier_for_testing_purposes(void) {
     kfft_state = kiss_fft_alloc(NSAMPLES, FOURIER, 0, 0);
 
     // Create signal
-    create_signal(cx_in);
+    create_signal(cx_in, NSAMPLES);
 
     // Perform fast fourier transform on a complex input buffer.
     // Elaboration on params:
@@ -229,7 +241,7 @@ int do_fourier_for_testing_purposes(void) {
 
     // Compare original signal with fourier transform.
     /* printf("Comparing cx_in and cx_out\n"); */
-    /* epsilon_compare_signals(cx_in, cx_out, NSAMPLES); */
+    /* epsilon_compare_signals(cx_in, cx_out, NSAMPLES, 0.0001); */
 
     /* intensity = sqrt(pow(cx_out[i].r,2) + pow(cx_out[i].i,2)); */
     /* printf("%d - %9.4f\n", i, intensity); */
@@ -246,49 +258,89 @@ int do_fourier_for_testing_purposes(void) {
     // Compare fourier transformed signal with inverse fourier transformed
     // signal.
     /* printf("Comparing cx_in and cx_iout\n"); */
-    /* epsilon_compare_signals(cx_in, cx_iout, NSAMPLES); */
+    /* epsilon_compare_signals(cx_in, cx_iout, 0.0001); */
 
     printf("\ncx_in\n");
     print_signal(cx_in, NSAMPLES);
-    /* printf("\ncx_out\n"); */
-    /* print_signal(cx_out); */
+    printf("\ncx_out\n");
+    print_signal(cx_out, NSAMPLES);
     printf("\ncx_iout\n");
     print_signal(cx_iout, NSAMPLES);
+    /* epsilon_compare_signals(cx_in, cx_iout, NSAMPLES, 0.0001); */
 
     free(kfft_state);
 
-    printf("\nDONE with do_fourier_for_testing_purposes!\n");
+    printf("\nDONE with do_correctly_working_fft_ifft!\n");
+    return EXIT_SUCCESS;
+}
+
+int do_fourier_test(void) {
+    const int samples = 8;
+    kiss_fft_cfg kfft_state;
+
+    kiss_fft_cpx cx_in[samples];
+    kiss_fft_cpx cx_out[samples];
+    kiss_fft_cpx cx_iout[samples];
+    cx_make_zero(cx_in, samples);
+    cx_make_zero(cx_out, samples);
+    cx_make_zero(cx_iout, samples);
+
+    kfft_state = kiss_fft_alloc(samples, FOURIER, 0, 0);
+
+    // Get the first of data_array.
+    for (int i = 0; i < samples; ++i) {
+        cx_in[i].r = data_array[i];
+    }
+
+    // Fourier transform.
+    kiss_fft(kfft_state, cx_in, cx_out);
+
+    free(kfft_state);
+    kfft_state = kiss_fft_alloc(samples, INVERSE_FOURIER, 0, 0);
+
+    // Inverse Fourier transform.
+    ifft_and_restore(&kfft_state, cx_out, cx_iout, samples);
+    /* kiss_fft(kfft_state, cx_out, cx_iout); */
+
+    /* printf("\ncx_in\n"); */
+    /* print_signal(cx_in, samples); */
+    /* printf("\ncx_out\n"); */
+    /* print_signal(cx_out, samples); */
+    /* printf("\ncx_iout\n"); */
+    /* print_signal(cx_iout, samples); */
+    epsilon_compare_signals(cx_in, cx_iout, samples, 0.1);
     return EXIT_SUCCESS;
 }
 
 void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
-        int n) {
+        int n, const double epsilon) {
     int there_is_a_difference = 0;
-    const double epsilon = 0.0001;
 
     for (int i = 0; i < n; ++i) {
         // Compare real and imaginary part of the signals.
-        if (!epsilon_compare(s1[i].r, s2[i].r, epsilon))
+        if (!epsilon_compare(s1[i].r, s2[i].r, epsilon)) {
             there_is_a_difference = 1;
-            printf("s1[%d].r = %f\ts2[%d].r = %f\tRe differs.\n", i,
+            printf("s1[%d].r = %-15f s2[%d].r = %f\tRe differs.\n", i,
                     s1[i].r, i, s2[i].r);
-        if (!epsilon_compare(s1[i].i, s2[i].i, epsilon))
+        }
+        if (!epsilon_compare(s1[i].i, s2[i].i, epsilon)) {
             there_is_a_difference = 1;
-            printf("s1[%d].i = %f\ts2[%d].i = %f\tIm differs.\n",
+            printf("s1[%d].i = %-15f s2[%d].i = %f\tIm differs.\n",
                     i, s1[i].i, i, s2[i].i);
         }
+    }
     if (there_is_a_difference) {
         putchar('\n');
     } else {
-        printf("No difference between the signals.\n");
+        printf("No differences between the signals.\n");
     }
 }
 
 int epsilon_compare(double d1, double d2, double epsilon) {
-    if (fabs(d1 - d2) < epsilon) {
+    if (fabs(d1 - d2) < epsilon) {  // They are equal.
         return TRUE;
     }
-    return FALSE;
+    return FALSE;   // They are not equal.
 }
 
 void print_signal(const kiss_fft_cpx *s, const int n) {
@@ -310,8 +362,8 @@ void ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
     }
 }
 
-void create_signal(kiss_fft_cpx* cx_in) {
-    for (int i = 0; i < NSAMPLES; ++i) {
+void create_signal(kiss_fft_cpx* cx_in, const int n) {
+    for (int i = 0; i < n; ++i) {
         // Fill the real part.
         // I did not want to put only 1's in so I made this if statement up.
         /* cx_in[i].r = 0.0; */
@@ -319,10 +371,10 @@ void create_signal(kiss_fft_cpx* cx_in) {
         /*     /1* cx_in[i].r = 0.0; *1/ */
         /*     cx_in[i].r = (double) i; */
         /* } */
-        cx_in[i].r = 1.0;
+        cx_in[i].r = (double) i + -4324.324;
         // No imaginary part.
         /* cx_in[i].i = 0.0; */
-        cx_in[i].i = (double) i;
+        cx_in[i].i = (double) i + 52239.23423;
     }
 
     /* // Conjugate symmetry of real signal. */
@@ -446,8 +498,8 @@ int do_recognize(void) {
     unsigned long prevAverage = 0;
     unsigned int used = 0;
 
-    /* int* startNoise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*startNoise))); */
-    /* int* endNoise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*endNoise))); */
+    /* int* start_noise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*start_noise))); */
+    /* int* end_noise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*end_noise))); */
     /* double *autoCorrelation = (double *)malloc(data_array_size * sizeof(*autoCorrelation)); */
     /* double *seg_1 = (double *)malloc(data_array_size * sizeof(*seg_1)); */
     /* double *seg_2 = (double *)malloc(data_array_size * sizeof(*seg_2)); */
@@ -459,8 +511,8 @@ int do_recognize(void) {
 /*         fprintf(stderr, "ERROR: Malloc failed\n\n"); */
 
 /*         free(autoCorrelation); */
-/*         /1* free(startNoise); *1/ */
-/*         /1* free(endNoise); *1/ */
+/*         /1* free(start_noise); *1/ */
+/*         /1* free(end_noise); *1/ */
 /*         free(seg_1); */
 /*         free(seg_2); */
 /*         free(seg_3); */
@@ -500,11 +552,11 @@ int do_recognize(void) {
             unsigned long safeZone = (prevAverage / 2);
             unsigned long tempAverage = prevAverage + safeZone;
             if (tempAverage < average && prevAverage > 500) {
-                /* *(startNoise + num_noise_segments) = k; */
-                startNoise[num_noise_segments] = k;
+                /* *(start_noise + num_noise_segments) = k; */
+                start_noise[num_noise_segments] = k;
                 k = recognizeEnd(k, prevAverage - safeZone);
-                /* *(endNoise + num_noise_segments) = k; */
-                endNoise[num_noise_segments] = k;
+                /* *(end_noise + num_noise_segments) = k; */
+                end_noise[num_noise_segments] = k;
                 num_noise_segments++;
             }
         }
@@ -518,16 +570,16 @@ int do_recognize(void) {
     /* for (int i = 0; i < num_noise_segments; ++i) { */
     /*     /1* printf("SEGMENT %d\n", i); *1/ */
 
-    /*     /1* sizeOfNoiseArray = *(endNoise + i) - *(startNoise + i); *1/ */
-    /*     sizeOfNoiseArray = endNoise[i] - startNoise[i]; */
+    /*     /1* sizeOfNoiseArray = *(end_noise + i) - *(start_noise + i); *1/ */
+    /*     sizeOfNoiseArray = end_noise[i] - start_noise[i]; */
     /*     double noiseArray[sizeOfNoiseArray]; */
 
     /*     /1* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); *1/ */
 
     /*     for (int y = 0; y < sizeOfNoiseArray; ++y) { */
     /*         /1* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); *1/ */
-    /*         /1* noiseArray[y] = data_array[*(startNoise + i) + y]; *1/ */
-    /*         noiseArray[y] = data_array[startNoise[i] + y]; */
+    /*         /1* noiseArray[y] = data_array[*(start_noise + i) + y]; *1/ */
+    /*         noiseArray[y] = data_array[start_noise[i] + y]; */
     /*         if (i == 0){ */
     /*             *(seg_1 + y) = noiseArray[y]; */
     /*             /1* printf("%f\n", *(seg_1 + y)); *1/ */
@@ -562,8 +614,8 @@ int do_recognize(void) {
     printf("\nDONE with recognize!\n");
 
     /* free(autoCorrelation); */
-    /* /1* free(startNoise); *1/ */
-    /* /1* free(endNoise); *1/ */
+    /* /1* free(start_noise); *1/ */
+    /* /1* free(end_noise); *1/ */
     /* free(seg_1); */
     /* free(seg_2); */
     /* free(seg_3); */
@@ -577,9 +629,9 @@ void print_noise_indices() {
     printf(" Start and end indices of noises.");
     printf(" ############\n");
     for (int i = 0; i < num_noise_segments; ++i) {
-        printf("startNoise[%d]:\t%d\n", i, startNoise[i]);
-        printf("endNoise[%d]:\t%d\n", i, endNoise[i]);
-        printf("size:\t\t%d\n", endNoise[i]-startNoise[i]);
+        printf("start_noise[%d]:\t%d\n", i, start_noise[i]);
+        printf("end_noise[%d]:\t%d\n", i, end_noise[i]);
+        printf("size:\t\t%d\n", end_noise[i]-start_noise[i]);
     }
     printf("############\n\n");
 }
@@ -612,7 +664,7 @@ int invert_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples) {
 
 void print_segment(const kiss_fft_cpx* s, const int n) {
     for (int i = 0; i < n; ++i) {
-        printf("s[%d].r = %f\ts[%d].i = %f\n", i, s[i].r, i, s[i].i);
+        printf("s[%d].r = %-15f\ts[%d].i = %-15f\n", i, s[i].r, i, s[i].i);
     }
 }
 
@@ -650,4 +702,15 @@ void** malloc2d(const int nrows, const int ncols , const size_t size) {
         }
     }
     return p;
+}
+
+void cx_make_zero(kiss_fft_cpx* cx_in, const int size) {
+    for (int i = 0; i < size; ++i) {
+        cx_in[i].r = 0.0;
+        cx_in[i].i = 0.0;
+    }
+}
+
+void make_zero2d(kiss_fft_cpx** cx_in, const int rows, const int cols) {
+    for (int i = 0; i < rows; ++i) cx_make_zero(*cx_in, cols); 
 }
