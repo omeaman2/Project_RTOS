@@ -5,6 +5,7 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [] Make the other arrays and and start and end noises optionally malloc.
  - [] Remove `make_zero` calls later. They are used for testing and take up
       unnecessary computation time.
  - [✓] Fourier does not operate correctly in `do_fourier()`.
@@ -649,4 +650,4 @@ Changed
 ```
 
 
-Confitmed working with both `USE_MALLOC` turned on and off.
+Confirmed working with both `USE_MALLOC` turned on and off.

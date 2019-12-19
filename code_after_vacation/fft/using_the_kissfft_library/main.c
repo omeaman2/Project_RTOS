@@ -178,7 +178,7 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment, segment_sizes[i]);
         r = get_noise_segment(cx_noise_segment, start_noise[i], end_noise[i]);
         if (r != OK) {
-            fprintf(stderr, "do_cancel: Could not get noise segment.\n");
+            fprintf(stderr, "do_cancel: error while getting noise segment.\n");
             goto fail;
         }
 
@@ -190,7 +190,7 @@ int do_cancel() {
         // 3. Invert the frequencies.
         r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
         if (r != OK) {
-            fprintf(stderr, "do_cancel: Could not invert frequencies\n");
+            fprintf(stderr, "do_cancel: error while inverting frequencies\n");
             goto fail;
         }
 
@@ -199,7 +199,7 @@ int do_cancel() {
                 cx_noise_segment_fourier, cx_cancelling_segments[i],
                 segment_sizes[i]);
         if (r != OK) {
-            fprintf(stderr, "do_cancel: Could not perform inverse fft\n");
+            fprintf(stderr, "do_cancel: error while executing inverse fft.\n");
             goto fail;
         }
 
@@ -692,7 +692,7 @@ int print_segment(const kiss_fft_cpx* s, const int n) {
 int print_segments(kiss_fft_cpx** segments, const int num_segments,
         const int* sizes) {
     for (int i = 0; i < num_segments; ++i) {
-        printf("Segment:\t%d\n", i);
+        printf("Segment: %d\n", i);
         if (print_segment(segments[i], sizes[i]) != OK) return NOT_OK;
     }
     return OK;
@@ -701,7 +701,7 @@ int print_segments(kiss_fft_cpx** segments, const int num_segments,
 int print_segments(const kiss_fft_cpx segments[MAX_NSEGMENTS][MAX_NSAMPLES],
         const int num_segments, const int* sizes) {
     for (int i = 0; i < num_segments; ++i) {
-        printf("Segment:\t%d\n", i);
+        printf("Segment: %d\n", i);
         if (print_segment(segments[i], sizes[i]) != OK) return NOT_OK;
     }
     return OK;
