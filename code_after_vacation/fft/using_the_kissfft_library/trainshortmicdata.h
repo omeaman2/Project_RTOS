@@ -21,6 +21,9 @@
 // Number of samples, only used for testing.
 #define NSAMPLES 16
 
+// File to save new_data_array.txt to.
+#define FILE_NEW_DATA_ARRAY "../../../resources/new_data_array.txt"
+
 
 // Boolean functionality
 enum boolean {

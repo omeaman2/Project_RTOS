@@ -38,8 +38,11 @@ void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
 // The comparison. Returns TRUE if d1 and d2 are equal. FALSE if they are not.
 int epsilon_compare(double d1, double d2, double epsilon);
 
-// Print a complex numbered signal.
-void print_signal(const kiss_fft_cpx *s, const int n);
+// Print a complex signal.
+void cx_print_signal(const kiss_fft_cpx *s, const int n);
+
+// Print a real signal.
+void print_signal(const double *s, const int n);
 
 // Do inverse Fourier transform and restore the original signal from a fourier
 // transformed signal.
@@ -65,6 +68,10 @@ int get_noise_segment(kiss_fft_cpx* cx_in, const int start_noise, const int
 // Invert the frequencies of a complex numbered fourier transformed signal.
 int invert_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples);
 
+// Set frequencies of a complex numbered fourier transformed signal to value.
+int set_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
+        double rvalue, double ivalue);
+
 // Print start and end indices of noises.
 void print_noise_indices();
 
@@ -87,12 +94,33 @@ void cx_make_zero(kiss_fft_cpx* cx_in, const int size);
 
 void make_zero2d(kiss_fft_cpx** cx_in, const int rows, const int cols);
 
+int free_global_resources();
+
+// Copy data_array and replace noise segments with the cancelling noise
+// segments data in the copy. This is for testing purposes as this is clearly
+// not realtime.
+int copy_signal_and_write_segments_to_copied_signal(double* new_data_array);
+
+// Copy data array into a new array. the new array must be large enough to hold
+// all samples of the original data array.
+int copy_signal(double* new_data_array, int original_size);
+
+// Get the value from the signal at the specified index.
+double value_at_index(const double* s, const int i);
+
+int print_values_between(const double *s, const int beg, const int end);
+
+int write_signal_to_file(const char* filename, const double* s, const int n);
 
 /*** Global variables ***/
+
+// Array for the number of samples of each noise segment.
+int segment_sizes[MAX_NSEGMENTS];
 
 // Arrays containing the start index and the end index of the noises.
 int start_noise[MAX_NSEGMENTS];
 int end_noise[MAX_NSEGMENTS];
+
 // Actual number of noise segments.
 int num_noise_segments = 0;
 
@@ -103,10 +131,6 @@ kiss_fft_cpx** cx_cancelling_segments;
 kiss_fft_cpx cx_cancelling_segments[MAX_NSEGMENTS][MAX_NSAMPLES];
 #endif
 
-// Array for the number of samples of each noise segment.
-int segment_sizes[MAX_NSEGMENTS];
-
-
 // The program
 int main(void) {
     for (int i = 0; ; ++i) {
@@ -115,8 +139,30 @@ int main(void) {
         if (r != OK) return EXIT_FAILURE;
         r = do_cancel();
         if (r != OK) return EXIT_FAILURE;
-        r = do_output_to_speaker();
-        if (r != OK) return EXIT_FAILURE;
+        /* r = do_output_to_speaker(); */
+        /* if (r != OK) return EXIT_FAILURE; */
+
+        double new_data_array[data_array_size];
+        copy_signal_and_write_segments_to_copied_signal(new_data_array);
+
+        /* print_noise_indices(); */
+        /* printf("data_array:\n"); */
+        /* print_values_between(data_array, start_noise[0]-5, start_noise[0]+5); */
+        /* print_values_between(data_array, end_noise[0]-5, end_noise[0]+5); */
+        /* printf("new_data_array:\n"); */
+        /* print_values_between(new_data_array, start_noise[0]-5, */
+        /*         start_noise[0]+5); */
+        /* print_values_between(new_data_array, end_noise[0]-5, */
+        /*         end_noise[0]+5); */
+
+        /* print_signal(new_data_array, data_array_size); */
+        write_signal_to_file(FILE_NEW_DATA_ARRAY, new_data_array,
+                data_array_size);
+
+#if USE_MALLOC
+        free_global_resources();
+#endif
+
         // Remove this to run indefinitely.
         return EXIT_SUCCESS;
     }
@@ -145,8 +191,6 @@ int do_cancel() {
     cx_cancelling_segments = (kiss_fft_cpx**)
         malloc2d(num_noise_segments, MAX_NSAMPLES, sizeof(kiss_fft_cpx));
     make_zero2d(cx_cancelling_segments, num_noise_segments, MAX_NSAMPLES);
-#else
-    cx_cancelling_segments[num_noise_segments][MAX_NSAMPLES];
 #endif
 
     // kissfft state buffers.
@@ -157,7 +201,7 @@ int do_cancel() {
     //
     // 1. Get a noise segment.
     // 2. Compute Fourier to get the noise frequencies.
-    // 3. Invert the frequencies.
+    // 3. Invert the frequencies or set frequencies to specified values.
     // 4. Compute inverse fourier to generate cancelling noise.
     for (int i = 0; i < num_noise_segments; ++i) {
         // Compute the length of the segment.
@@ -187,10 +231,17 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        // 3. Invert the frequencies.
-        r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
+        /* // 3. Invert the frequencies. */
+        /* r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
+        /* if (r != OK) { */
+        /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
+        /*     goto fail; */
+        /* } */
+
+        // 3. Set frequencies to specified rvalue and ivalue.
+        r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, 0.0);
         if (r != OK) {
-            fprintf(stderr, "do_cancel: error while inverting frequencies\n");
+            fprintf(stderr, "do_cancel: error while setting frequencies\n");
             goto fail;
         }
 
@@ -206,16 +257,20 @@ int do_cancel() {
         // Free configs.
         free(kfft_fourier_state);
         free(kfft_inverse_fourier_state);
+        kfft_fourier_state = NULL;
+        kfft_inverse_fourier_state = NULL;
     }
 
-    printf("\nDONE with do_cancel!\n");
+    printf("\n##### DONE with do_cancel! #####\n");
     return OK;
 
 fail:
     free(kfft_fourier_state);
     free(kfft_inverse_fourier_state);
+    kfft_fourier_state = NULL;
+    kfft_inverse_fourier_state = NULL;
 #if USE_MALLOC
-    free(cx_cancelling_segments);
+    free_global_resources();
 #endif
     return NOT_OK;
 }
@@ -258,6 +313,7 @@ int do_correctly_working_fft_ifft(void) {
     //kiss_fft_free(kfft_state);
     // According to comments in kiss_fft.c regular free should work just fine.
     free(kfft_state);
+    kfft_state = NULL;
 
     // Allocate inverse fourier state.
     kfft_state = kiss_fft_alloc(NSAMPLES, INVERSE_FOURIER, 0, 0);
@@ -269,14 +325,15 @@ int do_correctly_working_fft_ifft(void) {
     /* epsilon_compare_signals(cx_in, cx_iout, 0.0001); */
 
     printf("\ncx_in\n");
-    print_signal(cx_in, NSAMPLES);
+    cx_print_signal(cx_in, NSAMPLES);
     printf("\ncx_out\n");
-    print_signal(cx_out, NSAMPLES);
+    cx_print_signal(cx_out, NSAMPLES);
     printf("\ncx_iout\n");
-    print_signal(cx_iout, NSAMPLES);
+    cx_print_signal(cx_iout, NSAMPLES);
     /* epsilon_compare_signals(cx_in, cx_iout, NSAMPLES, 0.0001); */
 
     free(kfft_state);
+    kfft_state = NULL;
 
     printf("\nDONE with do_correctly_working_fft_ifft!\n");
     return OK;
@@ -304,6 +361,7 @@ int do_fourier_test(void) {
     kiss_fft(kfft_state, cx_in, cx_out);
 
     free(kfft_state);
+    kfft_state = NULL;
     kfft_state = kiss_fft_alloc(samples, INVERSE_FOURIER, 0, 0);
 
     // Inverse Fourier transform.
@@ -351,9 +409,15 @@ int epsilon_compare(double d1, double d2, double epsilon) {
     return FALSE;   // They are not equal.
 }
 
-void print_signal(const kiss_fft_cpx *s, const int n) {
+void cx_print_signal(const kiss_fft_cpx *s, const int n) {
     for (int i = 0; i < n; ++i) {
         printf("s[%d].r = %f\ts[%d].i = %f\n", i, s[i].r, i, s[i].i);
+    }
+}
+
+void print_signal(const double *s, const int n) {
+    for (int i = 0; i < n; ++i) {
+        printf("s[%d] = %-15f\n", i, s[i]);
     }
 }
 
@@ -620,7 +684,7 @@ int do_recognize(void) {
     /* } */
 
 
-    printf("\nDONE with recognize!\n");
+    printf("\n##### DONE with do_recognize! #####\n");
 
     /* free(autoCorrelation); */
     /* /1* free(start_noise); *1/ */
@@ -637,9 +701,6 @@ int do_output_to_speaker(void) {
     int r;
     r = print_segments(cx_cancelling_segments, num_noise_segments,
             segment_sizes);
-#if USE_MALLOC
-    free(cx_cancelling_segments);
-#endif
     return r;
 }
 
@@ -681,7 +742,17 @@ int invert_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples) {
     return OK;
 }
 
+int set_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
+        double rvalue, double ivalue) {
+    for (int i = 0; i < num_segment_samples; ++i) {
+        cx_in[i].r = rvalue;
+        cx_in[i].i = ivalue;
+    }
+    return OK;
+}
+
 int print_segment(const kiss_fft_cpx* s, const int n) {
+    if (s == NULL) return NOT_OK;
     for (int i = 0; i < n; ++i) {
         printf("s[%d].r = %-15f\ts[%d].i = %-15f\n", i, s[i].r, i, s[i].i);
     }
@@ -691,6 +762,7 @@ int print_segment(const kiss_fft_cpx* s, const int n) {
 #if USE_MALLOC
 int print_segments(kiss_fft_cpx** segments, const int num_segments,
         const int* sizes) {
+    if (segments == NULL) return NOT_OK;
     for (int i = 0; i < num_segments; ++i) {
         printf("Segment: %d\n", i);
         if (print_segment(segments[i], sizes[i]) != OK) return NOT_OK;
@@ -700,6 +772,7 @@ int print_segments(kiss_fft_cpx** segments, const int num_segments,
 #else
 int print_segments(const kiss_fft_cpx segments[MAX_NSEGMENTS][MAX_NSAMPLES],
         const int num_segments, const int* sizes) {
+    if (segments == NULL) return NOT_OK;
     for (int i = 0; i < num_segments; ++i) {
         printf("Segment: %d\n", i);
         if (print_segment(segments[i], sizes[i]) != OK) return NOT_OK;
@@ -720,6 +793,7 @@ void** malloc2d(const int nrows, const int ncols , const size_t size) {
         if(p[i] == NULL) {
             fprintf(stderr, "malloc_2d_array: error in allocating array.\n");
             free(p);
+            p = NULL;
             return NULL;
         }
     }
@@ -735,4 +809,55 @@ void cx_make_zero(kiss_fft_cpx* cx_in, const int size) {
 
 void make_zero2d(kiss_fft_cpx** cx_in, const int rows, const int cols) {
     for (int i = 0; i < rows; ++i) cx_make_zero(*cx_in, cols); 
+}
+
+int free_global_resources() {
+    free(cx_cancelling_segments);
+    cx_cancelling_segments = NULL;
+    return OK;
+}
+
+int copy_signal_and_write_segments_to_copied_signal(double* new_data_array) {
+    int r;
+    r = copy_signal(new_data_array, data_array_size);
+    if (r != OK) return r;
+
+    // Copy segments of anti-noise into the new_data_array.
+    for (int i = 0; i < num_noise_segments; ++i) {
+        for (int j = start_noise[i], k = 0; j < end_noise[i]; ++j, ++k) {
+            // Take the real part only.
+            new_data_array[j] = cx_cancelling_segments[i][k].r;
+        }
+    }
+
+    return OK;
+}
+
+int copy_signal(double* new_data_array, const int original_size) {
+    for (int i = 0; i < original_size; ++i) {
+        new_data_array[i] = data_array[i];
+    }
+    return OK;
+}
+
+double value_at_index(const double* s, const int i) {
+    return s[i];
+}
+
+int print_values_between(const double *s, const int beg, const int end) {
+    for (int i = beg; i < end; ++i) {
+        printf("s[%d] = %-15f\n", i, value_at_index(s, i));
+    }
+    return OK;
+}
+
+int write_signal_to_file(const char* filename, const double* s, const int n) {
+    FILE *f;
+    f = fopen(filename, "w");
+    for (int i = 0; i < n; ++i) {
+        fprintf(f, "%f%s", s[i], (i == n-1) ? "" : ",");
+    }
+    printf("##### Wrote to file! #####\n");
+    fclose(f);
+    return OK;
 }
