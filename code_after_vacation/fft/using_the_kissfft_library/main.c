@@ -10,8 +10,6 @@
 
 // Create cancelling noise. 
 int do_cancel();
-// Internally called by do_cancel. Computes fourier for a single noise segment.
-int do_cancel_internal(int start_noise, int end_noise);
 
 // This function does a fourier on a created signal followed by an inverse
 // fourier to get the original signal again.
@@ -33,10 +31,10 @@ int do_output_to_speaker(void);
 // epsilon = 0.001
 // then i and j equal each other.
 void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
-        int n, const double epsilon);
+        const int n, const double epsilon);
 
 // The comparison. Returns TRUE if d1 and d2 are equal. FALSE if they are not.
-int epsilon_compare(double d1, double d2, double epsilon);
+int epsilon_compare(const double d1, const double d2, const double epsilon);
 
 // Print a complex signal.
 void cx_print_signal(const kiss_fft_cpx *s, const int n);
@@ -103,7 +101,7 @@ int copy_signal_and_write_segments_to_copied_signal(double* new_data_array);
 
 // Copy data array into a new array. the new array must be large enough to hold
 // all samples of the original data array.
-int copy_signal(double* new_data_array, int original_size);
+int copy_signal(double* new_data_array, const int original_size);
 
 // Get the value from the signal at the specified index.
 double value_at_index(const double* s, const int i);
@@ -379,7 +377,7 @@ int do_fourier_test(void) {
 }
 
 void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
-        int n, const double epsilon) {
+        const int n, const double epsilon) {
     int there_is_a_difference = 0;
 
     for (int i = 0; i < n; ++i) {
@@ -402,7 +400,7 @@ void epsilon_compare_signals(const kiss_fft_cpx *s1, const kiss_fft_cpx *s2,
     }
 }
 
-int epsilon_compare(double d1, double d2, double epsilon) {
+int epsilon_compare(const double d1, const double d2, const double epsilon) {
     if (fabs(d1 - d2) < epsilon) {  // They are equal.
         return TRUE;
     }
