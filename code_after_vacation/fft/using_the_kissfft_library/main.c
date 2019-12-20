@@ -137,8 +137,8 @@ int main(void) {
         if (r != OK) return EXIT_FAILURE;
         r = do_cancel();
         if (r != OK) return EXIT_FAILURE;
-        r = do_output_to_speaker();
-        if (r != OK) return EXIT_FAILURE;
+        /* r = do_output_to_speaker(); */
+        /* if (r != OK) return EXIT_FAILURE; */
 
         double new_data_array[data_array_size];
         copy_signal_and_write_segments_to_copied_signal(new_data_array);
@@ -245,7 +245,7 @@ int do_cancel() {
 
         // 4. Compute inverse fourier to generate cancelling noise.
         if (cx_cancelling_segments[i] == NULL) {
-            fprintf(stderr, "do_cancel: cx_cancelling_segments[%d] is NULL", i);
+            fprintf(stderr, "do_cancel: cx_cancelling_segments[%d] is NULL\n", i);
             goto fail;
         }
         r = ifft_and_restore(&kfft_inverse_fourier_state,
