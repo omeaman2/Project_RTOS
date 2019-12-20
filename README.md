@@ -5,6 +5,7 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [] Add != null checks on pointers to malloced data.
  - [] Make the other arrays and and start and end noises optionally malloc.
  - [] Remove `make_zero` calls later. They are used for testing and take up
       unnecessary computation time.
