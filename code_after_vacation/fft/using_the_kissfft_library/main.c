@@ -555,9 +555,10 @@ int recognizeEnd(int start, unsigned long startMedium) {
         }
 
         average = counter / 30;
+	int safeZone = startMedium / 2;
         // If average is lower than the value at the start of the noise, noise
         // ended so function is stopped.
-        if(average <= startMedium) {
+        if(average <= (startMedium + safeZone)) {
             /* printf(" end noise %d \n", k); */
             return k;
         }
