@@ -17,16 +17,19 @@ obj2.setnchannels(channels)
 obj2.setsampwidth(sample_width)
 obj2.setframerate(sample_rate)
 
-for i in range(nframes):
-   value = random.randint(-32767, 32767)
-   data = struct.pack('<h', value)
-   obj2.writeframesraw(data)
+# for i in range(nframes):
+#    value = random.randint(-32767, 32767)
+#    data = struct.pack('<h', value)
+#    obj.writeframesraw(data)
 
-print( "Number of channels",channels)
-print ( "Sample width", sample_width)
-print ( "Sample rate.", sample_rate)
-print ("Number of frames", nframes)
-print ( "parameters:", params)
+for i in range(nframes):
+    frame = obj.readframes(1)
+
+print("Number of channels:",channels)
+print ("Sample width:", sample_width)
+print ("Sample rate:", sample_rate)
+print ("Number of frames:", nframes)
+print ("parameters:", params)
 
 obj.close()
 obj2.close()
