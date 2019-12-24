@@ -134,6 +134,7 @@ int main(void) {
     for (int i = 0; ; ++i) {
         int r;
         r = do_recognize();
+        print_noise_indices(); 
         if (r != OK) return EXIT_FAILURE;
         r = do_cancel();
         if (r != OK) return EXIT_FAILURE;
@@ -143,7 +144,7 @@ int main(void) {
         double new_data_array[data_array_size];
         copy_signal_and_write_segments_to_copied_signal(new_data_array);
 
-        /* print_noise_indices(); */
+        
         /* printf("data_array:\n"); */
         /* print_values_between(data_array, start_noise[0]-5, start_noise[0]+5); */
         /* print_values_between(data_array, end_noise[0]-5, end_noise[0]+5); */
@@ -543,18 +544,18 @@ int recognizeEnd(int start, unsigned long startMedium) {
     if(maxCount < data_array_size) {
         maxLoop = maxCount;
     } else {
-        maxLoop = data_array_size - 30;
+        maxLoop = data_array_size - 120;
     }
     /* printf("start noise %d", start); */
     // Loop from start of noise to max 0.5 second further.
     for(int k = start; k < maxLoop; k++) {
         counter = 0;
         // Check if noise drasticly decreases in next 0.05 seconds 
-        for(int i = k; i < (k + 30); i++) {
+        for(int i = k; i < (k + 120); i++) {
             counter += fabs(data_array[i]);
         }
 
-        average = counter / 30;
+        average = counter / 120;
 	int safeZone = startMedium / 2;
         // If average is lower than the value at the start of the noise, noise
         // ended so function is stopped.
@@ -601,11 +602,11 @@ int do_recognize(void) {
     // Loop complete array, safezone of 400 because next 400 elements are looped
     // before check is reached
     num_noise_segments = 0;
-    for (int k = 0; k < (data_array_size - 400); k += 400) {
+    for (int k = 0; k < (data_array_size - 120); k += 120) {
         counter = 0;
         used = 0;
         // Loop next 400 ellements calculate average
-        for (int i = k; i < (k + 400); i++) {
+        for (int i = k; i < (k + 120); i++) {
             int data = fabs(data_array[i]);
             // If value of data < 500 it can't be heard and is not usable
             if (data > 500) {
