@@ -132,8 +132,7 @@ kiss_fft_cpx cx_cancelling_segments[MAX_NSEGMENTS][MAX_NSAMPLES];
 // The program
 int main(void) {
     for (int i = 0; ; ++i) {
-        int r;
-        r = do_recognize();
+        int r = do_recognize();
         print_noise_indices(); 
         if (r != OK) return EXIT_FAILURE;
         r = do_cancel();
