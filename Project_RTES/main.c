@@ -4,8 +4,7 @@
 #include <stdio.h>
 
 int main(void) {
-    RTES_Buffer_t buffer;
-    initBuffer(&buffer, RTES_BUFFER_SIZE);
+    RTES_Buffer_t buffer = createBuffer(RTES_BUFFER_SIZE);
 
     /* Get some samples to insert */
     RTES_Sample_t sample_a = { 25.5f };

@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 #define USE_TEMPFREERTOS       (1)
 #include "tempFREERTOS.h"
@@ -16,10 +18,11 @@ typedef struct {
 /* This struct represents the circular buffer used to store samples */
 #define RTES_BUFFER_SIZE        (2000)
 typedef struct {
-    RTES_Sample_t *samples;
-    size_t index_first; // Index to read first sample from
-    size_t index_next; // Index to place next sample
-    size_t size; // Amount of samples which can be stored in this buffer
+    RTES_Sample_t * samples;
+    size_t index_first; // Read first sample from samples[index_first]
+    size_t index_next; // Place next sample into samples[index_next]
+    size_t used; // Amount of samples stored in samples[]
+    const size_t size; // Maximum amount of samples in samples[]
 } RTES_Buffer_t;
 
 /* This struct specifies all parameters passed to the task */
@@ -30,10 +33,13 @@ typedef struct {
     TickType_t *xTaskPeriod;
 } RTES_TaskParameters;
 
-void initBuffer(RTES_Buffer_t *buffer, size_t size);
+RTES_Buffer_t createBuffer(size_t size);
+size_t incrementIndexWithRollover(size_t base, size_t size, size_t n);
 void insertIntoBuffer(RTES_Buffer_t *buffer, RTES_Sample_t sample);
 RTES_Sample_t readFromBuffer(RTES_Buffer_t *buffer, size_t offset);
 void removeFromBuffer(RTES_Buffer_t *buffer);
+void removeItemsFromBuffer(RTES_Buffer_t *buffer, size_t amount);
+void copyBuffer(RTES_Buffer_t *dest, const RTES_Buffer_t *src, size_t n);
 void freeBuffer(RTES_Buffer_t *buffer);
 
 #endif /* RTES_H */
