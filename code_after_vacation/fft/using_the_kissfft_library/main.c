@@ -229,12 +229,12 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        // 3. Invert the frequencies.
-        r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
-        if (r != OK) {
-            fprintf(stderr, "do_cancel: error while inverting frequencies\n");
-            goto fail;
-        }
+        /* // 3. Invert the frequencies. */
+        /* r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
+        /* if (r != OK) { */
+        /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
+        /*     goto fail; */
+        /* } */
 
         /* // 3. Set frequencies to specified rvalue and ivalue. */
         /* r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, 0.0); */
@@ -858,7 +858,7 @@ int write_signal_to_file(const char* filename, const double* s, const int n) {
     FILE *f;
     f = fopen(filename, "w");
     for (int i = 0; i < n; ++i) {
-        fprintf(f, "%f%s", s[i], (i == n-1) ? "" : ",");
+        fprintf(f, "%d%s", (int) s[i], (i == n-1) ? "" : ",");
     }
     printf("##### Wrote to file! #####\n");
     fclose(f);
