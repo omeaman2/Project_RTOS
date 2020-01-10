@@ -87,6 +87,7 @@ int print_segments(const kiss_fft_cpx segments[MAX_NSEGMENTS][MAX_NSAMPLES],
 // Allocates a 2-dimensional array on the heap.
 void** malloc2d(const int nrows, const int ncols , const size_t size);
 
+// No need to use this @Mike :)!
 // Make a complex numbered array zero .
 void cx_make_zero(kiss_fft_cpx* cx_in, const int size);
 
@@ -132,16 +133,17 @@ kiss_fft_cpx cx_cancelling_segments[MAX_NSEGMENTS][MAX_NSAMPLES];
 // The program
 int main(void) {
     for (int i = 0; ; ++i) {
-        int r = do_recognize();
-        print_noise_indices(); 
-        if (r != OK) return EXIT_FAILURE;
-        r = do_cancel();
-        if (r != OK) return EXIT_FAILURE;
+        int r;
+        /* r = do_recognize(); */
+        /* print_noise_indices(); */ 
+        /* if (r != OK) return EXIT_FAILURE; */
+        /* r = do_cancel(); */
+        /* if (r != OK) return EXIT_FAILURE; */
         /* r = do_output_to_speaker(); */
         /* if (r != OK) return EXIT_FAILURE; */
 
         double new_data_array[data_array_size];
-        copy_signal_and_write_segments_to_copied_signal(new_data_array);
+        /* copy_signal_and_write_segments_to_copied_signal(new_data_array); */
 
         
         /* printf("data_array:\n"); */
@@ -154,7 +156,9 @@ int main(void) {
         /*         end_noise[0]+5); */
 
         /* print_signal(new_data_array, data_array_size); */
-        write_signal_to_file(FILE_NEW_DATA_ARRAY, new_data_array,
+        /* write_signal_to_file(FILE_NEW_DATA_ARRAY, new_data_array, */
+        /*         data_array_size); */
+        write_signal_to_file(FILE_NEW_DATA_ARRAY, data_array,
                 data_array_size);
 
 #if USE_MALLOC
