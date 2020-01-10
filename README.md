@@ -5,6 +5,10 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [✓] Make sure the graph is valid.
+ - [✓] Be able to listen to a wav file.
+ - [] In Fourier cancel only the most common frequencies (need to determine a
+   cutoff in the fourier for that).
  - [] Add != null checks on pointers to malloced data.
  - [] Make the other arrays and and start and end noises optionally malloc.
  - [] Remove `make_zero` calls later. They are used for testing and take up
@@ -652,3 +656,5 @@ Changed
 
 
 Confirmed working with both `USE_MALLOC` turned on and off.
+
+## Fri 10 Jan 2020 12:45:17 PM CET
