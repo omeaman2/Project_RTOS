@@ -22,6 +22,7 @@ obj2.setframerate(sample_rate)
 #    data = struct.pack('<h', value)
 #    obj.writeframesraw(data)
 
+
 for i in range(nframes):
     frame = obj.readframes(1)
 
