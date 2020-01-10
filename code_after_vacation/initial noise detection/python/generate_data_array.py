@@ -1,7 +1,7 @@
 from scipy.io import wavfile
 import numpy as np
 
-jump = 8
+jump = 1
 
 a = wavfile.read('../../../resources/train_short.wav')
 data = np.array(a[1], dtype=float)
@@ -14,14 +14,3 @@ for i in range(0, data.size, jump):
     f.write("%d," % data[i])
 
 f.close()
-
-# samplerate = 44100 // jump
-# # samplerate = 44100
-
-# f2 = open('../../../resources/data_array.txt', 'r')
-# new_data = f2.read().split(',')
-# new_data = np.asarray(new_data, dtype=np.float64)
-# print('new_data:\t', new_data)
-# wavfile.write('../../../resources/new_data_array.wav',
-#         samplerate, new_data)
-# f2.close()
