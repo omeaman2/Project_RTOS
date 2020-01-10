@@ -657,7 +657,4 @@ Changed
 
 Confirmed working with both `USE_MALLOC` turned on and off.
 
-
 ## Fri 10 Jan 2020 12:45:17 PM CET
-
-Maikel: 5.1 should not have Fourier.
