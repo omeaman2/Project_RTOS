@@ -6,7 +6,8 @@ RTES_Buffer_t createBuffer(size_t size) {
     
     /* Malloc returns NULL in case of failure */
     if (tmp == NULL) {
-        printf("Error in initBuffer: malloc failed to allocate memory!");
+        printf("Error in createBuffer: malloc failed to allocate %zu"
+               " bytes of memory.", (size * sizeof(RTES_Sample_t)));
         free(tmp);
         exit(EXIT_FAILURE);
     }
@@ -30,24 +31,27 @@ size_t incrementIndexWithRollover(size_t base, size_t size, size_t n) {
 /* Insert a sample into index index_next of the samples buffer */
 void insertIntoBuffer(RTES_Buffer_t *buffer, RTES_Sample_t sample) {
     if (buffer->used == buffer->size) {
-        printf("Error in insertIntoBuffer: trying to insert into a full buffer!");
+        printf("Error insertIntoBuffer: trying to insert into a full"
+        " buffer.");
         exit(EXIT_FAILURE);
     }
 
     buffer->samples[buffer->index_next] = sample;
     buffer->used++;    
-    buffer->index_next = incrementIndexWithRollover(buffer->index_next, buffer->size, 1);
+    buffer->index_next = incrementIndexWithRollover(buffer->index_next, 
+                                                    buffer->size, 1);
 }
 
-/* Get a sample from the buffer at a offset relative to index_first,
-    note index_first is not updated since samples may be read multiple times */
+/* Get a sample from the buffer at an offset relative to index_first,
+    note index_first is not updated as samples are read multiple times */
 RTES_Sample_t readFromBuffer(RTES_Buffer_t *buffer, size_t offset) {
     if (buffer->used == 0) {
-        printf("Error in readFromBuffer: trying to read from an empty buffer!");
+        printf("readFromBuffer: trying to read from an empty buffer.");
         exit(EXIT_FAILURE);
     }
 
-    size_t index = incrementIndexWithRollover(buffer->index_first, buffer->size, offset);
+    size_t index = incrementIndexWithRollover(buffer->index_first, 
+                                              buffer->size, offset);
 
     return buffer->samples[index];
 }
@@ -56,11 +60,12 @@ RTES_Sample_t readFromBuffer(RTES_Buffer_t *buffer, size_t offset) {
     note the sample will remain in the buffer until overwritten */
 void removeFromBuffer(RTES_Buffer_t *buffer) {
     if (buffer->used == 0) {
-        printf("Error in removeFromBuffer: trying to remove items from an empty buffer!");
+        printf("removeFromBuffer: trying to remove from an empty buffer.");
         exit(EXIT_FAILURE);
     }
 
-    buffer->index_first = incrementIndexWithRollover(buffer->index_first, buffer->size, 1);
+    buffer->index_first = incrementIndexWithRollover(buffer->index_first, 
+                                                     buffer->size, 1);
     buffer->used--;
 }
 
@@ -68,12 +73,34 @@ void removeFromBuffer(RTES_Buffer_t *buffer) {
     note the sample will remain in the buffer until overwritten */
 void removeItemsFromBuffer(RTES_Buffer_t *buffer, size_t amount) {
     if (amount > buffer->used) {
-        printf("Error in removeItemsFromBuffer: trying to remove more items than the buffer contains!");
+        printf("removeItemsFromBuffer: trying to remove %zu items from the"
+        " the buffer, but the buffer only contains %zu items.", amount,
+        buffer->used);
         exit(EXIT_FAILURE);
     } 
 
     /* Since 'remove' only updates the index_first, the index can be updated at once */ 
     buffer->index_first = incrementIndexWithRollover(buffer->index_first, buffer->size, amount);
+}
+
+/* Copies n samples from src buffer to dest buffer */
+void copyBuffer(RTES_Buffer_t *dest, RTES_Buffer_t *src, size_t n) {
+    if (n > src->used) {
+        printf("copyBuffer: trying to copy %zu items from the buffer, but"
+        " the buffer only contains %zu items.", n, src->used);
+        exit(EXIT_FAILURE);
+    }
+
+    if (n > dest->size) {
+        printf("copyBuffer: trying to copy %zu items from the buffer, but"
+        " the dest buffer only has %zu size.", n, dest->size);
+        exit(EXIT_FAILURE);
+
+    }
+        
+    for (size_t i = 0; i < src->used; i++) {
+        insertIntoBuffer(dest, readFromBuffer(src, i));    
+    }
 }
 
 void freeBuffer(RTES_Buffer_t *buffer) {

@@ -1,30 +1,36 @@
-#include "Noisecancel/noisecancel.h"
-#include "Recognize/recognize.h"
 #include "RTES.h"
 #include <stdio.h>
 
+/* Tasks */
+#include "Input/input.h"
+#include "Recognize/recognize.h"
+#include "Noisecancel/noisecancel.h"
+#include "Output/output.h"
+
 int main(void) {
-    RTES_Buffer_t buffer = createBuffer(RTES_BUFFER_SIZE);
+    RTES_Buffer_t input_buffer = createBuffer(RTES_BUFFER_SIZE);
+    RTES_Buffer_t cancel_buffer = createBuffer(RTES_BUFFER_SIZE);
 
-    /* Get some samples to insert */
-    RTES_Sample_t sample_a = { 25.5f };
-    RTES_Sample_t sample_b = { 35.5f };
-    RTES_Sample_t sample_c = { 45.5f };
-    RTES_Sample_t sample_d = { 55.5f };
-    RTES_Sample_t sample_e = { 65.5f };
-    
-    insertIntoBuffer(&buffer, sample_a);
-    insertIntoBuffer(&buffer, sample_b);
-    insertIntoBuffer(&buffer, sample_c);
-    insertIntoBuffer(&buffer, sample_d);
-    insertIntoBuffer(&buffer, sample_e);
+    RTES_TaskParameters taskInput = {
+        .pcTaskName = "",
+        .in_buffer = NULL,
+        .out_buffer = &input_buffer,
+        .xTaskPeriod = 0
+    };
 
-    for(int i = 0; i < 5; i++) {
-        RTES_Sample_t sample = readFromBuffer(&buffer, i);
-        printf("Test: %f\n", sample.data);
-    }
+    RTES_TaskParameters taskRecognize = {
+        .pcTaskName = "",
+        .in_buffer = &input_buffer,
+        .out_buffer = &cancel_buffer,
+        .xTaskPeriod = 0
+    };
 
-    freeBuffer(&buffer);
+    /* Create Tasks */ 
+    vRTES_Input((void*)&taskInput);
+    vRTES_Recognize((void*)&taskRecognize);
+
+    freeBuffer(&input_buffer);
+    freeBuffer(&cancel_buffer);
     
     return 0;
 }

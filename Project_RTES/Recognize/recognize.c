@@ -1,11 +1,15 @@
 #include "recognize.h"
 
+unsigned long average_segment(RTES_Buffer_t *buffer, size_t size); 
+bool is_begin_of_noise(unsigned long average, unsigned long prev_average);
+bool is_end_of_noise(unsigned long average, unsigned long prev_average);
+
 void vRTES_Recognize(void *pvParameters) {
     RTES_TaskParameters param = *(RTES_TaskParameters*) pvParameters;
     RTES_Buffer_t *in_buffer = param.in_buffer;
     RTES_Buffer_t *out_buffer = param.out_buffer;
     const char * const pcTaskName = param.pcTaskName;
-    TickType_t *taskPeriod = param.xTaskPeriod;
+    TickType_t taskPeriod = *param.xTaskPeriod;
 
     TickType_t xTimeTaskStarted;
     for (;;) {
@@ -13,82 +17,75 @@ void vRTES_Recognize(void *pvParameters) {
 
         do_recognize(in_buffer, out_buffer);
 
-        vTaskDelayUntil(&xTimeTaskStarted, *taskPeriod);
+        vTaskDelayUntil(&xTimeTaskStarted, taskPeriod);
     }
 }
 
 void do_recognize(RTES_Buffer_t *in_buffer, RTES_Buffer_t *out_buffer) {
-    const size_t frames_in_segment = R_FRAMES_SEGMENT;
-    const unsigned long lower_limit_noise = R_LOWER_LIMIT_NOISE;   
     static size_t index_begin = 0, index_end = 0;
-    static bool begin_recognized = false, end_recognized = false;
-    static unsigned long prev_average = 0;
-    static unsigned long average_start_noise = 0; 
-
-    if (end_recognized) {
-        begin_recognized = end_recognized = false;
-
-        /* Noise was recognized, send a copy to the Noise Cancel Task */
-        for(size_t i = index_begin; i <= index_end; i++) {
-            /* in_buffer copy to out_buffer insertIntoBuffer */
-        }
-    } else if (begin_recognized) {
-        /* Next segment should be checked for end of noise */
-        unsigned long average = calculate_average_segment(in_buffer, 0, frames_in_segment);
-
-        /* Does this segment contain the end of noise? */
-        if (recognize_end_of_noise(average, average_start_noise)) {
-            index_end = in_buffer->index_first + frames_in_segment;
-            end_recognized = true;
-        }
-
-        prev_average = average;
-    } else {
-        /* Next segment should be checked for begin of noise */
-        unsigned long average = calculate_average_segment(in_buffer, lower_limit_noise, frames_in_segment);
-        
-        /* Does this segment contain the begin of noise? */
-        if (recognize_begin_of_noise(average, prev_average)) {
+    static bool begin_recognized = false;
+    static unsigned long prev_average = 0, average_start_of_noise = 0;
+    static size_t frames_since_begin_recognized = 0;   
+ 
+    /* Calculates the average of the current segment */
+    unsigned long average = average_segment(in_buffer, frames_in_segment);
+    
+    if (!begin_recognized) {
+        /* Look for the begin of noise */
+        /* If found index_begin is the first index of this segment */
+        if (is_begin_of_noise(average, prev_average)) {
             begin_recognized = true;
             index_begin = in_buffer->index_first;
-            average_start_noise = average;
+            average_start_of_noise = average;
+            frames_since_begin_recognized = 0;
+        } else {
+            /* If NOT found we can delete the first part of the segment */
+            removeItemsFromBuffer(in_buffer, move_frames_period); 
         }
-
-        prev_average = average;
+    } else {
+        /* Look for the end of noise */
+        /* If found index_end is index is the last index of this segment */
+        if (is_end_of_noise(average, average_start_of_noise)) {
+            index_end = in_buffer->index_first + move_frames_period;
+           
+            /* Copy the noise to out_buffer */
+            copyBuffer(out_buffer, in_buffer, (index_end - index_begin));
+            
+            /* Then remove the current noise from the buffer */
+            removeItemsFromBuffer(in_buffer, (index_end - index_begin));
+        } else {
+            /* If NOT found we can increment the count of frames we checked
+               since recognizing the noise */
+            frames_since_begin_recognized += move_frames_period; 
+        }
     }
+
+    prev_average = average;    
 }
 
-unsigned long calculate_average_segment(RTES_Buffer_t *buffer, unsigned long lower_limit_noise, const size_t size) {
-    unsigned long sum = 0, counter = 0;
+/* Calculates the average of a segment of size long 
+    Note it may be worth */
+unsigned long average_segment(RTES_Buffer_t *buffer, size_t size) { 
+    unsigned long sum = 0;
 
     for (size_t i = 0; i < size; i++) {
-        RTES_Sample_t data = readFromBuffer(buffer, i);
-        unsigned long value = (unsigned long)fabs(data.data); 
-        
-        /* Value below the lower limit are assumed to be irrelevant */
-        if (value > lower_limit_noise) {
-            sum += value;
-            counter++;
-        }      
+        RTES_Sample_t sample = readFromBuffer(buffer, i);
+        sum += (unsigned long)fabs(sample.data); 
     }
 
-    if (counter == 0) {
-        return 0;
-    } else {
-        return sum / counter;
-    }
+    return sum / size;
 }
 
-bool recognize_begin_of_noise(unsigned long average, unsigned long prev_average) {
-    if ((average > prev_average * 1.5) && prev_average > 500) {
-        /* If true then the noise started at index_first of buffer */
-        return true;
-    } else return false;
-}
+/* Checks whether a large increase of the average value has occured. */
+bool is_begin_of_noise(unsigned long average, unsigned long prev_average) {
+    if (average > (prev_average * factor_large_increase))
+         return true;
+    else return false;
+}    
 
-bool recognize_end_of_noise(unsigned long average, unsigned long prev_average) {
-    if (average <= prev_average * 1.5) {
-        /* If true then the noise ended at index_first + frames_in_segment of buffer */
-        return true;
-    } else return false;
+/* Checks whether a large decrease of the average value has occured. */
+bool is_end_of_noise(unsigned long average, unsigned long prev_average) {
+    if (average < (prev_average * factor_large_decrease))
+         return true;
+    else return false;
 }

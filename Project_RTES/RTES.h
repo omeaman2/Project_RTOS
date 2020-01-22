@@ -39,7 +39,7 @@ void insertIntoBuffer(RTES_Buffer_t *buffer, RTES_Sample_t sample);
 RTES_Sample_t readFromBuffer(RTES_Buffer_t *buffer, size_t offset);
 void removeFromBuffer(RTES_Buffer_t *buffer);
 void removeItemsFromBuffer(RTES_Buffer_t *buffer, size_t amount);
-void copyBuffer(RTES_Buffer_t *dest, const RTES_Buffer_t *src, size_t n);
+void copyBuffer(RTES_Buffer_t *dest, RTES_Buffer_t *src, size_t n);
 void freeBuffer(RTES_Buffer_t *buffer);
 
 #endif /* RTES_H */
