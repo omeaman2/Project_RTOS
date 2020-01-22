@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "kissfft/kiss_fft.h"
+#include <inttypes.h>
 #include "trainshortmicdata.h"
 
 /*** Prototypes ***/
@@ -40,7 +41,7 @@ int epsilon_compare(const double d1, const double d2, const double epsilon);
 void cx_print_signal(const kiss_fft_cpx *s, const int n);
 
 // Print a real signal.
-void print_signal(const double *s, const int n);
+void print_signal(const int16_t *s, const int n);
 
 // Do inverse Fourier transform and restore the original signal from a fourier
 // transformed signal.
@@ -87,6 +88,7 @@ int print_segments(const kiss_fft_cpx segments[MAX_NSEGMENTS][MAX_NSAMPLES],
 // Allocates a 2-dimensional array on the heap.
 void** malloc2d(const int nrows, const int ncols , const size_t size);
 
+// No need to use this @Mike :)!
 // Make a complex numbered array zero .
 void cx_make_zero(kiss_fft_cpx* cx_in, const int size);
 
@@ -97,18 +99,30 @@ int free_global_resources();
 // Copy data_array and replace noise segments with the cancelling noise
 // segments data in the copy. This is for testing purposes as this is clearly
 // not realtime.
-int copy_signal_and_write_segments_to_copied_signal(double* new_data_array);
+int copy_signal_and_write_segments_to_copied_signal(int16_t* new_data_array);
 
 // Copy data array into a new array. the new array must be large enough to hold
 // all samples of the original data array.
-int copy_signal(double* new_data_array, const int original_size);
+int copy_signal(int16_t* new_data_array, const int original_size);
 
 // Get the value from the signal at the specified index.
-double value_at_index(const double* s, const int i);
+int16_t value_at_index(const int16_t* s, const int i);
 
-int print_values_between(const double *s, const int beg, const int end);
+int print_values_between(const int16_t *s, const int beg, const int end);
 
-int write_signal_to_file(const char* filename, const double* s, const int n);
+int write_signal_to_file(const char* filename, const int16_t* s, const int n);
+
+/* Tokenize a string. Save tokens in 'tokens' */
+/* Returns the number of tokens created. */
+int tokenize(char* str, char** tokens, char* delim);
+
+/* Used to fill data_array. Also sets data_array_size. */
+int read_data_from_file(int16_t* data_array, const int n, char* filename);
+
+void print_tokens(char** tokens, int n);
+void print_ints(int16_t* a, int n);
+
+
 
 /*** Global variables ***/
 
@@ -131,16 +145,19 @@ kiss_fft_cpx cx_cancelling_segments[MAX_NSEGMENTS][MAX_NSAMPLES];
 
 // The program
 int main(void) {
+    read_data_from_file(data_array, MAX_DATA_ARRAY_SIZE, FILE_DATA_ARRAY);
+
     for (int i = 0; ; ++i) {
-        int r = do_recognize();
-        print_noise_indices(); 
+        int r;
+        r = do_recognize();
+        /* print_noise_indices(); */ 
         if (r != OK) return EXIT_FAILURE;
         r = do_cancel();
         if (r != OK) return EXIT_FAILURE;
         /* r = do_output_to_speaker(); */
         /* if (r != OK) return EXIT_FAILURE; */
 
-        double new_data_array[data_array_size];
+        int16_t new_data_array[data_array_size];
         copy_signal_and_write_segments_to_copied_signal(new_data_array);
 
         
@@ -160,10 +177,14 @@ int main(void) {
 #if USE_MALLOC
         free_global_resources();
 #endif
+        /* write_signal_to_file(FILE_NEW_DATA_ARRAY, data_array, */
+            /* data_array_size); */
 
         // Remove this to run indefinitely.
         return EXIT_SUCCESS;
     }
+
+    /* return EXIT_SUCCESS; */
 }
 
 
@@ -229,12 +250,12 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        /* // 3. Invert the frequencies. */
-        /* r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
-        /* if (r != OK) { */
-        /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
-        /*     goto fail; */
-        /* } */
+        // 3. Invert the frequencies.
+        r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
+        if (r != OK) {
+            fprintf(stderr, "do_cancel: error while inverting frequencies\n");
+            goto fail;
+        }
 
         /* // 3. Set frequencies to specified rvalue and ivalue. */
         /* r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, 0.0); */
@@ -245,7 +266,8 @@ int do_cancel() {
 
         // 4. Compute inverse fourier to generate cancelling noise.
         if (cx_cancelling_segments[i] == NULL) {
-            fprintf(stderr, "do_cancel: cx_cancelling_segments[%d] is NULL\n", i);
+            fprintf(stderr, "do_cancel: cx_cancelling_segments[%d] is NULL\n",
+                    i);
             goto fail;
         }
         r = ifft_and_restore(&kfft_inverse_fourier_state,
@@ -417,7 +439,7 @@ void cx_print_signal(const kiss_fft_cpx *s, const int n) {
     }
 }
 
-void print_signal(const double *s, const int n) {
+void print_signal(const int16_t *s, const int n) {
     for (int i = 0; i < n; ++i) {
         printf("s[%d] = %-15f\n", i, s[i]);
     }
@@ -543,18 +565,18 @@ int recognizeEnd(int start, unsigned long startMedium) {
     if(maxCount < data_array_size) {
         maxLoop = maxCount;
     } else {
-        maxLoop = data_array_size - 120;
+        maxLoop = data_array_size - LOOP_SIZE;
     }
     /* printf("start noise %d", start); */
     // Loop from start of noise to max 0.5 second further.
     for(int k = start; k < maxLoop; k++) {
         counter = 0;
         // Check if noise drasticly decreases in next 0.05 seconds 
-        for(int i = k; i < (k + 120); i++) {
+        for(int i = k; i < (k + LOOP_SIZE); i++) {
             counter += fabs(data_array[i]);
         }
 
-        average = counter / 120;
+        average = counter / LOOP_SIZE;
 	int safeZone = startMedium / 2;
         // If average is lower than the value at the start of the noise, noise
         // ended so function is stopped.
@@ -601,12 +623,12 @@ int do_recognize(void) {
     // Loop complete array, safezone of 400 because next 400 elements are looped
     // before check is reached
     num_noise_segments = 0;
-    for (int k = 0; k < (data_array_size - 120); k += 120) {
+    for (int k = 0; k < (data_array_size - LOOP_SIZE); k += LOOP_SIZE) {
         counter = 0;
         used = 0;
         // Loop next 400 ellements calculate average
-        for (int i = k; i < (k + 120); i++) {
-            int data = fabs(data_array[i]);
+        for (int i = k; i < (k + LOOP_SIZE); i++) {
+            int data = abs(data_array[i]);
             // If value of data < 500 it can't be heard and is not usable
             if (data > 500) {
                 counter += data;
@@ -820,7 +842,7 @@ int free_global_resources() {
     return OK;
 }
 
-int copy_signal_and_write_segments_to_copied_signal(double* new_data_array) {
+int copy_signal_and_write_segments_to_copied_signal(int16_t* new_data_array) {
     int r;
     r = copy_signal(new_data_array, data_array_size);
     if (r != OK) return r;
@@ -836,31 +858,82 @@ int copy_signal_and_write_segments_to_copied_signal(double* new_data_array) {
     return OK;
 }
 
-int copy_signal(double* new_data_array, const int original_size) {
+int copy_signal(int16_t* new_data_array, const int original_size) {
     for (int i = 0; i < original_size; ++i) {
         new_data_array[i] = data_array[i];
     }
     return OK;
 }
 
-double value_at_index(const double* s, const int i) {
+int16_t value_at_index(const int16_t* s, const int i) {
     return s[i];
 }
 
-int print_values_between(const double *s, const int beg, const int end) {
+int print_values_between(const int16_t *s, const int beg, const int end) {
     for (int i = beg; i < end; ++i) {
         printf("s[%d] = %-15f\n", i, value_at_index(s, i));
     }
     return OK;
 }
 
-int write_signal_to_file(const char* filename, const double* s, const int n) {
+int write_signal_to_file(const char* filename, const int16_t* s, const int n) {
     FILE *f;
     f = fopen(filename, "w");
     for (int i = 0; i < n; ++i) {
-        fprintf(f, "%d%s", (int) s[i], (i == n-1) ? "" : ",");
+        fprintf(f, "%d%s",  s[i], (i == n-1) ? "" : ",");
     }
     printf("##### Wrote to file! #####\n");
     fclose(f);
     return OK;
 }
+
+int read_data_from_file(int16_t* data_array, const int n, char* filename) {
+    /* Read from text file. */
+    FILE *f = fopen(filename, "r");
+
+    fseek(f, 0, SEEK_END);
+    long fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
+
+    char *data = malloc(fsize + 1);
+    fread(data, 1, fsize, f);
+    fclose(f);
+
+    data[fsize] = 0;
+
+    /* Tokenize */
+    char* tokens[MAX_DATA_ARRAY_SIZE];
+    int num_tokens = tokenize(data, tokens, ",");
+    if (num_tokens > MAX_DATA_ARRAY_SIZE) {
+        fprintf(stderr, "read_data_from_file: error, too many tokens");
+        return NOT_OK;
+    }
+
+    /* Convert tokens to int16. */
+    for (int i = 0; i < num_tokens; ++i) {
+        data_array[i] = (int16_t) strtol(tokens[i], NULL, 10);
+    }
+
+    /* Set the size of the data array. */
+    data_array_size = num_tokens;
+
+    /* print_tokens(tokens, num_tokens); */
+    /* print_ints(data_array, num_tokens); */
+    return 0;
+}
+
+int tokenize(char* str, char** tokens, char* delim) {
+    int n;
+    for (n = 0; (*tokens++ = strtok(str, delim)); ++n, str = NULL);
+    return n;
+}
+
+void print_tokens(char** tokens, int n) {
+    while (n--) printf("%s\n", *tokens++);
+}
+
+void print_ints(int16_t* a, int n) {
+    for (int i = 0; i < n; ++i) printf("%d,", a[i]);
+    putchar('\n');
+}
+

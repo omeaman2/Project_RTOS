@@ -5,6 +5,12 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [✓] Continue testing listening to the was file. Currently produces garbage
+   when going through c. Maybe don't do a nasty int cast in 'write to file'
+   function, and make the entire array of int type. Problem could also lie in
+   the fact that int/double is not int16. In fact, this was the problem in
+   python. In python we confirmed reading and immediately writing a wav file
+   back to a new wav file produces a valid new wav.
  - [✓] Make sure the graph is valid.
  - [✓] Be able to listen to a wav file.
  - [] In Fourier cancel only the most common frequencies (need to determine a
@@ -657,4 +663,11 @@ Changed
 
 Confirmed working with both `USE_MALLOC` turned on and off.
 
-## Fri 10 Jan 2020 12:45:17 PM CET
+## Wed 22 Jan 2020 12:38:08 PM CET
+
+```sh
+data_array_size = 134946
+```
+```c
+printf("data_array_size = %lu\n", data_array_size);
+```
