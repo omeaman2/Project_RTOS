@@ -5,7 +5,7 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] Fix RecognizeEnd.
+ - [✓] Fix RecognizeEnd.
  - [] In Fourier cancel only the most common frequencies (need to determine a
    cutoff in the fourier for that).
  - [] Confirm that the noise is indeed reduced by at least 6 dB.
