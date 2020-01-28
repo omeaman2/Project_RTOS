@@ -8,8 +8,6 @@ repo = git.Repo('.', search_parent_directories=True)
 
 jump = 1
 a = wavfile.read(repo.working_tree_dir + '/resources/train_short.wav')
-# TODO: Why is dtype still a float here? Anyway it worked and no time to change
-# it now.
 data = np.array(a[1], dtype=np.int16)
 
 fdata_array = repo.working_tree_dir + '/resources/data_array.txt'

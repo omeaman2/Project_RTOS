@@ -65,10 +65,10 @@ int get_noise_segment(kiss_fft_cpx* cx_in, const int start_noise, const int
         end_noise);
 
 // Invert the frequencies of a complex numbered fourier transformed signal.
-int invert_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples);
+int invert_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples);
 
 // Set frequencies of a complex numbered fourier transformed signal to value.
-int set_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
+int set_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
         double rvalue, double ivalue);
 
 // Print start and end indices of noises.
@@ -251,14 +251,15 @@ int do_cancel() {
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
         /* // 3. Invert the frequencies. */
-        /* r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
+        /* r = invert_all_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
         /* if (r != OK) { */
         /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
         /*     goto fail; */
         /* } */
 
         // 3. Set frequencies to specified rvalue and ivalue.
-        r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, 0.0);
+        r = set_all_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0,
+                0.0);
         if (r != OK) {
             fprintf(stderr, "do_cancel: error while setting frequencies\n");
             goto fail;
@@ -759,19 +760,28 @@ int get_noise_segment(kiss_fft_cpx* cx_in, const int start_noise, const int
     return OK;
 }
 
-int invert_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples) {
+int set_frequency(kiss_fft_cpx* cx_in, const int idx, const double rvalue,
+        const double ivalue) {
+    cx_in[idx].r = rvalue;
+    cx_in[idx].i = ivalue;
+    return OK;
+}
+
+int invert_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples) {
+    int r;
     for (int i = 0; i < num_segment_samples; ++i) {
-        cx_in[i].r = -cx_in[i].r;
-        cx_in[i].i = -cx_in[i].i;
+        r = set_frequency(cx_in, i, -cx_in[i].r, -cx_in[i].i);
+        if (r != OK) return NOT_OK;
     }
     return OK;
 }
 
-int set_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
+int set_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
         double rvalue, double ivalue) {
+    int r;
     for (int i = 0; i < num_segment_samples; ++i) {
-        cx_in[i].r = rvalue;
-        cx_in[i].i = ivalue;
+        r = set_frequency(cx_in, i, rvalue, ivalue);
+        if (r != OK) return NOT_OK;
     }
     return OK;
 }
