@@ -258,8 +258,7 @@ int do_cancel() {
         /* } */
 
         // 3. Set frequencies to specified rvalue and ivalue.
-        r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0,
-                0.0);
+        r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, 0.0);
         if (r != OK) {
             fprintf(stderr, "do_cancel: error while setting frequencies\n");
             goto fail;

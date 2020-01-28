@@ -1,7 +1,7 @@
 Project RTOS
 ---
-
 Day notes are added at the end of this file. TODO is up here for clarity.
+
 
 TODO
 ---
