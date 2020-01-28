@@ -67,7 +67,11 @@ int get_noise_segment(kiss_fft_cpx* cx_in, const int start_noise, const int
 // Invert the frequencies of a complex numbered fourier transformed signal.
 int invert_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples);
 
-// Set frequencies of a complex numbered fourier transformed signal to value.
+// Set a frequency of a complex numbered fourier transformed signal to value.
+int set_frequency(kiss_fft_cpx* cx_in, const int idx, const double rvalue,
+        const double ivalue);
+
+// Set all frequencies of a complex numbered fourier transformed signal to value.
 int set_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
         double rvalue, double ivalue);
 
@@ -105,10 +109,9 @@ int copy_signal_and_write_segments_to_copied_signal(int16_t* new_data_array);
 // all samples of the original data array.
 int copy_signal(int16_t* new_data_array, const int original_size);
 
-// Get the value from the signal at the specified index.
-int16_t value_at_index(const int16_t* s, const int i);
-
 int print_values_between(const int16_t *s, const int beg, const int end);
+
+int cx_print_values_between(const kiss_fft_cpx *s, const int beg, const int end);
 
 int write_signal_to_file(const char* filename, const int16_t* s, const int n);
 
@@ -122,7 +125,15 @@ int read_data_from_file(int16_t* data_array, const int n, char* filename);
 void print_tokens(char** tokens, int n);
 void print_ints(int16_t* a, int n);
 
+int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent);
 
+/* Return index of highest absolute real frequency. */
+size_t highest_frequency_real(const kiss_fft_cpx *s, const size_t size);
+/* Return index of highest absolute imaginary frequency. */
+size_t highest_frequency_imag(const kiss_fft_cpx *s, const size_t size);
+/* Cancel x% around the highest absolute frequency in a complex numbered
+ * fourier transformed signal.*/
+int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent);
 
 /*** Global variables ***/
 
@@ -250,20 +261,29 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        /* // 3. Invert the frequencies. */
+        /* // 3. Invert all frequencies. */
         /* r = invert_all_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
         /* if (r != OK) { */
         /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
         /*     goto fail; */
         /* } */
 
-        // 3. Set frequencies to specified rvalue and ivalue.
-        r = set_all_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0,
-                0.0);
-        if (r != OK) {
-            fprintf(stderr, "do_cancel: error while setting frequencies\n");
-            goto fail;
-        }
+        /* printf("noise segment:\t%d\n", i); */
+        /* printf("size of the segment:\t%d\n", segment_sizes[i]); */
+        /* cx_print_values_between(cx_noise_segment_fourier, 0, 3000); */
+
+        /* // 3. Set all frequencies to specified rvalue and ivalue. */
+        /* r = set_all_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, */
+        /*         0.0); */
+        /* if (r != OK) { */
+        /*     fprintf(stderr, "do_cancel: error while setting frequencies\n"); */
+        /*     goto fail; */
+        /* } */
+
+        // 3. Perform algorithm to cancel only the highest absolute frequencies
+        // of the fourier transformed signal.
+        cancel_interval(cx_noise_segment_fourier, segment_sizes[i],
+                FREQ_CANCELLATION_PERCENTAGE);
 
         // 4. Compute inverse fourier to generate cancelling noise.
         if (cx_cancelling_segments[i] == NULL) {
@@ -442,7 +462,7 @@ void cx_print_signal(const kiss_fft_cpx *s, const int n) {
 
 void print_signal(const int16_t *s, const int n) {
     for (int i = 0; i < n; ++i) {
-        printf("s[%d] = %-15f\n", i, s[i]);
+        printf("s[%d] = %-15d\n", i, s[i]);
     }
 }
 
@@ -875,13 +895,18 @@ int copy_signal(int16_t* new_data_array, const int original_size) {
     return OK;
 }
 
-int16_t value_at_index(const int16_t* s, const int i) {
-    return s[i];
+int print_values_between(const int16_t *s, const int beg, const int end) {
+    printf("Values between '%d' and '%d'\n", beg, end);
+    for (int i = beg; i < end; ++i) {
+        printf("s[%d] = %-15d\n", i, s[i]);
+    }
+    return OK;
 }
 
-int print_values_between(const int16_t *s, const int beg, const int end) {
+int cx_print_values_between(const kiss_fft_cpx *s, const int beg, const int end) {
+    printf("Values between '%d' and '%d'\n", beg, end);
     for (int i = beg; i < end; ++i) {
-        printf("s[%d] = %-15f\n", i, value_at_index(s, i));
+        printf("s[%d].r = %-15f\ts[%d].i = %-15f\n", i, s[i].r, i, s[i].i);
     }
     return OK;
 }
@@ -947,3 +972,65 @@ void print_ints(int16_t* a, int n) {
     putchar('\n');
 }
 
+/* Return index of highest absolute real frequency. */
+size_t highest_frequency_real(const kiss_fft_cpx *s, const size_t size) {
+    size_t current_highest = 0;
+    for (int i = 1; i < size; ++i) {
+        if (fabs(s[i].r) > fabs(s[current_highest].r)) {
+            current_highest = i;
+        }
+    }
+    return current_highest;
+}
+
+/* Return index of highest absolute imaginary frequency. */
+size_t highest_frequency_imag(const kiss_fft_cpx *s, const size_t size) {
+    size_t current_highest = 0;
+    for (int i = 1; i < size; ++i) {
+        if (fabs(s[i].i) > fabs(s[current_highest].i)) {
+            current_highest = i;
+        }
+    }
+    return current_highest;
+}
+
+/* Set x% around the absolute highest frequency to zero. */
+int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
+    size_t interval, hfreq_idx_re, hfreq_idx_im, beg_re, end_re, beg_im, end_im;
+
+    interval = percent/100.0 * size;
+    printf("interval = %d\n", interval);
+    
+    /* Get the index of the highest frequency of the real and imaginary parts.*/
+    hfreq_idx_re = highest_frequency_real(s, size);
+    hfreq_idx_im = highest_frequency_imag(s, size);
+
+    /* Get begin and end intervals. */
+    beg_re = hfreq_idx_re - interval;
+    beg_im = hfreq_idx_im - interval;
+    end_re = hfreq_idx_re + interval;
+    end_im = hfreq_idx_im + interval;
+
+    if (beg_re < 0)    beg_re = 0;
+    if (beg_im < 0)    beg_im = 0;
+    if (end_re > size) end_re = size;
+    if (end_im > size) end_im = size;
+
+    /* Set frequencies to zero */
+    for (int i = beg_re; i < end_re; ++i) {
+        s[i].r = 0.0;
+    }
+    for (int i = beg_im; i < end_im; ++i) {
+        s[i].i = 0.0;
+    }
+
+    /* /1* Invert frequencies *1/ */
+    /* for (int i = beg_re; i < end_re; ++i) { */
+    /*     s[i].r = -s[i].r; */
+    /* } */
+    /* for (int i = beg_im; i < end_im; ++i) { */
+    /*     s[i].i = -s[i].i; */
+    /* } */
+
+    return OK;
+}

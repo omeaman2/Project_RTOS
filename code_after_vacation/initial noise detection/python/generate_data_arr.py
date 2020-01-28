@@ -7,10 +7,12 @@ import git
 repo = git.Repo('.', search_parent_directories=True)
 
 jump = 1
-a = wavfile.read(repo.working_tree_dir + '/resources/train_short.wav')
+file_wav = repo.working_tree_dir + '/resources/train_short.wav'
+a = wavfile.read(file_wav)
 data = np.array(a[1], dtype=np.int16)
 
-fdata_array = repo.working_tree_dir + '/resources/data_array.txt'
+file_txt = repo.working_tree_dir + '/resources/data_array.txt'
+fdata_array = file_txt
 
 print("data:\t\t", data)
 f = open(fdata_array, "w")

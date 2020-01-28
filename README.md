@@ -5,7 +5,9 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] Prevent Barend from overwriting the excel files.
+ - [] Debug cancel interval
+ - [✓] kaydo: Do not forget to correct the for loop in do_cancel.
+ - [?] Prevent Barend from overwriting the excel files.
  - [] Fix RecognizeEnd.
  - [] In Fourier cancel only the most common frequencies (need to determine a
    cutoff in the fourier for that).
