@@ -5,6 +5,8 @@ import os
 jump = 1
 
 a = wavfile.read('../../../resources/train_short.wav')
+# TODO: Why is dtype still a float here? Anyway it worked and no time to change
+# it now.
 data = np.array(a[1], dtype=float)
 
 fdata_array = '../../../resources/data_array.txt'

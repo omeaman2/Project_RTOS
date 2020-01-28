@@ -250,19 +250,20 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        // 3. Invert the frequencies.
-        r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
-        if (r != OK) {
-            fprintf(stderr, "do_cancel: error while inverting frequencies\n");
-            goto fail;
-        }
-
-        /* // 3. Set frequencies to specified rvalue and ivalue. */
-        /* r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, 0.0); */
+        /* // 3. Invert the frequencies. */
+        /* r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
         /* if (r != OK) { */
-        /*     fprintf(stderr, "do_cancel: error while setting frequencies\n"); */
+        /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
         /*     goto fail; */
         /* } */
+
+        // 3. Set frequencies to specified rvalue and ivalue.
+        r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0,
+                0.0);
+        if (r != OK) {
+            fprintf(stderr, "do_cancel: error while setting frequencies\n");
+            goto fail;
+        }
 
         // 4. Compute inverse fourier to generate cancelling noise.
         if (cx_cancelling_segments[i] == NULL) {
