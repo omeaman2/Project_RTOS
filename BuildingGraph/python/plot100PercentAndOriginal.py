@@ -5,7 +5,7 @@ import sys
 
 
 spf1 = wave.open("/Users/barendmosch/source/repos/Project_RTOS/comparison/inverting/wavs/doing_nothing.wav", "r")
-spf2 = wave.open("/Users/barendmosch/source/repos/Project_RTOS/comparison/inverting/wavs/100percent.wav", "r")
+spf2 = wave.open("/Users/barendmosch/source/repos/Project_RTOS/comparison/setting_to_zero/wavs/100percent.wav", "r")
 
 fs = spf1.getframerate()
 
@@ -19,12 +19,12 @@ time = np.linspace(0, len(original) / fs, num=len(original))
 
 
 plt.figure(1)
-plt.title("Comparison 100 Percent and original%")
+plt.title("Comparison 100 Percent and original")
 
 ax = plt.subplot(111)
 
-ax.plot(time, hundPercent, 'r', label='100 % cancalation')
-ax.plot(time, original, 'b', label='Original')
+ax.plot(time, original, 'r', label='Original')
+ax.plot(time, hundPercent, 'b', label='100 % cancalation')
 
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
 
