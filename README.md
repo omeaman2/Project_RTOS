@@ -5,7 +5,7 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] Debug cancel interval
+ - [✓] Debug cancel interval
  - [✓] kaydo: Do not forget to correct the for loop in do_cancel.
  - [?] Prevent Barend from overwriting the excel files.
  - [] Fix RecognizeEnd.

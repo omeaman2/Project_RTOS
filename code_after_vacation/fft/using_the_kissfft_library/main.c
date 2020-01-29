@@ -996,10 +996,10 @@ size_t highest_frequency_imag(const kiss_fft_cpx *s, const size_t size) {
 
 /* Set x% around the absolute highest frequency to zero. */
 int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
-    size_t interval, hfreq_idx_re, hfreq_idx_im, beg_re, end_re, beg_im, end_im;
+    size_t interval, hfreq_idx_re, hfreq_idx_im;
+    int beg_re, beg_im, end_re, end_im;
 
     interval = percent/100.0 * size;
-    printf("interval = %d\n", interval);
     
     /* Get the index of the highest frequency of the real and imaginary parts.*/
     hfreq_idx_re = highest_frequency_real(s, size);
