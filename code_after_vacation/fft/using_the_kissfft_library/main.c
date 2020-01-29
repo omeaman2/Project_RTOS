@@ -199,7 +199,7 @@ int main(void) {
 int do_cancel() {
     int r;
     if (num_noise_segments <= 0) {
-        fprintf(stderr, "do_cancel: num_noise_segments is less than j"
+        fprintf(stderr, "do_cancel: num_noise_segments is less than "
                 "or equal to zero.\n");
         return NOT_OK;
     } else if (num_noise_segments >= MAX_NSEGMENTS) {

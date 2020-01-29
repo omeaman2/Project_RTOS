@@ -678,3 +678,18 @@ data_array_size = 134946
 ```c
 printf("data_array_size = %lu\n", data_array_size);
 ```
+
+## Wed 29 Jan 2020 03:09:13 PM CET
+
+Why do we even use a fourier transform if our definition of noise has nothing to
+do with the frequencies of the noise?
+A: Our definition of noise looks at changes in intensity of the signal. This
+   means that that the Fourier transform is not a necessity (we do not require
+   to look at the frequencies as the definition of noise has nothing to do with
+   frequencies). Then why use a Fourier transform anyway? We initially wanted to
+   look at frequencies to determine which frequencies are noise. The idea was
+   then to cancel those _specific_ frequencies. The problem is, however, that
+   our definition of noise does not look at frequencies and thus the Fourier
+   transform is not needed. It is is still good to use the fourier transform, as
+   that probably is what you ultimately want to have. Ultimately you want a
+   definition of noise that takes into account frequencies.
