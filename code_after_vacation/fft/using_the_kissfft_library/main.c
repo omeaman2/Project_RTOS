@@ -1016,21 +1016,21 @@ int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
     if (end_re > size) end_re = size;
     if (end_im > size) end_im = size;
 
-    /* Set frequencies to zero */
-    for (int i = beg_re; i < end_re; ++i) {
-        s[i].r = 0.0;
-    }
-    for (int i = beg_im; i < end_im; ++i) {
-        s[i].i = 0.0;
-    }
-
-    /* /1* Invert frequencies *1/ */
+    /* /1* Set frequencies to zero *1/ */
     /* for (int i = beg_re; i < end_re; ++i) { */
-    /*     s[i].r = -s[i].r; */
+    /*     s[i].r = 0.0; */
     /* } */
     /* for (int i = beg_im; i < end_im; ++i) { */
-    /*     s[i].i = -s[i].i; */
+    /*     s[i].i = 0.0; */
     /* } */
+
+    /* Invert frequencies */
+    for (int i = beg_re; i < end_re; ++i) {
+        s[i].r = -s[i].r;
+    }
+    for (int i = beg_im; i < end_im; ++i) {
+        s[i].i = -s[i].i;
+    }
 
     return OK;
 }
