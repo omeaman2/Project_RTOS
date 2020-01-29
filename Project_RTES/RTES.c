@@ -7,7 +7,7 @@ RTES_Buffer_t createBuffer(size_t size) {
     /* Malloc returns NULL in case of failure */
     if (tmp == NULL) {
         printf("Error in createBuffer: malloc failed to allocate %zu"
-               " bytes of memory.", (size * sizeof(RTES_Sample_t)));
+               " bytes of memory.\n", (size * sizeof(RTES_Sample_t)));
         free(tmp);
         exit(EXIT_FAILURE);
     }
@@ -32,7 +32,7 @@ size_t incrementIndexWithRollover(size_t base, size_t size, size_t n) {
 void insertIntoBuffer(RTES_Buffer_t *buffer, RTES_Sample_t sample) {
     if (buffer->used == buffer->size) {
         printf("Error insertIntoBuffer: trying to insert into a full"
-        " buffer.");
+        " buffer.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -46,7 +46,7 @@ void insertIntoBuffer(RTES_Buffer_t *buffer, RTES_Sample_t sample) {
     note index_first is not updated as samples are read multiple times */
 RTES_Sample_t readFromBuffer(RTES_Buffer_t *buffer, size_t offset) {
     if (buffer->used == 0) {
-        printf("readFromBuffer: trying to read from an empty buffer.");
+        printf("readFromBuffer: trying to read from an empty buffer.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -60,7 +60,8 @@ RTES_Sample_t readFromBuffer(RTES_Buffer_t *buffer, size_t offset) {
     note the sample will remain in the buffer until overwritten */
 void removeFromBuffer(RTES_Buffer_t *buffer) {
     if (buffer->used == 0) {
-        printf("removeFromBuffer: trying to remove from an empty buffer.");
+        printf("removeFromBuffer: trying to remove from an empty buffer.\n"
+              );
         exit(EXIT_FAILURE);
     }
 
@@ -74,7 +75,7 @@ void removeFromBuffer(RTES_Buffer_t *buffer) {
 void removeItemsFromBuffer(RTES_Buffer_t *buffer, size_t amount) {
     if (amount > buffer->used) {
         printf("removeItemsFromBuffer: trying to remove %zu items from the"
-        " the buffer, but the buffer only contains %zu items.", amount,
+        " the buffer, but the buffer only contains %zu items.\n", amount,
         buffer->used);
         exit(EXIT_FAILURE);
     } 
@@ -87,13 +88,13 @@ void removeItemsFromBuffer(RTES_Buffer_t *buffer, size_t amount) {
 void copyBuffer(RTES_Buffer_t *dest, RTES_Buffer_t *src, size_t n) {
     if (n > src->used) {
         printf("copyBuffer: trying to copy %zu items from the buffer, but"
-        " the buffer only contains %zu items.", n, src->used);
+        " the buffer only contains %zu items.\n", n, src->used);
         exit(EXIT_FAILURE);
     }
 
     if (n > dest->size) {
         printf("copyBuffer: trying to copy %zu items from the buffer, but"
-        " the dest buffer only has %zu size.", n, dest->size);
+        " the dest buffer only has %zu size.\n", n, dest->size);
         exit(EXIT_FAILURE);
 
     }

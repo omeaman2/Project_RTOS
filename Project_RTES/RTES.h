@@ -18,7 +18,7 @@ typedef struct {
 /* This struct represents the circular buffer used to store samples */
 #define RTES_BUFFER_SIZE        (2000)
 typedef struct {
-    RTES_Sample_t * samples;
+    RTES_Sample_t *samples;
     size_t index_first; // Read first sample from samples[index_first]
     size_t index_next; // Place next sample into samples[index_next]
     size_t used; // Amount of samples stored in samples[]

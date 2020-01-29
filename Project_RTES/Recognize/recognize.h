@@ -3,6 +3,7 @@
 
 #include <math.h> /* used for fabs() */
 #include <stdbool.h>
+#include <stdio.h> /* used for temporary file usages */
 #include <stddef.h>
 #include "../RTES.h"
 #include "../Timing.h"
@@ -21,6 +22,6 @@ static const float factor_large_increase = 1.5F;
 static const float factor_large_decrease = 1.5F;
 
 void vRTES_Recognize(void *pvParameters);
-void do_recognize(RTES_Buffer_t *in_buffer, RTES_Buffer_t *out_buffer);
+bool do_recognize(RTES_Buffer_t *in_buffer, RTES_Buffer_t *out_buffer, FILE *f);
 
 #endif /* RECOGNIZE_H */

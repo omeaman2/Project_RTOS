@@ -3,7 +3,7 @@
 void vRTES_Input(void *pvParameters) {
     RTES_TaskParameters param = *(RTES_TaskParameters*) pvParameters;
     RTES_Buffer_t *buffer = param.out_buffer;
-    const char * const pcTaskName = param.pcTaskName;
+    //const char * const pcTaskName = param.pcTaskName;
     TickType_t *taskPeriod = param.xTaskPeriod; 
 
     TickType_t xTimeTaskStarted;
