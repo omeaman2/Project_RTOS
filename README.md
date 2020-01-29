@@ -5,6 +5,8 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [] Create a `do_recognise` that works on multiple different wav files (so not
+      only on `train_short.wav`)
  - [✓] Debug cancel interval
  - [✓] kaydo: Do not forget to correct the for loop in do_cancel.
  - [?] Prevent Barend from overwriting the excel files.
