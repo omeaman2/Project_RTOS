@@ -52,11 +52,6 @@ int ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
 void create_signal(kiss_fft_cpx* cx_in, const int n);
 
 int recognizeEnd(int start, unsigned long startMedium);
-double *getAutoCorrelationOfSeries(double da[], double *result, int size);
-double getCorrelation(double x[], double y[], int size_a, int size_b);
-double GetAverage(double data[], int size);
-double GetVariance(double data[], int size);
-double GetStdev(double data[], int size);
 
 // Get the signal and put it in the argument kissfft complex array.
 // cx_in must have enough space to hold a segment.
@@ -284,10 +279,11 @@ int do_cancel() {
         // of the fourier transformed signal.
         cancel_interval(cx_noise_segment_fourier, segment_sizes[i],
                 FREQ_CANCELLATION_PERCENTAGE);
-        /* if (r != OK) { */
-        /*     fprintf(stderr, "do_cancel: error while cancelling around an" */
-        /*             " interval.\n"); goto fail; */
-        /* } */
+        if (r != OK) {
+            fprintf(stderr, "do_cancel: error while cancelling around an"
+                    " interval.\n");
+            goto fail;
+        }
 
         // 4. Compute inverse fourier to generate cancelling noise.
         if (cx_cancelling_segments[i] == NULL) {
@@ -506,77 +502,6 @@ void create_signal(kiss_fft_cpx* cx_in, const int n) {
     /* } */
 }
 
-
-// The following functions come from cutoff.c
-double GetVariance(double data[], int size) {
-    double avg = GetAverage(data, size);
-    double sum = 0;
-
-    for (int i = 0; i < size; i++) {
-        sum += pow((data[i] - avg), 2);
-    }
-
-    return sum / size;
-}
-
-double GetAverage(double data[], int size) {
-    if (size == 0) {
-        return 0;
-    }
-
-    double sum = 0;
-
-    for (int i = 0; i < size; i++) {
-        sum += data[i];
-    }
-
-    return sum / size;
-}
-
-double GetStdev(double data[], int size) {
-    return sqrt(GetVariance(data, size));
-}
-
-double getCorrelation(double x[], double y[], int size_x, int size_y) {
-    if (size_x != size_y) {
-        printf("Length of sources is different");
-        return 0;
-    }
-
-    double avgX = GetAverage(x, size_x);
-    double stdevX = GetStdev(x, size_x);
-    double avgY = GetAverage(y, size_y);
-    double stdevY = GetStdev(y, size_y);
-    double covXY = 0;
-    double pearson = 0;
-
-    for (int i = 0; i < size_x; i++) {
-        covXY = (x[i] - avgX) * (y[i] - avgY);
-    }
-
-    covXY /= size_x;
-    pearson = covXY / (stdevX * stdevY);
-
-    return pearson;
-}
-
-double *getAutoCorrelationOfSeries(double da[], double *autoCorrelation, int size) {
-    int half = (int)(size / 2);
-    double x[half];
-    double y[half];
-    int size_x, size_y;
-
-    for (int i = 0; i < half; i++) {
-        x[i] = da[i];
-        y[i] = da[i + i];
-        size_x = sizeof(x) / sizeof(x[0]);
-        size_y = sizeof(y) / sizeof(y[0]);
-        *(autoCorrelation + i) = getCorrelation(x, y, size_x, size_y);
-    }
-
-    return autoCorrelation;
-}
-
 int recognizeEnd(int start, unsigned long startMedium) {
     unsigned long average = 0;
     unsigned long counter = 0;
@@ -598,7 +523,7 @@ int recognizeEnd(int start, unsigned long startMedium) {
         counter = 0;
         // Check if noise drasticly decreases in next 0.05 seconds 
         for(int i = k; i < (k + LOOP_SIZE); i++) {
-            counter += fabs(data_array[i]);
+            counter += abs(data_array[i]);
         }
 
         average = counter / LOOP_SIZE;
@@ -620,29 +545,6 @@ int do_recognize(void) {
     unsigned long average = 0;
     unsigned long prevAverage = 0;
     unsigned int used = 0;
-
-    /* int* start_noise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*start_noise))); */
-    /* int* end_noise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*end_noise))); */
-    /* double *autoCorrelation = (double *)malloc(data_array_size * sizeof(*autoCorrelation)); */
-    /* double *seg_1 = (double *)malloc(data_array_size * sizeof(*seg_1)); */
-    /* double *seg_2 = (double *)malloc(data_array_size * sizeof(*seg_2)); */
-    /* double *seg_3 = (double *)malloc(data_array_size * sizeof(*seg_3)); */
-    /* double *seg_4 = (double *)malloc(data_array_size * sizeof(*seg_4)); */
-
-    /*     if ( autoCorrelation == NULL || */
-    /*             seg_1 == NULL || seg_2 == NULL || seg_3 == NULL || seg_4 == NULL) { */
-    /*         fprintf(stderr, "ERROR: Malloc failed\n\n"); */
-
-    /*         free(autoCorrelation); */
-    /*         /1* free(start_noise); *1/ */
-    /*         /1* free(end_noise); *1/ */
-    /*         free(seg_1); */
-    /*         free(seg_2); */
-    /*         free(seg_3); */
-    /*         free(seg_4); */
-
-    /*         return NOT_OK; */
-    /*     } */
 
     // printf("data_array[683] = %f\n", data_array[683]);
     // Loop complete array, safezone of 400 because next 400 elements are looped
@@ -685,64 +587,7 @@ int do_recognize(void) {
         }
     }
 
-    /* printf("Computing Autocorrelation \n\n"); */
-
-    /* int sizeOfNoiseArray = 0; */
-
-    /* /1* printf("num_noise_segments: %d\n", num_noise_segments); *1/ */
-    /* for (int i = 0; i < num_noise_segments; ++i) { */
-    /*     /1* printf("SEGMENT %d\n", i); *1/ */
-
-    /*     /1* sizeOfNoiseArray = *(end_noise + i) - *(start_noise + i); *1/ */
-    /*     sizeOfNoiseArray = end_noise[i] - start_noise[i]; */
-    /*     double noiseArray[sizeOfNoiseArray]; */
-
-    /*     /1* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); *1/ */
-
-    /*     for (int y = 0; y < sizeOfNoiseArray; ++y) { */
-    /*         /1* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); *1/ */
-    /*         /1* noiseArray[y] = data_array[*(start_noise + i) + y]; *1/ */
-    /*         noiseArray[y] = data_array[start_noise[i] + y]; */
-    /*         if (i == 0){ */
-    /*             *(seg_1 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_1 + y)); *1/ */
-    /*         } */
-    /*         if (i == 1){ */
-    /*             *(seg_2 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_2 + y)); *1/ */
-    /*         } */ 
-    /*         if (i == 2){ */
-    /*             *(seg_3 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_3 + y)); *1/ */
-    /*         } */
-    /*         if (i == 3){ */
-    /*             *(seg_4 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_4 + y)); *1/ */
-    /*         } */
-
-    /*     } */
-
-    /*     autoCorrelation = getAutoCorrelationOfSeries(noiseArray, */
-    /*             autoCorrelation, sizeOfNoiseArray); */
-
-    /*     for (int z = 0; z < sizeOfNoiseArray / 2; ++z) { */
-    /* //        printf("%f -- %d -- %f\n", *(autoCorrelation + z), */
-    /* //        sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]); */
-    /*     } */
-
-    /*     printf("\n\n"); */
-    /* } */
-
-
     printf("\n##### DONE with do_recognize! #####\n");
-
-    /* free(autoCorrelation); */
-    /* /1* free(start_noise); *1/ */
-    /* /1* free(end_noise); *1/ */
-    /* free(seg_1); */
-    /* free(seg_2); */
-    /* free(seg_3); */
-    /* free(seg_4); */
 
     return OK;
 }
@@ -1003,7 +848,7 @@ int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
     size_t interval, hfreq_idx_re, hfreq_idx_im;
     int beg_re, beg_im, end_re, end_im;
 
-    /* if (percent < 0 || percent > 100) return NOT_OK; */
+    if (percent < 0 || percent > 100) return NOT_OK;
     interval = percent/100.0 * size;
     
     /* Get the index of the highest frequency of the real and imaginary parts.*/
@@ -1021,21 +866,21 @@ int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
     if (end_re > size) end_re = size;
     if (end_im > size) end_im = size;
 
-    /* /1* Set frequencies to zero *1/ */
-    /* for (int i = beg_re; i < end_re; ++i) { */
-    /*     s[i].r = 0.0; */
-    /* } */
-    /* for (int i = beg_im; i < end_im; ++i) { */
-    /*     s[i].i = 0.0; */
-    /* } */
-
-    /* Invert frequencies */
+    /* Set frequencies to zero */
     for (int i = beg_re; i < end_re; ++i) {
-        s[i].r = -s[i].r;
+        s[i].r = 0.0;
     }
     for (int i = beg_im; i < end_im; ++i) {
-        s[i].i = -s[i].i;
+        s[i].i = 0.0;
     }
+
+    /* /1* Invert frequencies *1/ */
+    /* for (int i = beg_re; i < end_re; ++i) { */
+    /*     s[i].r = -s[i].r; */
+    /* } */
+    /* for (int i = beg_im; i < end_im; ++i) { */
+    /*     s[i].i = -s[i].i; */
+    /* } */
 
     return OK;
 }
