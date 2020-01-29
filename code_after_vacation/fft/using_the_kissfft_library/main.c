@@ -284,6 +284,10 @@ int do_cancel() {
         // of the fourier transformed signal.
         cancel_interval(cx_noise_segment_fourier, segment_sizes[i],
                 FREQ_CANCELLATION_PERCENTAGE);
+        /* if (r != OK) { */
+        /*     fprintf(stderr, "do_cancel: error while cancelling around an" */
+        /*             " interval.\n"); goto fail; */
+        /* } */
 
         // 4. Compute inverse fourier to generate cancelling noise.
         if (cx_cancelling_segments[i] == NULL) {
@@ -999,6 +1003,7 @@ int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
     size_t interval, hfreq_idx_re, hfreq_idx_im;
     int beg_re, beg_im, end_re, end_im;
 
+    /* if (percent < 0 || percent > 100) return NOT_OK; */
     interval = percent/100.0 * size;
     
     /* Get the index of the highest frequency of the real and imaginary parts.*/
