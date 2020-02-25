@@ -506,7 +506,7 @@ int recognizeEnd(int start, unsigned long startMedium) {
     unsigned long average = 0;
     unsigned long counter = 0;
     // max noise length is the start moment plus 0.5 second.
-    unsigned long maxCount = start + 3000;
+    unsigned long maxCount = start + 4000;
     unsigned long maxLoop = 0;
 
     // If the max noise length exeeds the arraysize, use arraysize - safezone as
