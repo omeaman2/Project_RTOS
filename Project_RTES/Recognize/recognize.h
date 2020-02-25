@@ -19,7 +19,7 @@ static const size_t move_frames_period = 160;
 /* When the average exceeds the previous average multiplied by the factor 
     below a large increase is assumed to have occured */
 static const float factor_large_increase = 1.5F;
-static const float factor_large_decrease = 1.5F;
+static const float factor_large_decrease = 0.5F;
 
 void vRTES_Recognize(void *pvParameters);
 bool do_recognize(RTES_Buffer_t *in_buffer, RTES_Buffer_t *out_buffer, FILE *f);

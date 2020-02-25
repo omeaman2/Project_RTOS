@@ -48,7 +48,7 @@ int main(void) {
         if ((i %  160) == 0) {
             if (do_recognize(taskRecognize.in_buffer,
                              taskRecognize.out_buffer, f)) {
-                //printf("Recognized finished at %zu\n", i);
+                printf("Recognized finished at %zu\n", i);
                 return 0;
             }
         }
