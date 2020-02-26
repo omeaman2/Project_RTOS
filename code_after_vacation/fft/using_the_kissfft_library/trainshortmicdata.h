@@ -9,7 +9,7 @@
 #define INVERSE_FOURIER 1
 
 // Max number of samples
-#define MAX_NSAMPLES 3000
+#define MAX_NSAMPLES 4000
 
 // Used in array initialisations.
 #define MAX_NSEGMENTS 70
