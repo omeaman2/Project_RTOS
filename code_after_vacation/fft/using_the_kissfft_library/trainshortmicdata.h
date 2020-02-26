@@ -29,9 +29,6 @@
 // Number of samples, only used for testing.
 #define NSAMPLES 16
 
-// Recognition loop size. *8 because of the increased sample rate.
-#define LOOP_SIZE 120*8
-
 // File to read data_array from.
 #define FILE_DATA_ARRAY "../../../resources/data_array.txt"
 

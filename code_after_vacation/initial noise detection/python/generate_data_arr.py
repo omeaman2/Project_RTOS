@@ -7,7 +7,7 @@ import git
 repo = git.Repo('.', search_parent_directories=True)
 
 jump = 1
-file_wav = repo.working_tree_dir + '/resources/train_short.wav'
+file_wav = repo.working_tree_dir + '/resources/knock.wav'
 a = wavfile.read(file_wav)
 data = np.array(a[1], dtype=np.int16)
 
