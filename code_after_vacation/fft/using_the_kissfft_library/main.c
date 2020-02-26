@@ -538,13 +538,12 @@ int recognizeEnd(int start, unsigned long startMedium) {
             // ended so function is stopped.
             if(average <= (startMedium + safeZone)) {
                 /* printf(" end noise %d \n", k); */
-                    printf("end %d avg: %d point: %d\n", startMedium, average, k);
                 return k;
             }
         }
 
     }
-    printf("MAXEND \n");
+    //printf("MAXEND \n");
     //No end of noise is detected, detected noise get discarded.
     /* printf("end noise \n"); */
     return maxLoop;
@@ -586,10 +585,8 @@ int do_recognize(void) {
             //Check if an huge increase in volume occured.
             unsigned long safeZone = (prevAverage / safeDivide);
             unsigned long tempAverage = prevAverage + safeZone;
-            printf("%d, avg: %d, point: %d \n", tempAverage, average, k);
 
             if (tempAverage < average) {
-                printf("rec: %d, avg: %d, point: %d \n", tempAverage, average, k);
 
                 /* *(start_noise + num_noise_segments) = k; */
                 start_noise[num_noise_segments] = k;
