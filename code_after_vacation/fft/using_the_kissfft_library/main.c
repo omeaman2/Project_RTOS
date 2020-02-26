@@ -135,8 +135,8 @@ int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent);
 // Array for the number of samples of each noise segment.
 int segment_sizes[MAX_NSEGMENTS];
 
-unsigned int LOOP_SIZE = 60 * 8;
-unsigned int INITIAL_LOOP_SIZE = 60 * 8;
+unsigned int LOOP_SIZE = 120 * 8;
+unsigned int INITIAL_LOOP_SIZE = 120 * 8;
 // Arrays containing the start index and the end index of the noises.
 int start_noise[MAX_NSEGMENTS];
 int end_noise[MAX_NSEGMENTS];
@@ -517,27 +517,34 @@ int recognizeEnd(int start, unsigned long startMedium) {
     if(maxCount < data_array_size) {
         maxLoop = maxCount;
     } else {
-        maxLoop = data_array_size - INITIAL_LOOP_SIZE;
+        maxLoop = data_array_size - LOOP_SIZE;
     }
     /* printf("start noise %d", start); */
     // Loop from start of noise to max 0.5 second further.
     for(int k = start; k < maxLoop; k++) {
         counter = 0;
+        //printf("rec %d avg: %d point: %d\n", startMedium, average, ((k - start)%LOOP_SIZE));
+
         // Check if noise drasticly decreases in next 0.05 seconds 
-        for(int i = k; i < (k + INITIAL_LOOP_SIZE); i++) {
+        for(int i = k; i < (k + LOOP_SIZE); i++) {
             counter += abs(data_array[i]);
         }
-
-        average = counter / INITIAL_LOOP_SIZE;
-	int safeZone = startMedium / 2;
-        // If average is lower than the value at the start of the noise, noise
-        // ended so function is stopped.
-        if(average <= (startMedium + safeZone)) {
-            /* printf(" end noise %d \n", k); */
-                printf("end %d ", k);
-            return k;
+        if((k - start)%LOOP_SIZE == 0 && k != 0) {
+            
+            average = counter / LOOP_SIZE;
+            counter = 0;
+            int safeZone = startMedium / 2;
+            // If average is lower than the value at the start of the noise, noise
+            // ended so function is stopped.
+            if(average <= (startMedium + safeZone)) {
+                /* printf(" end noise %d \n", k); */
+                    printf("end %d avg: %d point: %d\n", startMedium, average, k);
+                return k;
+            }
         }
+
     }
+    printf("MAXEND \n");
     //No end of noise is detected, detected noise get discarded.
     /* printf("end noise \n"); */
     return maxLoop;
@@ -560,7 +567,7 @@ int do_recognize(void) {
         for (int i = k; i < (k + LOOP_SIZE); i++) {
             int data = abs(data_array[i]);
             // If value of data < 500 it can't be heard and is not usable
-            if (data > 500) {
+            if (data > 300) {
                 counter += data;
                 used++;
             }
@@ -581,14 +588,15 @@ int do_recognize(void) {
             unsigned long tempAverage = prevAverage + safeZone;
             printf("%d, avg: %d, point: %d \n", tempAverage, average, k);
 
-            if (tempAverage < average && prevAverage > 500) {
-                if(LOOP_SIZE < INITIAL_LOOP_SIZE) {
-                    LOOP_SIZE = INITIAL_LOOP_SIZE;
-                }
+            if (tempAverage < average) {
+                printf("rec: %d, avg: %d, point: %d \n", tempAverage, average, k);
 
                 /* *(start_noise + num_noise_segments) = k; */
                 start_noise[num_noise_segments] = k;
                 k = recognizeEnd(k, prevAverage - safeZone);
+                if(LOOP_SIZE < INITIAL_LOOP_SIZE) {
+                    LOOP_SIZE = INITIAL_LOOP_SIZE;
+                }
                 /* *(end_noise + num_noise_segments) = k; */
                 end_noise[num_noise_segments] = k;
                 num_noise_segments++;
