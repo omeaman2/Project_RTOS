@@ -52,11 +52,6 @@ int ifft_and_restore(const kiss_fft_cfg* state, const kiss_fft_cpx *in,
 void create_signal(kiss_fft_cpx* cx_in, const int n);
 
 int recognizeEnd(int start, unsigned long startMedium);
-double *getAutoCorrelationOfSeries(double da[], double *result, int size);
-double getCorrelation(double x[], double y[], int size_a, int size_b);
-double GetAverage(double data[], int size);
-double GetVariance(double data[], int size);
-double GetStdev(double data[], int size);
 
 // Get the signal and put it in the argument kissfft complex array.
 // cx_in must have enough space to hold a segment.
@@ -65,10 +60,14 @@ int get_noise_segment(kiss_fft_cpx* cx_in, const int start_noise, const int
         end_noise);
 
 // Invert the frequencies of a complex numbered fourier transformed signal.
-int invert_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples);
+int invert_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples);
 
-// Set frequencies of a complex numbered fourier transformed signal to value.
-int set_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
+// Set a frequency of a complex numbered fourier transformed signal to value.
+int set_frequency(kiss_fft_cpx* cx_in, const int idx, const double rvalue,
+        const double ivalue);
+
+// Set all frequencies of a complex numbered fourier transformed signal to value.
+int set_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
         double rvalue, double ivalue);
 
 // Print start and end indices of noises.
@@ -105,10 +104,9 @@ int copy_signal_and_write_segments_to_copied_signal(int16_t* new_data_array);
 // all samples of the original data array.
 int copy_signal(int16_t* new_data_array, const int original_size);
 
-// Get the value from the signal at the specified index.
-int16_t value_at_index(const int16_t* s, const int i);
-
 int print_values_between(const int16_t *s, const int beg, const int end);
+
+int cx_print_values_between(const kiss_fft_cpx *s, const int beg, const int end);
 
 int write_signal_to_file(const char* filename, const int16_t* s, const int n);
 
@@ -122,13 +120,23 @@ int read_data_from_file(int16_t* data_array, const int n, char* filename);
 void print_tokens(char** tokens, int n);
 void print_ints(int16_t* a, int n);
 
+int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent);
 
+/* Return index of highest absolute real frequency. */
+size_t highest_frequency_real(const kiss_fft_cpx *s, const size_t size);
+/* Return index of highest absolute imaginary frequency. */
+size_t highest_frequency_imag(const kiss_fft_cpx *s, const size_t size);
+/* Cancel x% around the highest absolute frequency in a complex numbered
+ * fourier transformed signal.*/
+int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent);
 
 /*** Global variables ***/
 
 // Array for the number of samples of each noise segment.
 int segment_sizes[MAX_NSEGMENTS];
 
+unsigned int LOOP_SIZE = 120 * 8;
+unsigned int INITIAL_LOOP_SIZE = 120 * 8;
 // Arrays containing the start index and the end index of the noises.
 int start_noise[MAX_NSEGMENTS];
 int end_noise[MAX_NSEGMENTS];
@@ -193,7 +201,7 @@ int main(void) {
 int do_cancel() {
     int r;
     if (num_noise_segments <= 0) {
-        fprintf(stderr, "do_cancel: num_noise_segments is less than j"
+        fprintf(stderr, "do_cancel: num_noise_segments is less than "
                 "or equal to zero.\n");
         return NOT_OK;
     } else if (num_noise_segments >= MAX_NSEGMENTS) {
@@ -250,18 +258,32 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        /* // 3. Invert the frequencies. */
-        /* r = invert_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
+        /* // 3. Invert all frequencies. */
+        /* r = invert_all_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
         /* if (r != OK) { */
         /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
         /*     goto fail; */
         /* } */
 
-        // 3. Set frequencies to specified rvalue and ivalue.
-        r = set_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0,
-                0.0);
+        /* printf("noise segment:\t%d\n", i); */
+        /* printf("size of the segment:\t%d\n", segment_sizes[i]); */
+        /* cx_print_values_between(cx_noise_segment_fourier, 0, 3000); */
+
+        /* // 3. Set all frequencies to specified rvalue and ivalue. */
+        /* r = set_all_frequencies(cx_noise_segment_fourier, segment_sizes[i], 0.0, */
+        /*         0.0); */
+        /* if (r != OK) { */
+        /*     fprintf(stderr, "do_cancel: error while setting frequencies\n"); */
+        /*     goto fail; */
+        /* } */
+
+        // 3. Perform algorithm to cancel only the highest absolute frequencies
+        // of the fourier transformed signal.
+        cancel_interval(cx_noise_segment_fourier, segment_sizes[i],
+                FREQ_CANCELLATION_PERCENTAGE);
         if (r != OK) {
-            fprintf(stderr, "do_cancel: error while setting frequencies\n");
+            fprintf(stderr, "do_cancel: error while cancelling around an"
+                    " interval.\n");
             goto fail;
         }
 
@@ -442,7 +464,7 @@ void cx_print_signal(const kiss_fft_cpx *s, const int n) {
 
 void print_signal(const int16_t *s, const int n) {
     for (int i = 0; i < n; ++i) {
-        printf("s[%d] = %-15f\n", i, s[i]);
+        printf("s[%d] = %-15d\n", i, s[i]);
     }
 }
 
@@ -482,82 +504,11 @@ void create_signal(kiss_fft_cpx* cx_in, const int n) {
     /* } */
 }
 
-
-// The following functions come from cutoff.c
-double GetVariance(double data[], int size) {
-    double avg = GetAverage(data, size);
-    double sum = 0;
-
-    for (int i = 0; i < size; i++) {
-        sum += pow((data[i] - avg), 2);
-    }
-
-    return sum / size;
-}
-
-double GetAverage(double data[], int size) {
-    if (size == 0) {
-        return 0;
-    }
-
-    double sum = 0;
-
-    for (int i = 0; i < size; i++) {
-        sum += data[i];
-    }
-
-    return sum / size;
-}
-
-double GetStdev(double data[], int size) {
-    return sqrt(GetVariance(data, size));
-}
-
-double getCorrelation(double x[], double y[], int size_x, int size_y) {
-    if (size_x != size_y) {
-        printf("Length of sources is different");
-        return 0;
-    }
-
-    double avgX = GetAverage(x, size_x);
-    double stdevX = GetStdev(x, size_x);
-    double avgY = GetAverage(y, size_y);
-    double stdevY = GetStdev(y, size_y);
-    double covXY = 0;
-    double pearson = 0;
-
-    for (int i = 0; i < size_x; i++) {
-        covXY = (x[i] - avgX) * (y[i] - avgY);
-    }
-
-    covXY /= size_x;
-    pearson = covXY / (stdevX * stdevY);
-
-    return pearson;
-}
-
-double *getAutoCorrelationOfSeries(double da[], double *autoCorrelation, int size) {
-    int half = (int)(size / 2);
-    double x[half];
-    double y[half];
-    int size_x, size_y;
-
-    for (int i = 0; i < half; i++) {
-        x[i] = da[i];
-        y[i] = da[i + i];
-        size_x = sizeof(x) / sizeof(x[0]);
-        size_y = sizeof(y) / sizeof(y[0]);
-        *(autoCorrelation + i) = getCorrelation(x, y, size_x, size_y);
-    }
-
-    return autoCorrelation;
-}
-
 int recognizeEnd(int start, unsigned long startMedium) {
     unsigned long average = 0;
     unsigned long counter = 0;
     // max noise length is the start moment plus 0.5 second.
-    unsigned long maxCount = start + 3000;
+    unsigned long maxCount = start + MAX_NSAMPLES;
     unsigned long maxLoop = 0;
 
     // If the max noise length exeeds the arraysize, use arraysize - safezone as
@@ -572,20 +523,27 @@ int recognizeEnd(int start, unsigned long startMedium) {
     // Loop from start of noise to max 0.5 second further.
     for(int k = start; k < maxLoop; k++) {
         counter = 0;
+        //printf("rec %d avg: %d point: %d\n", startMedium, average, ((k - start)%LOOP_SIZE));
+
         // Check if noise drasticly decreases in next 0.05 seconds 
         for(int i = k; i < (k + LOOP_SIZE); i++) {
-            counter += fabs(data_array[i]);
+            counter += abs(data_array[i]);
+        }
+        if((k - start)%LOOP_SIZE == 0 && k != 0) {
+            
+            average = counter / LOOP_SIZE;
+            counter = 0;
+            int safeZone = startMedium / 2;
+            // If average is lower than the value at the start of the noise, noise
+            // ended so function is stopped.
+            if(average <= (startMedium + safeZone)) {
+                /* printf(" end noise %d \n", k); */
+                return k;
+            }
         }
 
-        average = counter / LOOP_SIZE;
-	int safeZone = startMedium / 2;
-        // If average is lower than the value at the start of the noise, noise
-        // ended so function is stopped.
-        if(average <= (startMedium + safeZone)) {
-            /* printf(" end noise %d \n", k); */
-            return k;
-        }
     }
+    //printf("MAXEND \n");
     //No end of noise is detected, detected noise get discarded.
     /* printf("end noise \n"); */
     return maxLoop;
@@ -596,30 +554,7 @@ int do_recognize(void) {
     unsigned long average = 0;
     unsigned long prevAverage = 0;
     unsigned int used = 0;
-
-    /* int* start_noise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*start_noise))); */
-    /* int* end_noise = (int *)malloc(MAX_NSEGMENTS * (sizeof(*end_noise))); */
-    /* double *autoCorrelation = (double *)malloc(data_array_size * sizeof(*autoCorrelation)); */
-    /* double *seg_1 = (double *)malloc(data_array_size * sizeof(*seg_1)); */
-    /* double *seg_2 = (double *)malloc(data_array_size * sizeof(*seg_2)); */
-    /* double *seg_3 = (double *)malloc(data_array_size * sizeof(*seg_3)); */
-    /* double *seg_4 = (double *)malloc(data_array_size * sizeof(*seg_4)); */
-
-    /*     if ( autoCorrelation == NULL || */
-    /*             seg_1 == NULL || seg_2 == NULL || seg_3 == NULL || seg_4 == NULL) { */
-    /*         fprintf(stderr, "ERROR: Malloc failed\n\n"); */
-
-    /*         free(autoCorrelation); */
-    /*         /1* free(start_noise); *1/ */
-    /*         /1* free(end_noise); *1/ */
-    /*         free(seg_1); */
-    /*         free(seg_2); */
-    /*         free(seg_3); */
-    /*         free(seg_4); */
-
-    /*         return NOT_OK; */
-    /*     } */
-
+    double safeDivide = 2;
     // printf("data_array[683] = %f\n", data_array[683]);
     // Loop complete array, safezone of 400 because next 400 elements are looped
     // before check is reached
@@ -631,7 +566,7 @@ int do_recognize(void) {
         for (int i = k; i < (k + LOOP_SIZE); i++) {
             int data = abs(data_array[i]);
             // If value of data < 500 it can't be heard and is not usable
-            if (data > 500) {
+            if (data > 300) {
                 counter += data;
                 used++;
             }
@@ -648,77 +583,28 @@ int do_recognize(void) {
         }
         if (k != 0) {
             //Check if an huge increase in volume occured.
-            unsigned long safeZone = (prevAverage / 2);
+            unsigned long safeZone = (prevAverage / safeDivide);
             unsigned long tempAverage = prevAverage + safeZone;
-            if (tempAverage < average && prevAverage > 500) {
+
+            if (tempAverage < average) {
+
                 /* *(start_noise + num_noise_segments) = k; */
                 start_noise[num_noise_segments] = k;
                 k = recognizeEnd(k, prevAverage - safeZone);
+                if(LOOP_SIZE < INITIAL_LOOP_SIZE) {
+                    LOOP_SIZE = INITIAL_LOOP_SIZE;
+                }
                 /* *(end_noise + num_noise_segments) = k; */
                 end_noise[num_noise_segments] = k;
                 num_noise_segments++;
+            } else if(LOOP_SIZE > 100) {
+                //printf("%d \n", safeDivide);
+                LOOP_SIZE -= 86;
             }
         }
     }
 
-    /* printf("Computing Autocorrelation \n\n"); */
-
-    /* int sizeOfNoiseArray = 0; */
-
-    /* /1* printf("num_noise_segments: %d\n", num_noise_segments); *1/ */
-    /* for (int i = 0; i < num_noise_segments; ++i) { */
-    /*     /1* printf("SEGMENT %d\n", i); *1/ */
-
-    /*     /1* sizeOfNoiseArray = *(end_noise + i) - *(start_noise + i); *1/ */
-    /*     sizeOfNoiseArray = end_noise[i] - start_noise[i]; */
-    /*     double noiseArray[sizeOfNoiseArray]; */
-
-    /*     /1* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); *1/ */
-
-    /*     for (int y = 0; y < sizeOfNoiseArray; ++y) { */
-    /*         /1* printf("sizeOfNoiseArray: %d\n", sizeOfNoiseArray); *1/ */
-    /*         /1* noiseArray[y] = data_array[*(start_noise + i) + y]; *1/ */
-    /*         noiseArray[y] = data_array[start_noise[i] + y]; */
-    /*         if (i == 0){ */
-    /*             *(seg_1 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_1 + y)); *1/ */
-    /*         } */
-    /*         if (i == 1){ */
-    /*             *(seg_2 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_2 + y)); *1/ */
-    /*         } */ 
-    /*         if (i == 2){ */
-    /*             *(seg_3 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_3 + y)); *1/ */
-    /*         } */
-    /*         if (i == 3){ */
-    /*             *(seg_4 + y) = noiseArray[y]; */
-    /*             /1* printf("%f\n", *(seg_4 + y)); *1/ */
-    /*         } */
-
-    /*     } */
-
-    /*     autoCorrelation = getAutoCorrelationOfSeries(noiseArray, */
-    /*             autoCorrelation, sizeOfNoiseArray); */
-
-    /*     for (int z = 0; z < sizeOfNoiseArray / 2; ++z) { */
-    /* //        printf("%f -- %d -- %f\n", *(autoCorrelation + z), */
-    /* //        sizeOfNoiseArray + z, data_array[sizeOfNoiseArray + z]); */
-    /*     } */
-
-    /*     printf("\n\n"); */
-    /* } */
-
-
     printf("\n##### DONE with do_recognize! #####\n");
-
-    /* free(autoCorrelation); */
-    /* /1* free(start_noise); *1/ */
-    /* /1* free(end_noise); *1/ */
-    /* free(seg_1); */
-    /* free(seg_2); */
-    /* free(seg_3); */
-    /* free(seg_4); */
 
     return OK;
 }
@@ -760,19 +646,28 @@ int get_noise_segment(kiss_fft_cpx* cx_in, const int start_noise, const int
     return OK;
 }
 
-int invert_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples) {
+int set_frequency(kiss_fft_cpx* cx_in, const int idx, const double rvalue,
+        const double ivalue) {
+    cx_in[idx].r = rvalue;
+    cx_in[idx].i = ivalue;
+    return OK;
+}
+
+int invert_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples) {
+    int r;
     for (int i = 0; i < num_segment_samples; ++i) {
-        cx_in[i].r = -cx_in[i].r;
-        cx_in[i].i = -cx_in[i].i;
+        r = set_frequency(cx_in, i, -cx_in[i].r, -cx_in[i].i);
+        if (r != OK) return NOT_OK;
     }
     return OK;
 }
 
-int set_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
+int set_all_frequencies(kiss_fft_cpx* cx_in, const int num_segment_samples, const
         double rvalue, double ivalue) {
+    int r;
     for (int i = 0; i < num_segment_samples; ++i) {
-        cx_in[i].r = rvalue;
-        cx_in[i].i = ivalue;
+        r = set_frequency(cx_in, i, rvalue, ivalue);
+        if (r != OK) return NOT_OK;
     }
     return OK;
 }
@@ -866,13 +761,18 @@ int copy_signal(int16_t* new_data_array, const int original_size) {
     return OK;
 }
 
-int16_t value_at_index(const int16_t* s, const int i) {
-    return s[i];
+int print_values_between(const int16_t *s, const int beg, const int end) {
+    printf("Values between '%d' and '%d'\n", beg, end);
+    for (int i = beg; i < end; ++i) {
+        printf("s[%d] = %-15d\n", i, s[i]);
+    }
+    return OK;
 }
 
-int print_values_between(const int16_t *s, const int beg, const int end) {
+int cx_print_values_between(const kiss_fft_cpx *s, const int beg, const int end) {
+    printf("Values between '%d' and '%d'\n", beg, end);
     for (int i = beg; i < end; ++i) {
-        printf("s[%d] = %-15f\n", i, value_at_index(s, i));
+        printf("s[%d].r = %-15f\ts[%d].i = %-15f\n", i, s[i].r, i, s[i].i);
     }
     return OK;
 }
@@ -938,3 +838,66 @@ void print_ints(int16_t* a, int n) {
     putchar('\n');
 }
 
+/* Return index of highest absolute real frequency. */
+size_t highest_frequency_real(const kiss_fft_cpx *s, const size_t size) {
+    size_t current_highest = 0;
+    for (int i = 1; i < size; ++i) {
+        if (fabs(s[i].r) > fabs(s[current_highest].r)) {
+            current_highest = i;
+        }
+    }
+    return current_highest;
+}
+
+/* Return index of highest absolute imaginary frequency. */
+size_t highest_frequency_imag(const kiss_fft_cpx *s, const size_t size) {
+    size_t current_highest = 0;
+    for (int i = 1; i < size; ++i) {
+        if (fabs(s[i].i) > fabs(s[current_highest].i)) {
+            current_highest = i;
+        }
+    }
+    return current_highest;
+}
+
+/* Set x% around the absolute highest frequency to zero. */
+int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
+    size_t interval, hfreq_idx_re, hfreq_idx_im;
+    int beg_re, beg_im, end_re, end_im;
+
+    if (percent < 0 || percent > 100) return NOT_OK;
+    interval = percent/100.0 * size;
+    
+    /* Get the index of the highest frequency of the real and imaginary parts.*/
+    hfreq_idx_re = highest_frequency_real(s, size);
+    hfreq_idx_im = highest_frequency_imag(s, size);
+
+    /* Get begin and end intervals. */
+    beg_re = hfreq_idx_re - interval;
+    beg_im = hfreq_idx_im - interval;
+    end_re = hfreq_idx_re + interval;
+    end_im = hfreq_idx_im + interval;
+
+    if (beg_re < 0)    beg_re = 0;
+    if (beg_im < 0)    beg_im = 0;
+    if (end_re > size) end_re = size;
+    if (end_im > size) end_im = size;
+
+    /* Set frequencies to zero */
+    for (int i = beg_re; i < end_re; ++i) {
+        s[i].r = 0.0;
+    }
+    for (int i = beg_im; i < end_im; ++i) {
+        s[i].i = 0.0;
+    }
+
+    /* /1* Invert frequencies *1/ */
+    /* for (int i = beg_re; i < end_re; ++i) { */
+    /*     s[i].r = -s[i].r; */
+    /* } */
+    /* for (int i = beg_im; i < end_im; ++i) { */
+    /*     s[i].i = -s[i].i; */
+    /* } */
+
+    return OK;
+}

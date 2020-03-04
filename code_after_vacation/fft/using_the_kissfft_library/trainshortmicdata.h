@@ -9,7 +9,7 @@
 #define INVERSE_FOURIER 1
 
 // Max number of samples
-#define MAX_NSAMPLES 3000
+#define MAX_NSAMPLES 4000
 
 // Used in array initialisations.
 #define MAX_NSEGMENTS 70
@@ -29,14 +29,15 @@
 // Number of samples, only used for testing.
 #define NSAMPLES 16
 
-// Recognition loop size. *8 because of the increased sample rate.
-#define LOOP_SIZE 120*8
-
 // File to read data_array from.
 #define FILE_DATA_ARRAY "../../../resources/data_array.txt"
 
 // File to save new_data_array.txt to.
 #define FILE_NEW_DATA_ARRAY "../../../resources/new_data_array.txt"
+
+/* Determines how much percent left and right of the highest frequency needs to
+ * be cancelled in a noise segment. */
+#define FREQ_CANCELLATION_PERCENTAGE 99.0
 
 // Boolean functionality
 enum boolean {
