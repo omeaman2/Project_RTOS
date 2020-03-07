@@ -86,7 +86,7 @@ void copyBuffer(buffer_t *dest, buffer_t *src, size_t n) {
 
     if (n > dest->size) {
         printf("Error in 'copyBuffer': trying to copy %zu items to the" 
-               " destination buffer, buffer can only contain %zu iems.\n", 
+               " destination buffer, buffer can only contain %zu items.\n", 
                n, dest->size);
         exit(EXIT_FAILURE);
 

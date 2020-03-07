@@ -22,7 +22,7 @@ args = parser.parse_args()
 wav_file = wavfile.read(args.wavfile)
 
 # Source for numpy to csv string: https://stackoverflow.com/a/13861407
-# Convers the numpy array to an array of strings
+# Converts the numpy array to an array of strings
 samples_array_strings = np.char.mod('%d', wav_file[1])
 # Converts the array of strings to a single csv string
 samples_csv_string =  ",".join(samples_array_strings)
