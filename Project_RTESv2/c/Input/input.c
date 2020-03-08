@@ -1,29 +1,27 @@
 #include "input.h"
 
-sample_t take_sample(void);
+sample_t takeSample(void);
 
-void vRTES_Input(void *pvParameters) {
-    task_info_input_t task_info = *(task_info_input_t*) pvParameters;
-    buffer_t *buffer = task_info.out_buffer;
-    const char * const pcTaskName = task_info.basic_info.pcTaskName;
-    TickType_t taskPeriod = task_info.basic_info.xTaskPeriod;
+void vTaskInput(void *pvParameters) {
+    taskInfo_t *info = (taskInfo_t*) pvParameters;
+    inputSettings_t *settings = (inputSettings_t*) info->settings;
 
     TickType_t xTimeTaskStarted;
     for (;;) {
         xTimeTaskStarted = xTaskGetTickCount();
 
-        do_input(buffer);
+        doInput(settings);
 
-        vTaskDelayUntil(&xTimeTaskStarted, taskPeriod);
+        vTaskDelayUntil(&xTimeTaskStarted, info->xTaskPeriod);
     }
 }
 
-void do_input(buffer_t *buffer) {
-    insertIntoBuffer(buffer, take_sample());
+void doInput(inputSettings_t *settings) {
+    insertIntoBuffer(settings->outBuffer, takeSample());
 }
 
-sample_t take_sample(void) {
+sample_t takeSample(void) {
     static size_t index = 0;
 
-    return read_data(index++);
+    return readData(index++);
 }

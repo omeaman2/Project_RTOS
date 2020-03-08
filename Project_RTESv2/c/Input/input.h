@@ -5,13 +5,12 @@
 #include "../data.h"
 #include <stddef.h>
 
-void vRTES_Input(void *pvParameters);
-void do_input(buffer_t *buffer);
-
 typedef struct {
-    basic_task_info_t basic_info;
-    buffer_t *out_buffer;
-} task_info_input_t;
+    buffer_t *outBuffer;
+} inputSettings_t;
+
+void vTaskInput(void *pvParameters);
+void doInput(inputSettings_t *settings);
 
 #endif /* INPUT_H */
 

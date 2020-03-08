@@ -11,8 +11,9 @@ buffer_t createBuffer(size_t size) {
     }
 
     if (size % 100 != 0) {
-        printf("Non-critical error in 'createBuffer': it's recommend to"
-               " have the size be a multiple of 100.\n");
+        printf("Warning in 'createBuffer': to ensure printStatusBuffer"
+               " works correctly a multiple of 100 should be used for the"
+               " size.\n");
     }
     
     buffer_t buffer = {
@@ -100,25 +101,25 @@ void copyBuffer(buffer_t *dest, buffer_t *src, size_t n) {
 
 // Can be used for debugging to see which parts of the buffer contain data
 void printStatusBuffer(buffer_t *buffer) {
-    const size_t step_size = buffer->size / 100;
+    const size_t stepSize = buffer->size / 100;
    
-    const size_t first_index = buffer->read;
-    size_t last_index = buffer->read;
-    updateIndex(&last_index, buffer->used, buffer->size);
+    const size_t firstIndex = buffer->read;
+    size_t lastIndex = buffer->read;
+    updateIndex(&lastIndex, buffer->used, buffer->size);
     
     printf("["); 
     for (size_t i = 0; i < 100; i++) {
-        size_t index = i * step_size;
-        if (first_index > last_index) {
+        size_t index = i * stepSize;
+        if (firstIndex > lastIndex) {
             // Rollover has occured
-            if (index <= last_index || index >= first_index) {
+            if (index <= lastIndex || index >= firstIndex) {
                 printf("|"); 
             } else {
                 printf("-"); 
             }
         } else {
             // No rollover has occured
-            if (index >= first_index && index < last_index) {
+            if (index >= firstIndex && index < lastIndex) {
                 printf("|");
             } else {
                 printf("-");

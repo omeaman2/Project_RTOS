@@ -15,7 +15,8 @@
 typedef struct {
     const char *pcTaskName;
     TickType_t xTaskPeriod;
-} basic_task_info_t;
+    void *settings;
+} taskInfo_t;
 
 typedef struct {
     sample_t *data;

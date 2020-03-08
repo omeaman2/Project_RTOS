@@ -4,9 +4,8 @@
 #include "RTES.h"
 #include <stdio.h>
 
-task_info_input_t get_task_info_input(buffer_t *out_buffer);
-task_info_output_t get_task_info_output(buffer_t *in_buffer,
-                                        FILE *fp_output_csv);
+taskInfo_t getTaskInfoInput(buffer_t *outBuffer);
+taskInfo_t getTaskInfoOutput(buffer_t *inBuffer, FILE *fpOutput);
 
 int main(void) {
     buffer_t buffer = createBuffer(100);
@@ -32,26 +31,29 @@ int main(void) {
    
 }
 
-task_info_input_t get_task_info_input(buffer_t *out_buffer) {
-    task_info_input_t task_info = {
-        .basic_info = {
-            .pcTaskName = "Input Task",
-            .xTaskPeriod = 500
-        },
-        .out_buffer = out_buffer
+taskInfo_t getTaskInfoInput(buffer_t *outBuffer) {
+    inputSettings_t settings = {
+        .outBuffer = outBuffer
     };
-    return task_info;
+
+    taskInfo_t info = {
+        .pcTaskName = "Input Task",
+        .xTaskPeriod = 500,
+        .settings = &settings
+    };
+    return info;
 }
 
-task_info_output_t get_task_info_output(buffer_t *in_buffer,
-                                        FILE *fp_output_csv) {
-    task_info_output_t task_info = {
-        .basic_info = {
-            .pcTaskName = "Output Task",
-            .xTaskPeriod = 500
-        },
-        .in_buffer = in_buffer, 
-        .fp_output_csv = fp_output_csv
+taskInfo_t getTaskInfoOutput(buffer_t *inBuffer, FILE *fpOutput) {
+    outputSettings_t settings = {
+        .inBuffer = inBuffer,
+        .fpOutput = fpOutput
     };
-    return task_info;
+
+    taskInfo_t info = {
+        .pcTaskName = "Output Task",
+        .xTaskPeriod = 500,
+        .settings = &settings
+    };
+    return info;
 }

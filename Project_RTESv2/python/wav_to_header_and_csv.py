@@ -41,15 +41,15 @@ header = """
 
 typedef {datatype} sample_t;
 
-static const uint32_t sample_rate = {sample_rate};
-static const size_t number_of_samples = {number_of_samples};
+static const uint32_t sampleRate = {sample_rate};
+static const size_t numberOfSamples = {number_of_samples};
 
 static const sample_t data[] = {{
     {samples}
 }};
 
-static inline sample_t read_data(size_t index) {{ 
-    return data[index % number_of_samples]; 
+static inline sample_t readData(size_t index) {{ 
+    return data[index % numberOfSamples];
 }};
 
 #endif /* DATA_H */
