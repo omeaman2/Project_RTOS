@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 #include "kissfft/kiss_fft.h"
 #include <inttypes.h>
 #include "trainshortmicdata.h"
@@ -116,6 +117,8 @@ int tokenize(char* str, char** tokens, char* delim);
 
 /* Used to fill data_array. Also sets data_array_size. */
 int read_data_from_file(int16_t* data_array, const int n, char* filename);
+
+
 
 void print_tokens(char** tokens, int n);
 void print_ints(int16_t* a, int n);
@@ -533,11 +536,12 @@ int recognizeEnd(int start, unsigned long startMedium) {
             
             average = counter / LOOP_SIZE;
             counter = 0;
-            int safeZone = startMedium / 2;
+            int safeZone = average / 2;
             // If average is lower than the value at the start of the noise, noise
             // ended so function is stopped.
+             printf("inend %d, temp: %d, avg: %d, safe: %d \n", k, startMedium, average, safeZone);
             if(average <= (startMedium + safeZone)) {
-                /* printf(" end noise %d \n", k); */
+                printf(" end noise %d \n", k);
                 return k;
             }
         }
@@ -554,19 +558,30 @@ int do_recognize(void) {
     unsigned long average = 0;
     unsigned long prevAverage = 0;
     unsigned int used = 0;
+    int32_t sampleRate = data_array[0];
+    unsigned int loopTimes = sampleRate / 48000;
     double safeDivide = 2;
+    int decreaseCount = 80;
+    int minLoopSize = 120;
     // printf("data_array[683] = %f\n", data_array[683]);
     // Loop complete array, safezone of 400 because next 400 elements are looped
     // before check is reached
     num_noise_segments = 0;
-    for (int k = 0; k < (data_array_size - LOOP_SIZE); k += LOOP_SIZE) {
+
+    
+    printf("%d \n", data_array[0]);
+    LOOP_SIZE = data_array[0];
+    INITIAL_LOOP_SIZE = data_array[0];
+    decreaseCount = INITIAL_LOOP_SIZE / 12;
+    minLoopSize = INITIAL_LOOP_SIZE / 8;
+    for (int k = 1; k < (data_array_size - LOOP_SIZE); k += LOOP_SIZE) {
         counter = 0;
         used = 0;
         // Loop next 400 ellements calculate average
         for (int i = k; i < (k + LOOP_SIZE); i++) {
             int data = abs(data_array[i]);
             // If value of data < 500 it can't be heard and is not usable
-            if (data > 300) {
+            if (data > 500) {
                 counter += data;
                 used++;
             }
@@ -585,7 +600,7 @@ int do_recognize(void) {
             //Check if an huge increase in volume occured.
             unsigned long safeZone = (prevAverage / safeDivide);
             unsigned long tempAverage = prevAverage + safeZone;
-
+            printf("%d, temp: %d, avg: %d, safe: %d \n", k, tempAverage, average, safeZone);
             if (tempAverage < average) {
 
                 /* *(start_noise + num_noise_segments) = k; */
@@ -597,9 +612,10 @@ int do_recognize(void) {
                 /* *(end_noise + num_noise_segments) = k; */
                 end_noise[num_noise_segments] = k;
                 num_noise_segments++;
-            } else if(LOOP_SIZE > 100) {
-                //printf("%d \n", safeDivide);
-                LOOP_SIZE -= 86;
+            } else if(LOOP_SIZE > minLoopSize) {
+                //printf("%d \n", safeDivide);*
+
+                LOOP_SIZE -= decreaseCount;
             }
         }
     }
