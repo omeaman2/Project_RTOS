@@ -30,10 +30,10 @@
 #define NSAMPLES 16
 
 // File to read data_array from.
-#define FILE_DATA_ARRAY "../../../resources/data_array.txt"
+#define FILE_DATA_ARRAY "../../resources/data_array.txt"
 
 // File to save new_data_array.txt to.
-#define FILE_NEW_DATA_ARRAY "../../../resources/new_data_array.txt"
+#define FILE_NEW_DATA_ARRAY "../../resources/new_data_array.txt"
 
 /* Determines how much percent left and right of the highest frequency needs to
  * be cancelled in a noise segment. */

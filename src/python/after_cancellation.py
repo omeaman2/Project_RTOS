@@ -14,7 +14,7 @@ data_write = f.read().split(',')
 data_write = np.asarray(data_write, dtype=np.int16)
 
 samplerate = data_write[0] * 50
-print(samplerate)
+# print(samplerate)
 file_wav = repo.working_tree_dir + '/resources/new_data_array.wav'
 wavfile.write(file_wav,
         samplerate, data_write)

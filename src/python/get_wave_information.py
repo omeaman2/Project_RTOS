@@ -1,7 +1,7 @@
 import wave, struct, math, random, sys, numpy
 import soundfile as sf
 
-obj = wave.open('../../../resources/train_short.wav','r')
+obj = wave.open('../../resources/train_short.wav','r')
 print(type(obj))
 
 channels = obj.getnchannels()
@@ -10,14 +10,14 @@ sample_rate = obj.getframerate()
 nframes = obj.getnframes()
 params = obj.getparams()
 
-data, samplerate = sf.read('../../../resources/train_short.wav')
+data, samplerate = sf.read('../../resources/train_short.wav')
 
 #print(type(obj))
 duration = 1.0 # seconds
 
 frequency = 440.0 # hertz
 
-obj2 = wave.open('../../../resources/new_data_array.wav','w')
+obj2 = wave.open('../../resources/new_data_array.wav','w')
 obj2.setnchannels(channels)
 obj2.setsampwidth(sample_width)
 obj2.setframerate(sample_rate)
