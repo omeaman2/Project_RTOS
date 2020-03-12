@@ -5,15 +5,33 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [✓] Create a `do_recognise` that works on multiple different wav files (so not
+ - [] Make a clear plan of what everyone will say and show at the assignment.
+ - [] Prepare results, code, graphs to show at the assignment.
+ - [] Compare the 25%,50%,75%,x% noise cancellations wavs, determine which one
+   keeps non-noise intact the best (i.e. no gaps in signal) while still reducing
+   by at least 6dB.
+ - [] Clean main.c 
+ - [] Update and correct the LTSA model. There is a high level abstract LTSA
+   model from process algebra. Furthermore we need to an LTSA model that
+   conforms with the code in FreeRTOS/Realtime C.
+ - [] Describe the new results and new conclusions. This mainly concerns the
+   implementation of the algorithms in C (recognise, cancellation) and the
+   implementation in FreeRTOS and Realtime C.
+ - [] Answer the principal research question. i.e. correct the last paragraph of
+   the conclusion.
+ - [] Enhance the summary in the report.
+ - [] Check if figures all figures in report are still relevant.
+ - [] Read through the complete report and correct small errors.
+ - [✓] Restructure the project structure.
+ - [/] Create a `do_recognise` that works on multiple different wav files (so not
       only on `train_short.wav`)
  - [✓] Debug cancel interval
  - [✓] kaydo: Do not forget to correct the for loop in do_cancel.
  - [?] Prevent Barend from overwriting the excel files.
- - [/] Fix RecognizeEnd.
+ - [] Fix RecognizeEnd.
  - [✓] In Fourier cancel only the most common frequencies (need to determine a
    cutoff in the fourier for that).
- - [] Confirm that the noise is indeed reduced by at least 6 dB.
+ - [✓] Confirm that the noise is indeed reduced by at least 6 dB.
  - [✓] Continue testing listening to the was file. Currently produces garbage
    when going through c. Maybe don't do a nasty int cast in 'write to file'
    function, and make the entire array of int type. Problem could also lie in
@@ -22,9 +40,9 @@ TODO
    back to a new wav file produces a valid new wav.
  - [✓] Make sure the graph is valid.
  - [✓] Be able to listen to a wav file.
- - [] Add != null checks on pointers to malloced data.
- - [] Make the other arrays and and start and end noises optionally malloc.
- - [] Remove `make_zero` calls later. They are used for testing and take up
+ - [/] Add != null checks on pointers to malloced data.
+ - [/] Make the other arrays and and start and end noises optionally malloc.
+ - [✗] Remove `make_zero` calls later. They are used for testing and take up
       unnecessary computation time.
  - [✓] Fourier does not operate correctly in `do_fourier()`.
  - [✓] Fix segmentation fault in do_fourier.
