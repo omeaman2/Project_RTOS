@@ -10,13 +10,15 @@ jump = 1
 file_wav = repo.working_tree_dir + '/resources/train_short.wav'
 a = wavfile.read(file_wav)
 data = np.array(a[1], dtype=np.int16)
-
+frame_rate = np.array(a[0], dtype=np.int32)
 file_txt = repo.working_tree_dir + '/resources/data_array.txt'
 fdata_array = file_txt
 
 print("data:\t\t", data)
+frame_rate = (float(frame_rate) / 48000) * 960;
 f = open(fdata_array, "w")
-for i in range(0, data.size, jump):
+f.write("%d," % frame_rate)
+for i in range(1, data.size, jump):
     # if (i == data.size - 1):
         # f.write("%d" % data[i])
     # else:
