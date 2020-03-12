@@ -5,13 +5,13 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] Create a `do_recognise` that works on multiple different wav files (so not
+ - [✓] Create a `do_recognise` that works on multiple different wav files (so not
       only on `train_short.wav`)
  - [✓] Debug cancel interval
  - [✓] kaydo: Do not forget to correct the for loop in do_cancel.
  - [?] Prevent Barend from overwriting the excel files.
- - [] Fix RecognizeEnd.
- - [] In Fourier cancel only the most common frequencies (need to determine a
+ - [/] Fix RecognizeEnd.
+ - [✓] In Fourier cancel only the most common frequencies (need to determine a
    cutoff in the fourier for that).
  - [] Confirm that the noise is indeed reduced by at least 6 dB.
  - [✓] Continue testing listening to the was file. Currently produces garbage
@@ -57,7 +57,7 @@ gedistribueerd zijn over meerdere hardwarecomponenten.
 [A chip we might need](https://en.wikipedia.org/wiki/Digital_signal_processor)
 
 # Sun Feb 10 15:28:14 CET 2019
-Current plan is to create a noise cancelling head phone with a realtime OS.
+Current plan is to create a noise cancelling headphone with a realtime OS.
 
 Might want to research into low and high pass filters.
 These low and high pass filters can be used when we know what type of noise we
@@ -433,7 +433,6 @@ According to a study in \ref{h_s_study} the RLS algorithm proves to be better wi
 - Hardware and software study paper contains implementation code for the RLS
   algorithm.
 
-
 - Finite impulse response (FIR) filter is a filter whose input response (or
   response to any finite input) is of finite duration, because it settles to
   zero in finite time. This is in contrast to infinite impulse response (IIR)
@@ -482,29 +481,29 @@ Look if it is has a good library in python (and C).
 
 ## Sat 22 Jun 2019 02:30:29 PM CEST
 
-Got to finish this thing.
+### Got to finish this thing!!!!!??!?!?.
 
 Keypoints to do are now:
 
-- [] Since noise cancelling is such a wide subject, we need to very clearly
+- [✓] Since noise cancelling is such a wide subject, we need to very clearly
   decide what research to include in the project, and what not. We should
   certainly focus on the research that is directly relevant to our project.
 
-- [] Get FreeRTOS working. Getting a nice simulation working on free RTOS
+- [✓] Get FreeRTOS working. Getting a nice simulation working on free RTOS
   should be the final goal.
 
-- [] Get a simulation working outside of FreeRTOS.
+- [✓] Get a simulation working outside of FreeRTOS.
 
-- [] Really do integrate the realtime aspect in the project. This is the most
+- [/] Really do integrate the realtime aspect in the project. This is the most
   important keypoint to pass it.
 
 ## Thu 27 Jun 2019 01:58:34 PM CEST
 
 
 [Using this source](https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter)
-- [] Get the low pass filter working.
+- [/] Get the low pass filter working.
 
-- [] Create the noise cancelling algorithm in code.
+- [✓] Create the noise cancelling algorithm in code.
 
 [Good resource](https://stackoverflow.com/questions/24920346/filtering-a-wav-file-using-python)
 
@@ -512,7 +511,7 @@ Keypoints to do are now:
 
 [On noise cancelling in general](https://stackoverflow.com/questions/6503562/which-algorithm-is-used-for-noise-canceling-in-earphones)
 
-- [] Maybe try to continue on the algorithm itself in code. 
+- [✓] Maybe try to continue on the algorithm itself in code. 
 
 ## Sun 30 Jun 2019 05:30:16 PM CEST
 
@@ -524,9 +523,9 @@ We have got the frequencies (kind of). We need to filter out some frequencies so
 that we can cancel the noise. For that we have to to Fourier transform (done),
 then
 
-- [] We have to remove the non-desired frequencies.
+- [✓] We have to remove the non-desired frequencies.
 
-- [] Convert back to the normal signal with the inverse Fourier transform.
+- [✓] Convert back to the normal signal with the inverse Fourier transform.
 
 ## Mon 01 Jul 2019 12:33:44 PM CEST
 
@@ -605,7 +604,7 @@ On noise cancellation with the [Fourier transform and spectral subtraction](http
 
 ## Fri 18 Oct 2019 01:55:01 PM CEST
 
-Fourier transform is hard to understand.
+### Fourier transform is hard to understand!!!??!?!?.
 
 The current code contains only a `fft` and not an `ifft` function. The ifft will have to be created by
 ourselves. To do so it's required that we fully understand how the fft
