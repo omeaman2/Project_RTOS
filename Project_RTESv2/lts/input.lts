@@ -1,0 +1,49 @@
+const SIZE_QUEUE = 5
+
+//-------- TASK --------//
+TASK = 		(xTaskCreate -> READY),
+READY =		(scheduled -> RUNNING),
+RUNNING = 	(running -> RUNNING
+			|switched_out -> READY
+			|vTaskDelayUntil -> BLOCKED
+// ulTaskNotifyTake is called if the NoiseCancel queue has atleast 1 item, 
+// it will block until the queue is empty
+			|ulTaskNotifyTake -> BLOCKED),
+// readyForNextPeriod is called when the delay specified in vTaskDelayUntil is expired
+BLOCKED =	(readyForNextPeriod -> READY
+// xTaskNotifyGive is called by the output task when the output queue is empty, 
+// it sends this to the NoiseCancel task
+			|xTaskNotifyGive -> READY)\{ulTaskNotifyTake, xTaskNotifyGive}.
+
+//-------- QUEUE --------//
+QUEUE = 					(xQueueCreate -> QUEUE[0]),
+QUEUE[i:0..SIZE_QUEUE] =	(when(i>0) xQueueReceive->QUEUE[i-1]
+						 	|when(i<SIZE_QUEUE) xQueueSend->QUEUE[i+1]).
+
+//-------- INPUT TASK --------//
+MICROPHONE =	(create -> INPUT),
+INPUT = 		(takeSample -> sendFrame -> WFNP),
+// Wait for next period
+WFNP =			(vTaskDelayUntil -> readyForNextPeriod -> INPUT).
+
+//-------- INPUT TASK FULL --------//
+||INPUTTASK_FULL = (tIn:TASK || in:MICROPHONE || qIn:QUEUE)/{
+//	All creates can be synchronized, 
+//	as they're called before the scheduler is started
+	{in}.create/{tIn}.xTaskCreate, {in}.create/{qIn}.xQueueCreate, 
+//	These transitions can only be called if the task is running	
+	{in}.takeSample/{tIn}.running, {in}.sendFrame/{tIn}.running,
+//	These transitions enter or leave the Blocked state
+	{in}.vTaskDelayUntil/{tIn}.vTaskDelayUntil, {in}.readyForNextPeriod/{tIn}.readyForNextPeriod,
+//	These transitions are synchronized with the queues
+	{in}.sendFrame/{qIn}.xQueueSend}
+\{{tIn}.ulTaskNotifyTake, {tIn}.ulTaskNotifyGive}.
+
+//-------- INPUT TASK --------//
+||INPUTTASK = (in:MICROPHONE || qIn:QUEUE)/{
+//	All creates can be synchronized, 
+//	as they're called before the scheduler is started
+	{in}.create/{qIn}.xQueueCreate,
+//	These transitions are synchronized with the queues
+	{in}.sendFrame/{qIn}.xQueueSend}
+\{{in}.vTaskDelayUntil, {in}.readyForNextPeriod}.

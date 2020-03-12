@@ -3,8 +3,7 @@
 sample_t takeSample(void);
 
 void vTaskInput(void *pvParameters) {
-    taskInfo_t *info = (taskInfo_t*) pvParameters;
-    inputSettings_t *settings = (inputSettings_t*) info->settings;
+    inputSettings_t *settings = (inputSettings_t*) pvParameters;
 
     TickType_t xTimeTaskStarted;
     for (;;) {
@@ -12,7 +11,7 @@ void vTaskInput(void *pvParameters) {
 
         doInput(settings);
 
-        vTaskDelayUntil(&xTimeTaskStarted, info->xTaskPeriod);
+        vTaskDelayUntil(&xTimeTaskStarted, settings->base.xTaskPeriod);
     }
 }
 

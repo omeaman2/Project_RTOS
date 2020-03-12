@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 typedef struct {
+    baseSettings_t base;
     buffer_t *outBuffer;
 } inputSettings_t;
 

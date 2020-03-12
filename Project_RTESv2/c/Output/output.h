@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 typedef struct {
+    baseSettings_t base;
     buffer_t *inBuffer;
     FILE *fpOutput;
 } outputSettings_t;

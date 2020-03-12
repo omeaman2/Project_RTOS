@@ -1,0 +1,63 @@
+const SIZE_QUEUE = 5
+const SIZE_SQUEUE = 1 //small queue used as the Predict Queue and as Task Notification
+
+//-------- TASK --------//
+TASK = 		(xTaskCreate -> READY),
+READY =		(scheduled -> RUNNING),
+RUNNING = 	(running -> RUNNING
+			|switched_out -> READY
+			|vTaskDelayUntil -> BLOCKED
+// ulTaskNotifyTake is called if the NoiseCancel queue has atleast 1 item, 
+// it will block until the queue is empty
+			|ulTaskNotifyTake -> BLOCKED),
+// readyForNextPeriod is called when the delay specified in vTaskDelayUntil is expired
+BLOCKED =	(readyForNextPeriod -> READY
+// xTaskNotifyGive is called by the output task when the output queue is empty, 
+// it sends this to the NoiseCancel task
+			|xTaskNotifyGive -> READY)\{xTaskNotifyGive, ulTaskNotifyTake}.
+
+//-------- QUEUE --------//
+QUEUE = 					(xQueueCreate -> QUEUE[0]),
+QUEUE[i:0..SIZE_QUEUE] =	(when(i>0) xQueueReceive->QUEUE[i-1]
+						 	|when(i<SIZE_QUEUE) xQueueSend->QUEUE[i+1]).
+
+//small queue used as the Task Notification
+SQUEUE = 					(xQueueCreate -> SQUEUE[0]),
+SQUEUE[i:0..SIZE_SQUEUE] =	(when(i>0) xQueueReceive -> SQUEUE[i-1]
+						 	|when(i<SIZE_SQUEUE) xQueueSend -> SQUEUE[i+1]).
+
+//-------- OUTPUT TASK --------//
+HEADPHONES =				(create -> notifyGive -> READ[0]),
+READ[i:0..SIZE_QUEUE] = 	(readFrame -> outputToSpeaker -> GETDATA[i]),
+// Is this the last frame to be outputted? If yes, notify the NoiseCancel Task so it knowns it can send new frames when ready 
+GETDATA[i:0..SIZE_QUEUE] = 	(when(i==(SIZE_QUEUE-1)) notifyGive -> vTaskDelayUntil -> readyForNextPeriod -> READ[0]
+						   	|when(i<(SIZE_QUEUE-1)) vTaskDelayUntil -> readyForNextPeriod -> READ[i+1]).
+
+//-------- OUTPUT TASK FULL --------//
+||OUTPUTTASK_FULL = (tOut:TASK || out:HEADPHONES || qOut:QUEUE || notify:SQUEUE)/{
+// All creates can be synchronized, 
+// as they're called before the scheduler is started
+   {out}.create/{tOut}.xTaskCreate, {out}.create/{qOut,notify}.xQueueCreate, 
+// These transitions can only be called if the task is running	 
+   {out}.readFrame/{tOut}.running, {out}.outputToSpeaker/{tOut}.running, 
+   {out}.notifyGive/{tOut}.running,
+// These transitions enter or leave the Blocked state
+   {out}.vTaskDelayUntil/{tOut}.vTaskDelayUntil, {out}.readyForNextPeriod/{tOut}.readyForNextPeriod,
+// These transitions are synchronized with the queues
+   {out}.readFrame/{qOut}.xQueueReceive, 
+// This transition is used to synchronize the Task Notification, 
+// a single item Queue is used to model the Task Notification
+   {out}.notifyGive/{notify}.xQueueSend}
+\{{tOut}.xTaskNotifyGive, {tOut}.ulTaskNotifyTake}.
+
+//-------- OUTPUT TASK --------//
+||OUTPUTTASK = (out:HEADPHONES || qOut:QUEUE || notify:SQUEUE)/{
+//	All creates can be synchronized, 
+//	as they're called before the scheduler is started
+	{out}.create/{qOut,notify}.xQueueCreate,
+//	These transitions are synchronized with the queues
+	{out}.readFrame/{qOut}.xQueueReceive,
+// This transition is used to synchronize the Task Notification, 
+// a single item Queue is used to model the Task Notification
+   {out}.notifyGive/{notify}.xQueueSend}
+\{{out}.vTaskDelayUntil, {out}.readyForNextPeriod}.

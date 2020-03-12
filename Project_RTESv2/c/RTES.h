@@ -15,8 +15,7 @@
 typedef struct {
     const char *pcTaskName;
     TickType_t xTaskPeriod;
-    void *settings;
-} taskInfo_t;
+} baseSettings_t;
 
 typedef struct {
     sample_t *data;
@@ -31,6 +30,7 @@ void insertIntoBuffer(buffer_t *buffer, sample_t data);
 sample_t readFromBuffer(buffer_t *buffer, size_t offset);
 void removeFromBuffer(buffer_t *buffer, size_t n);
 void copyBuffer(buffer_t *dest, buffer_t *src, size_t n);
+sample_t *getArrayFromBuffer(buffer_t *buffer, size_t n);
 void printStatusBuffer(buffer_t *buffer);
 void freeBuffer(buffer_t *buffer);
 

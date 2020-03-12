@@ -4,8 +4,7 @@ sample_t readSample(buffer_t *buffer);
 void outputSample(sample_t sample, FILE *fpOutput);
 
 void vTaskOutput(void *pvParameters) {
-    taskInfo_t *info = (taskInfo_t*) pvParameters;
-    outputSettings_t *settings = (outputSettings_t*) info->settings;
+    outputSettings_t *settings = (outputSettings_t*) pvParameters;
 
     TickType_t xTimeTaskStarted;
     for (;;) {
@@ -13,7 +12,7 @@ void vTaskOutput(void *pvParameters) {
 
         doOutput(settings);
 
-        vTaskDelayUntil(&xTimeTaskStarted, info->xTaskPeriod);
+        vTaskDelayUntil(&xTimeTaskStarted, settings->base.xTaskPeriod);
     }
 }
 

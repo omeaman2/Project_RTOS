@@ -1,0 +1,63 @@
+const SIZE_QUEUE = 5
+const SIZE_SQUEUE = 1
+
+//-------- TASK --------//
+TASK = 		(xTaskCreate -> READY),
+READY =		(scheduled -> RUNNING),
+RUNNING = 	(running -> RUNNING
+			|switched_out -> READY
+			|vTaskDelayUntil -> BLOCKED
+// ulTaskNotifyTake is called if the NoiseCancel queue has atleast 1 item, it will block until the queue is empty
+			|ulTaskNotifyTake -> BLOCKED),
+// readyForNextPeriod is called when the delay specified in vTaskDelayUntil is expired
+BLOCKED =	(readyForNextPeriod -> READY
+// xTaskNotifyGive is called by the output task when the output queue is empty, it sends this to the NoiseCancel task
+			|xTaskNotifyGive -> READY). // SUSPENDED state currently not used
+
+//-------- QUEUE --------//
+QUEUE = 					(xQueueCreate -> QUEUE[0]),
+QUEUE[i:0..SIZE_QUEUE] =	(when(i>0) xQueueReceive->QUEUE[i-1]
+						 	|when(i<SIZE_QUEUE) xQueueSend->QUEUE[i+1]).
+
+//small queue used as the Task Notification
+SQUEUE = 					(xQueueCreate -> SQUEUE[0]),
+SQUEUE[i:0..SIZE_SQUEUE] =	(when(i>0) xQueueReceive -> SQUEUE[i-1]
+						 	|when(i<SIZE_SQUEUE) xQueueSend -> SQUEUE[i+1]).
+
+//-------- NOISECANCEL TASK --------//
+NOISECANCEL =				(create -> GETDATA[0]),
+// Read all data from the NoiseCancel queue
+GETDATA[i:0..SIZE_QUEUE] = 	(when(i==SIZE_QUEUE) runNoiseCancelling -> NOISECANCELLING
+							|when(i<SIZE_QUEUE) readFrame -> GETDATA[i+1]),
+// Run noise cancelling, data can't be put into the Output queue until it's empty
+NOISECANCELLING = 			(notifyTake -> notifyReceived -> SETOUTPUT[0]),
+// Send all data to the Output queue
+SETOUTPUT[j:0..SIZE_QUEUE] =(when(j<SIZE_QUEUE) sendFrame -> SETOUTPUT[j+1]
+							|when(j==SIZE_QUEUE) vTaskDelayUntil -> readyForNextPeriod -> GETDATA[0]).
+
+//-------- NOISECANCEL TASK FULL --------//
+||CANCELTASK_FULL = (tNc:TASK || nc:NOISECANCEL || qOut:QUEUE || qNc:QUEUE)/{
+// All creates can be synchronized, 
+// as they're called before the scheduler is started
+ {nc}.create/{tNc}.xTaskCreate, {nc}.create/{qOut,qNc}.xQueueCreate, 
+// These transitions can only be called if the task is running
+ {nc}.runNoiseCancelling/{tNc}.running, {nc}.readFrame/{tNc}.running, 
+ {nc}.sendFrame/{tNc}.running, 
+// These transitions enter or leave the Blocked state
+ {nc}.notifyTake/{tNc}.ulTaskNotifyTake, {nc}.notifyReceived/{tNc}.xTaskNotifyGive, 
+ {nc}.vTaskDelayUntil/{tNc}.vTaskDelayUntil, {nc}.readyForNextPeriod/{tNc}.readyForNextPeriod,
+// These transitions are synchronized with the queues
+ {nc}.readFrame/{qNc}.xQueueReceive, {nc}.sendFrame/{qOut}.xQueueSend
+}.
+
+//-------- NOISECANCEL TASK --------//
+||CANCELTASK = (nc:NOISECANCEL || qNc:QUEUE || qOut:QUEUE || notify:SQUEUE)/{
+// All creates can be synchronized, 
+// as they're called before the scheduler is started
+ {nc}.create/{qNc,qOut,notify}.xQueueCreate,
+// These transitions are synchronized with the queues
+ {nc}.readFrame/{qNc}.xQueueReceive, {nc}.sendFrame/{qOut}.xQueueSend,
+// This transition is used to synchronize the Task Notification, 
+// a single item Queue is used to model the Task Notification
+ {nc}.notifyReceived/{notify}.xQueueReceive
+}.

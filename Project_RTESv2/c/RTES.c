@@ -1,10 +1,9 @@
 #include "RTES.h"
 
-// Note: capacity should be a multiple of 100
 buffer_t createBuffer(size_t size) {
-    void *tmp = malloc(size * sizeof(sample_t));
+    sample_t *array = malloc(size * sizeof(sample_t));
     
-    if (tmp == NULL) {
+    if (array == NULL) {
         printf("Error in 'createBuffer': malloc failed to allocate %zu"
                " bytes of memory.\n", (size * sizeof(sample_t)));
         exit(EXIT_FAILURE);
@@ -17,7 +16,7 @@ buffer_t createBuffer(size_t size) {
     }
     
     buffer_t buffer = {
-        .data = (sample_t *)tmp,
+        .data = (sample_t *)array,
         .read = 0,
         .write = 0,
         .used = 0,
@@ -27,12 +26,12 @@ buffer_t createBuffer(size_t size) {
     return buffer;
 }
 
-// Increment the index by 'n', rollover if index+n exceeds max
+// Increment the index by 'n', rollover if index+n exceeds max.
 void updateIndex(size_t *index, size_t n, size_t max) {
     *index = (*index + n) % max;
 }
 
-// Insert a sample into index buffer->write
+// Insert a sample into index buffer->write.
 void insertIntoBuffer(buffer_t *buffer, sample_t data) {
     if (buffer->used == buffer->size) {
         printf("Error in 'insertIntoBuffer': trying to insert into a"
@@ -45,7 +44,7 @@ void insertIntoBuffer(buffer_t *buffer, sample_t data) {
     updateIndex(&buffer->write, 1, buffer->size);
 }
 
-// Read a sample from a index relative to buffer->read
+// Read a sample from a index relative to buffer->read.
 sample_t readFromBuffer(buffer_t *buffer, size_t offset) {
     if (buffer->used == 0) {
         printf("Error in 'readFromBuffer': trying to read from an empty"
@@ -64,7 +63,7 @@ sample_t readFromBuffer(buffer_t *buffer, size_t offset) {
     return buffer->data[index];
 }
 
-// Remove 'n' samples from the buffer by moving the read index
+// Remove 'n' samples from the buffer by moving the read index.
 void removeFromBuffer(buffer_t *buffer, size_t n) {
     if (n > buffer->used) {
         printf("Error in 'removeFromBuffer': trying to remove %zu items"
@@ -76,7 +75,7 @@ void removeFromBuffer(buffer_t *buffer, size_t n) {
     buffer->used -= n;
 }
 
-// Copies 'n' samples from buffer 'src' to buffer 'dest'
+// Copies 'n' samples from buffer 'src' to buffer 'dest'.
 void copyBuffer(buffer_t *dest, buffer_t *src, size_t n) {
      if (n > src->used) {
         printf("Error in 'copyBuffer': trying to copy %zu items from the"
@@ -87,7 +86,7 @@ void copyBuffer(buffer_t *dest, buffer_t *src, size_t n) {
 
     if (n > dest->size) {
         printf("Error in 'copyBuffer': trying to copy %zu items to the" 
-               " destination buffer, buffer can only contain %zu items.\n", 
+               " destination buffer, buffer can only contain %zu items.\n",
                n, dest->size);
         exit(EXIT_FAILURE);
 
@@ -99,7 +98,26 @@ void copyBuffer(buffer_t *dest, buffer_t *src, size_t n) {
 
 } 
 
-// Can be used for debugging to see which parts of the buffer contain data
+// Copies the next 'n' samples from the buffer to an array, this is used 
+// so the underlying algorithms don't need to know about the buffer.
+// This does mean free() has to be called on the array.
+sample_t *getArrayFromBuffer(buffer_t *buffer, size_t n) {
+    sample_t *array = malloc(n * sizeof(sample_t));
+    
+    if (array == NULL) {
+        printf("Error in 'getArrayFromBuffer': malloc failed to allocate"
+               " %zu bytes of memory.\n", (n * sizeof(sample_t)));
+        exit(EXIT_FAILURE);
+    }
+    
+    for (size_t i = 0; i < n; i++) {
+        *(array + i) = readFromBuffer(buffer, i);
+    }
+
+    return array;
+}
+
+// Can be used for debugging to see which parts of the buffer contain data.
 void printStatusBuffer(buffer_t *buffer) {
     const size_t stepSize = buffer->size / 100;
    

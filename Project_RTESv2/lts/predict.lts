@@ -1,0 +1,54 @@
+const SIZE_QUEUE = 5
+const SIZE_SQUEUE = 1 //small queue used as the Predict Queue and as Task Notification
+
+//-------- TASK --------//
+TASK = 		(xTaskCreate -> READY),
+READY =		(scheduled -> RUNNING),
+RUNNING = 	(running -> RUNNING
+			|switched_out -> READY
+			|vTaskDelayUntil -> BLOCKED
+// ulTaskNotifyTake is called if the NoiseCancel queue has atleast 1 item, 
+// it will block until the queue is empty
+			|ulTaskNotifyTake -> BLOCKED),
+// readyForNextPeriod is called when the delay specified in vTaskDelayUntil is expired
+BLOCKED =	(readyForNextPeriod -> READY
+// xTaskNotifyGive is called by the output task when the output queue is empty, 
+// it sends this to the NoiseCancel task
+			|xTaskNotifyGive -> READY)\{xTaskNotifyGive, ulTaskNotifyTake}.
+
+//-------- QUEUE --------//
+QUEUE = 					(xQueueCreate -> QUEUE[0]),
+QUEUE[i:0..SIZE_QUEUE] =	(when(i>0) xQueueReceive->QUEUE[i-1]
+						 	|when(i<SIZE_QUEUE) xQueueSend->QUEUE[i+1]).
+
+//small queue used as the Task Notification and the Predict Queue
+SQUEUE = 					(xQueueCreate -> SQUEUE[0]),
+SQUEUE[i:0..SIZE_SQUEUE] =	(when(i>0) xQueueReceive -> SQUEUE[i-1]
+						 	|when(i<SIZE_SQUEUE) xQueueSend -> SQUEUE[i+1]).
+
+//-------- PREDICT TASK --------//
+PREDICT =		(create -> PREDICTING),
+// Read metadata from the Predict Queue (from the Recognize Task)
+PREDICTING =	(readMetaData -> predict -> WFNP),
+// Wait for next period
+WFNP =			(vTaskDelayUntil -> readyForNextPeriod -> PREDICTING).
+
+//-------- PREDICT TASK FULL --------//
+||PREDICTTASK_FULL = (tPre:TASK || pre:PREDICT || qPre:QUEUE)/{
+// All creates can be synchronized, as they're called before the scheduler is started
+ {pre}.create/{tPre}.xTaskCreate, {pre}.create/{qPre}.xQueueCreate, 
+// These transitions can only be called if the task is running	
+ {pre}.readMetaData/{tPre}.running, {pre}.predict/{tPre}.running, 
+// These transitions enter or leave the Blocked state
+ {pre}.vTaskDelayUntil/{tPre}.vTaskDelayUntil, {pre}.readyForNextPeriod/{tPre}.readyForNextPeriod,				
+// These transitions are synchronized with the queues				
+ {pre}.readMetaData/{qPre}.xQueueReceive}.
+
+//-------- PREDICT TASK --------//
+||PREDICTTASK = (pre:PREDICT || qPre:QUEUE)/{
+// All creates can be synchronized, 
+// as they're called before the scheduler is started
+ {pre}.create/{qPre}.xQueueCreate,
+// These transitions are synchronized with the queues
+ {pre}.readMetaData/{qPre}.xQueueReceive
+}\{{pre}.vTaskDelayUntil, {pre}.readyForNextPeriod}.
