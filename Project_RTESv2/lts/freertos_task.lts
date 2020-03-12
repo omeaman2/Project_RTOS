@@ -1,0 +1,14 @@
+//-------- TASK --------//
+TASK = 		(xTaskCreate -> READY),
+READY =		(scheduled -> RUNNING),
+RUNNING = 	(running -> RUNNING
+			|switched_out -> READY
+			|vTaskDelayUntil -> BLOCKED
+// ulTaskNotifyTake is called if the NoiseCancel queue has atleast 1 item, 
+// it will block until the queue is empty
+			|ulTaskNotifyTake -> BLOCKED),
+// readyForNextPeriod is called when the delay specified in vTaskDelayUntil is expired
+BLOCKED =	(readyForNextPeriod -> READY
+// xTaskNotifyGive is called by the output task when the output queue is empty, 
+// it sends this to the NoiseCancel task
+			|xTaskNotifyGive -> READY).
