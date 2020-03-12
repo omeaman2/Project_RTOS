@@ -1,8 +1,8 @@
 compile:
-	gcc main.c kissfft/kiss_fft.c kissfft/kiss_fft.h trainshortmicdata.h -o fft -lm
+	gcc -lm main.c kissfft/kiss_fft.c kissfft/kiss_fft.h trainshortmicdata.h -o fft
 
 all:	
-	gcc main.c kissfft/kiss_fft.{c,h} trainshortmicdata.h -o fft -lm
+	gcc -lm main.c kissfft/kiss_fft.{c,h} trainshortmicdata.h -o fft
 	./fft
 gdb:
 	gcc -g3 -lm main.c kissfft/kiss_fft.{c,h} trainshortmicdata.h -o fft
