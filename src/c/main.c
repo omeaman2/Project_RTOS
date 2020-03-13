@@ -123,8 +123,6 @@ int read_data_from_file(int16_t* data_array, const int n, char* filename);
 void print_tokens(char** tokens, int n);
 void print_ints(int16_t* a, int n);
 
-int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent);
-
 /* Return index of highest absolute real frequency. */
 size_t highest_frequency_real(const kiss_fft_cpx *s, const size_t size);
 /* Return index of highest absolute imaginary frequency. */
