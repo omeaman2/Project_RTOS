@@ -1,5 +1,5 @@
-#ifndef TRAINSHORTMICDATA_H
-#define TRAINSHORTMICDATA_H
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 #include <inttypes.h>
 #include <stddef.h>
 
@@ -58,4 +58,4 @@ int16_t data_array[MAX_DATA_ARRAY_SIZE];
 size_t data_array_size;
 
 
-#endif /* TRAINSHORTMICDATA_H */
+#endif /* CONSTANTS_H */
