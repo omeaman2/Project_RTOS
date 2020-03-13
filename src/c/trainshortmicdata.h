@@ -37,7 +37,7 @@
 
 /* Determines how much percent left and right of the highest frequency needs to
  * be cancelled in a noise segment. */
-#define FREQ_CANCELLATION_PERCENTAGE 90.0
+#define FREQ_CANCELLATION_PERCENTAGE 99.0
 
 // Boolean functionality
 enum boolean {

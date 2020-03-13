@@ -170,15 +170,6 @@ int main(void) {
         copy_signal_and_write_segments_to_copied_signal(new_data_array);
 
         
-        /* printf("data_array:\n"); */
-        /* print_values_between(data_array, start_noise[0]-5, start_noise[0]+5); */
-        /* print_values_between(data_array, end_noise[0]-5, end_noise[0]+5); */
-        /* printf("new_data_array:\n"); */
-        /* print_values_between(new_data_array, start_noise[0]-5, */
-        /*         start_noise[0]+5); */
-        /* print_values_between(new_data_array, end_noise[0]-5, */
-        /*         end_noise[0]+5); */
-
         /* print_signal(new_data_array, data_array_size); */
         write_signal_to_file(FILE_NEW_DATA_ARRAY, new_data_array,
                 data_array_size);
@@ -186,9 +177,6 @@ int main(void) {
 #if USE_MALLOC
         free_global_resources();
 #endif
-        /* write_signal_to_file(FILE_NEW_DATA_ARRAY, data_array, */
-            /* data_array_size); */
-
         // Remove this to run indefinitely.
         return EXIT_SUCCESS;
     }
@@ -259,12 +247,12 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        /* // 3. Invert all frequencies. */
-        /* r = invert_all_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
-        /* if (r != OK) { */
-        /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
-        /*     goto fail; */
-        /* } */
+        // 3. Invert all frequencies.
+        r = invert_all_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
+        if (r != OK) {
+            fprintf(stderr, "do_cancel: error while inverting frequencies\n");
+            goto fail;
+        }
 
         /* printf("noise segment:\t%d\n", i); */
         /* printf("size of the segment:\t%d\n", segment_sizes[i]); */
