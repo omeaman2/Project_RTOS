@@ -28,4 +28,3 @@ ax.plot(time, hundPercent, 'b', label='100 % cancalation')
 
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
 
-plt.show()
