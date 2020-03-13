@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "kissfft/kiss_fft.h"
 #include <inttypes.h>
-#include "trainshortmicdata.h"
+#include "constants.h"
 
 /*** Prototypes ***/
 
