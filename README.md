@@ -5,10 +5,11 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] Find Kaydo.
+ - [] What to do with autocorrelation in the report?
+ - [/] Find Kaydo.
  - [] Make a clear plan of what everyone will say and show at the assignment.
  - [] Prepare results, code, graphs to show at the assignment.
- - [] Compare the 25%,50%,75%,x% noise cancellations wavs, determine which one
+ - [✓] Compare the 25%,50%,75%,x% noise cancellations wavs, determine which one
    keeps non-noise intact the best (i.e. no gaps in signal) while still reducing
    by at least 6dB.
  - [] Clean main.c 
@@ -18,7 +19,7 @@ TODO
  - [] Describe the new results and new conclusions. This mainly concerns the
    implementation of the algorithms in C (recognise, cancellation) and the
    implementation in FreeRTOS and Realtime C.
- - [] Answer the principal research question. i.e. correct the last paragraph of
+ - [✓] Answer the principal research question. i.e. correct the last paragraph of
    the conclusion.
  - [] Enhance the summary in the report.
  - [] Check if figures all figures in report are still relevant.
@@ -29,7 +30,7 @@ TODO
  - [✓] Debug cancel interval
  - [✓] kaydo: Do not forget to correct the for loop in do_cancel.
  - [?] Prevent Barend from overwriting the excel files.
- - [] Fix RecognizeEnd.
+ - [/] Fix RecognizeEnd.
  - [✓] In Fourier cancel only the most common frequencies (need to determine a
    cutoff in the fourier for that).
  - [✓] Confirm that the noise is indeed reduced by at least 6 dB.
