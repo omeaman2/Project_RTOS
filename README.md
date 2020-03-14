@@ -5,6 +5,7 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
+ - [] Find Kaydo.
  - [] Make a clear plan of what everyone will say and show at the assignment.
  - [] Prepare results, code, graphs to show at the assignment.
  - [] Compare the 25%,50%,75%,x% noise cancellations wavs, determine which one
