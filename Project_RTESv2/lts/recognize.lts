@@ -1,0 +1,67 @@
+const SIZE_QUEUE = 5
+const SIZE_SQUEUE = 1 //small queue used as the Predict Queue and as Task Notification
+
+//-------- TASK --------//
+TASK = 		(xTaskCreate -> READY),
+READY =		(scheduled -> RUNNING),
+RUNNING = 	(running -> RUNNING
+			|switched_out -> READY
+			|vTaskDelayUntil -> BLOCKED
+// ulTaskNotifyTake is called if the NoiseCancel queue has atleast 1 item, 
+// it will block until the queue is empty
+			|ulTaskNotifyTake -> BLOCKED),
+// readyForNextPeriod is called when the delay specified in vTaskDelayUntil is expired
+BLOCKED =	(readyForNextPeriod -> READY
+// xTaskNotifyGive is called by the output task when the output queue is empty, 
+// it sends this to the NoiseCancel task
+			|xTaskNotifyGive -> READY)\{ulTaskNotifyTake,xTaskNotifyGive}.
+
+//-------- QUEUE --------//
+QUEUE = 					(xQueueCreate -> QUEUE[0]),
+QUEUE[i:0..SIZE_QUEUE] =	(when(i>0) xQueueReceive->QUEUE[i-1]
+						 	|when(i<SIZE_QUEUE) xQueueSend->QUEUE[i+1]).
+
+//small queue used as the Predict Queue
+SQUEUE = 					(xQueueCreate -> SQUEUE[0]),
+SQUEUE[i:0..SIZE_SQUEUE] =	(when(i>0) xQueueReceive -> SQUEUE[i-1]
+						 	|when(i<SIZE_SQUEUE) xQueueSend -> SQUEUE[i+1]).
+
+//-------- RECOGNIZE TASK --------//
+RECOGNIZE =		(create -> GETDATA[0]),
+// Read all data from the Input queue
+GETDATA[i:0..SIZE_QUEUE] = 	(when(i==SIZE_QUEUE) runRecognition -> 
+								(noiseFound -> RECOGNITION
+								|noiseNotFound -> GETDATA[0])
+							|when(i<SIZE_QUEUE) readFrame -> GETDATA[i+1]),
+// Send metadata using the Predict Queue to the Predict Task
+RECOGNITION = 	(sendMetaData -> SETOUTPUT[0]),
+// Send all data to the NoiseCancel queue
+SETOUTPUT[j:0..SIZE_QUEUE] =(when(j<SIZE_QUEUE) sendFrame -> SETOUTPUT[j+1]
+							|when(j==SIZE_QUEUE) vTaskDelayUntil -> readyForNextPeriod -> GETDATA[0]).
+
+//-------- RECOGNIZE TASK FULL --------//
+||RECOGNIZETASK_FULL = (tRec:TASK || rec:RECOGNIZE || qIn:QUEUE || qPre:SQUEUE || qNc:QUEUE)/{
+// All creates can be synchronized, 
+// as they're called before the scheduler is started
+ {rec}.create/{tRec}.xTaskCreate, {rec}.create/{qIn,qPre,qNc}.xQueueCreate, 
+// These transitions can only be called if the task is running
+ {rec}.runRecognition/{tRec}.running, {rec}.readFrame/{tRec}.running, 
+ {rec}.noiseFound/{tRec}.running, {rec}.noiseNotFound/{tRec}.running,
+ {rec}.sendFrame/{tRec}.running, {rec}.sendMetaData/{tRec}.running,
+// These transitions enter or leave the Blocked state
+ {rec}.vTaskDelayUntil/{tRec}.vTaskDelayUntil, 
+ {rec}.readyForNextPeriod/{tRec}.readyForNextPeriod,
+// These transitions are synchronized with the queues
+ {rec}.readFrame/{qIn}.xQueueReceive, {rec}.sendMetaData/{qPre}.xQueueSend, 
+ {rec}.sendFrame/{qNc}.xQueueSend}
+\{{tRec}.ulTaskNotifyTake, {tRec}.xTaskNotifyGive}.
+
+//-------- RECOGNIZE TASK --------//
+||RECOGNIZETASK = (rec:RECOGNIZE || qIn:QUEUE || qPre:SQUEUE || qNc:QUEUE)/{
+// All creates can be synchronized, 
+// as they're called before the scheduler is started
+ {rec}.create/{qIn,qPre,qNc}.xQueueCreate,
+// These transitions are synchronized with the queues
+ {rec}.readFrame/{qIn}.xQueueReceive, {rec}.sendMetaData/{qPre}.xQueueSend, 
+ {rec}.sendFrame/{qNc}.xQueueSend}
+\{{rec}.vTaskDelayUntil, {rec}.readyForNextPeriod}.
