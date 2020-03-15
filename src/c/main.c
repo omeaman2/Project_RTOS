@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+// https://github.com/mborgerding/kissfft
 #include "kissfft/kiss_fft.h"
 #include <inttypes.h>
 #include "constants.h"
@@ -88,7 +89,6 @@ int print_segments(const kiss_fft_cpx segments[MAX_NSEGMENTS][MAX_NSAMPLES],
 // Allocates a 2-dimensional array on the heap.
 void** malloc2d(const int nrows, const int ncols , const size_t size);
 
-// No need to use this @Mike :)!
 // Make a complex numbered array zero .
 void cx_make_zero(kiss_fft_cpx* cx_in, const int size);
 
@@ -247,12 +247,12 @@ int do_cancel() {
         cx_make_zero(cx_noise_segment_fourier, segment_sizes[i]);
         kiss_fft(kfft_fourier_state, cx_noise_segment, cx_noise_segment_fourier);
 
-        // 3. Invert all frequencies.
-        r = invert_all_frequencies(cx_noise_segment_fourier, segment_sizes[i]);
-        if (r != OK) {
-            fprintf(stderr, "do_cancel: error while inverting frequencies\n");
-            goto fail;
-        }
+        /* // 3. Invert all frequencies. */
+        /* r = invert_all_frequencies(cx_noise_segment_fourier, segment_sizes[i]); */
+        /* if (r != OK) { */
+        /*     fprintf(stderr, "do_cancel: error while inverting frequencies\n"); */
+        /*     goto fail; */
+        /* } */
 
         /* printf("noise segment:\t%d\n", i); */
         /* printf("size of the segment:\t%d\n", segment_sizes[i]); */
@@ -885,21 +885,21 @@ int cancel_interval(kiss_fft_cpx *s, const size_t size, double percent) {
     if (end_re > size) end_re = size;
     if (end_im > size) end_im = size;
 
-    /* Set frequencies to zero */
-    for (int i = beg_re; i < end_re; ++i) {
-        s[i].r = 0.0;
-    }
-    for (int i = beg_im; i < end_im; ++i) {
-        s[i].i = 0.0;
-    }
-
-    /* /1* Invert frequencies *1/ */
+    /* /1* Set frequencies to zero *1/ */
     /* for (int i = beg_re; i < end_re; ++i) { */
-    /*     s[i].r = -s[i].r; */
+    /*     s[i].r = 0.0; */
     /* } */
     /* for (int i = beg_im; i < end_im; ++i) { */
-    /*     s[i].i = -s[i].i; */
+    /*     s[i].i = 0.0; */
     /* } */
+
+    /* Invert frequencies */
+    for (int i = beg_re; i < end_re; ++i) {
+        s[i].r = -s[i].r;
+    }
+    for (int i = beg_im; i < end_im; ++i) {
+        s[i].i = -s[i].i;
+    }
 
     return OK;
 }
