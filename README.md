@@ -7,7 +7,7 @@ TODO
 ---
  - [] What to do with autocorrelation in the report?
  - [/] Find Kaydo.
- - [] Make a clear plan of what everyone will say and show at the assignment.
+ - [✓] Make a clear plan of what everyone will say and show at the assignment.
  - [] Prepare results, code, graphs to show at the assignment.
  - [✓] Compare the 25%,50%,75%,x% noise cancellations wavs, determine which one
    keeps non-noise intact the best (i.e. no gaps in signal) while still reducing
