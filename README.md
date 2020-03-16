@@ -5,20 +5,19 @@ Day notes are added at the end of this file. TODO is up here for clarity.
 
 TODO
 ---
- - [] What to do with autocorrelation in the report?
- - [] Prepare results, code, graphs to show at the assignment.
- - [] Prepare results, code, graphs to show at the assignment.
- - [] Update and correct the LTSA model. There is a high level abstract LTSA
+ - [/] Update and correct the LTSA model. There is a high level abstract LTSA
    model from process algebra. Furthermore we need to an LTSA model that
    conforms with the code in FreeRTOS/Realtime C.
- - [] Describe the new results and new conclusions. This mainly concerns the
-   implementation of the algorithms in C (recognise, cancellation) and the
-   implementation in FreeRTOS and Realtime C.
- - [] Enhance the summary in the report.
- - [] Check if figures all figures in report are still relevant.
- - [] Read through the complete report and correct small errors.
  - [/] Create a `do_recognise` that works on multiple different wav files (so not
       only on `train_short.wav`)
+ - [/] Describe the new results and new conclusions. This mainly concerns the
+   implementation of the algorithms in C (recognise, cancellation) and the
+   implementation in FreeRTOS and Realtime C.
+ - [(Got rid of it)] What to do with autocorrelation in the report?
+ - [✓] Enhance the summary in the report.
+ - [✓] Check if figures all figures in report are still relevant.
+ - [✓] Read through the complete report and correct small errors.
+ - [✓] Prepare results, code, graphs to show at the assignment.
  - [✓] Make a clear plan of what everyone will say and show at the assignment.
  - [✓] Compare the 25%,50%,75%,x% noise cancellations wavs, determine which one
    keeps non-noise intact the best (i.e. no gaps in signal) while still reducing
