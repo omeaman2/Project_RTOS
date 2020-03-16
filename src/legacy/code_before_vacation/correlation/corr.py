@@ -1,19 +1,20 @@
-import matplotlib.pyplot as plot
-from scipy.io import wavfile
+import matplotlib.pyplot as plt
 import numpy as np
+import soundfile as sf
+#import statsmodels.api as sm
+from statsmodels import api as sm
 
-# Time series data
-# data = np.array([24.40,10.25,20.05,22.00,16.90,7.80,15.00,22.80,34.90,13.30])
-sample_rate, data = wavfile.read("knock.wav")
+data, samplerate = sf.read('train_short.wav')
+size = data.size
+acorr = []
+for shift in range(10):
+    correlation = np.corrcoef(data[:-shift], data[shift:])[0, 1]
+    acorr.append(correlation)
 
+print(acorr)
+#sm.graphics.tsa.plot_acf(data, lags=40)
 
-# Plot autocorrelation
-plot.acorr(data[:10], maxlags=None)
-
-# Add labels to autocorrelation plot
-plot.title('Autocorrelation of XYZ stock price data')
-plot.xlabel('Lag')
-plot.ylabel('Autocorrelation')
-
-# Display the autocorrelation plot
-plot.show()
+plt.xlabel('lags (seconds)')
+plt.ylabel('Autocorrelation')
+plt.title('Autocorrelation of train_short.wav')
+#plt.show()
