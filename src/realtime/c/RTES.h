@@ -41,7 +41,8 @@ void insertIntoBuffer(buffer_t *buffer, sample_t data);
 sample_t readFromBuffer(buffer_t *buffer, size_t offset);
 void removeFromBuffer(buffer_t *buffer, size_t n);
 void copyBuffer(buffer_t *dest, buffer_t *src, size_t n);
-void copyArrayFromBuffer(sample_t dest[], buffer_t *src, size_t n);
+void copyArrayFromBuffer(sample_t dest[], buffer_t *src, size_t n,
+                                                         size_t offset);
 void copyBufferFromArray(buffer_t *dest, sample_t src[], size_t n);
 void printStatusBuffer(buffer_t *buffer);
 void freeBuffer(buffer_t *buffer);

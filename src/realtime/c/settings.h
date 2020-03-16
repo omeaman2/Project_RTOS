@@ -34,19 +34,18 @@ void createSettings(uint32_t sampleRate,
     outputSettings.base.pcTaskName = "Output Task";        
     outputSettings.base.xTaskPeriod = 0; //TODO 
     // Output happens at the same samplerate as the input
-    outputSettings.base.ratio = 99999999; //should be 1, not running now
+    outputSettings.base.ratio = 1;
     outputSettings.base.test = NULL;
     outputSettings.inBuffer = cancelToOutputBuffer;
     outputSettings.fpOutput = fpOutput;
 
     cancelSettings.base.pcTaskName = "Cancel Task";
     cancelSettings.base.xTaskPeriod = 0; //TODO
-    // Not running this task this time TODO
-    cancelSettings.base.ratio = 9999999;
+    cancelSettings.base.ratio = 1;
     cancelSettings.base.test = NULL; 
     cancelSettings.inBuffer = recognizeToCancelBuffer;
     cancelSettings.outBuffer = cancelToOutputBuffer;
-    cancelSettings.cancelPercentage = 95;
+    cancelSettings.cancelPercentage = 90;
 
     recognizeSettings.base.pcTaskName = "Recognize Task";
     recognizeSettings.base.xTaskPeriod = 0; //TODO 
@@ -59,7 +58,7 @@ void createSettings(uint32_t sampleRate,
     recognizeSettings.lowerLimitBegin = 500;
     recognizeSettings.lowerLimitEnd = 0;
     recognizeSettings.factorIncreaseBegin = 1.5F;
-    recognizeSettings.factorDecreaseEnd = 0.5F;
+    recognizeSettings.factorDecreaseEnd = 0.75F;
 }
 
 #endif /* SETTINGS_H */

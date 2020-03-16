@@ -72,7 +72,8 @@ sample_t readFromBuffer(buffer_t *buffer, size_t offset) {
 void removeFromBuffer(buffer_t *buffer, size_t n) {
     if (n > buffer->used) {
         printf("Error in 'removeFromBuffer' (%s): trying to remove %zu" 
-               " items from the buffer, buffer only contains %zu items.\n",               buffer->name, n, buffer->used);
+               " items from the buffer, buffer only contains %zu items.\n",
+               buffer->name, n, buffer->used);
         exit(EXIT_FAILURE);
     }
 
@@ -105,7 +106,8 @@ void copyBuffer(buffer_t *dest, buffer_t *src, size_t n) {
 } 
 
 // Copies the next 'n' samples from the buffer to an existing array.
-void copyArrayFromBuffer(sample_t dest[], buffer_t *src, size_t n) {
+void copyArrayFromBuffer(sample_t dest[], buffer_t *src, size_t n, 
+                                                         size_t offset) {
      if (n > src->used) {
         printf("Error in 'copyArrayFromBuffer' (%s): trying to copy %zu"
                " items from the source buffer, buffer only contains %zu" 
@@ -113,8 +115,15 @@ void copyArrayFromBuffer(sample_t dest[], buffer_t *src, size_t n) {
         exit(EXIT_FAILURE);
     }
 
+    if (n + offset > src->used) {
+        printf("Error in 'copyArrayFromBuffer' (%s): trying to copy the"
+               " %zuth to %zuth item from the buffer, buffer only contains"
+               " %zu items.\n", src->name, offset, offset+n, src->used);
+        exit(EXIT_FAILURE);
+    }
+
     for (size_t i = 0; i < n; i++) {
-        dest[i] = readFromBuffer(src, i);
+        dest[i] = readFromBuffer(src, offset + i);
     }
 }
 

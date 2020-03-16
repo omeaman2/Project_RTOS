@@ -46,14 +46,19 @@ void doCancel(cancelSettings_t *settings) {
     sample_t input[size];
     sample_t output[size];
 
+    if (size == 0) return;
+
     /* Copies the contents of inBuffer to array input */
-    copyArrayFromBuffer(input, settings->inBuffer, size);
+    copyArrayFromBuffer(input, settings->inBuffer, size, 0);
     
     /* Perform FFT on the array input, put result in array output */
     doFFT(input, output, size, settings->cancelPercentage);
     
     /* Copy array output to outBuffer */
     copyBufferFromArray(settings->outBuffer, output, size);
+
+    /* Clear inBuffer */
+    removeFromBuffer(settings->inBuffer, size);
 }
 
 void doFFT(sample_t input[], sample_t output[], size_t size, double cancelPercentage) {

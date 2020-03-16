@@ -21,9 +21,13 @@ void doOutput(outputSettings_t *settings) {
 }
 
 sample_t readSample(buffer_t *buffer) {
-    sample_t sample = readFromBuffer(buffer, 0);
-    removeFromBuffer(buffer, 1);
-    return sample;
+    if (buffer->used == 0) {
+        return 0;
+    } else {
+        sample_t sample = readFromBuffer(buffer, 0);
+        removeFromBuffer(buffer, 1);
+        return sample;
+    }    
 }
 
 void outputSample(sample_t sample, FILE *fpOutput) {

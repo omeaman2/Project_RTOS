@@ -24,9 +24,9 @@ with open(args.csvfile, newline='') as f:
     content.pop()
 
     # Convert the list of strings to a list of ints
-    averages = [int(i) for i in content]
+    samples = [int(i) for i in content]
 
 # Plot, use the index of the last as x-value
-plt.scatter(range(len(averages)), averages, color="r")
-plt.plot(range(len(averages)), averages, color="b")
+plt.scatter(range(len(samples)), values, color="r")
+plt.plot(range(len(samples)), values, color="b")
 plt.show()
