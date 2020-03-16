@@ -43,10 +43,11 @@ void vTaskCancel(void *pvParameters) {
 
 void doCancel(cancelSettings_t *settings) {
     size_t size = settings->inBuffer->used;
-    sample_t input[size];
-    sample_t output[size];
-
     if (size == 0) return;
+
+    /* Prepare input and output arrays */    
+    sample_t *input = getNewEmptyArray(size);
+    sample_t *output = getNewEmptyArray(size);
 
     /* Copies the contents of inBuffer to array input */
     copyArrayFromBuffer(input, settings->inBuffer, size, 0);
@@ -57,8 +58,10 @@ void doCancel(cancelSettings_t *settings) {
     /* Copy array output to outBuffer */
     copyBufferFromArray(settings->outBuffer, output, size);
 
-    /* Clear inBuffer */
+    /* Clear inBuffer and free the input & output arrays */
     removeFromBuffer(settings->inBuffer, size);
+    free(input);
+    free(output);
 }
 
 void doFFT(sample_t input[], sample_t output[], size_t size, double cancelPercentage) {

@@ -105,6 +105,54 @@ void copyBuffer(buffer_t *dest, buffer_t *src, size_t n) {
 
 } 
 
+// Uses malloc() to get a new empty array, handles possible errors.
+// The array has to be free()'ed after use.
+sample_t *getNewEmptyArray(size_t size) {
+    sample_t *array = malloc(size * sizeof(sample_t));
+
+    if (array == NULL) {
+        printf("Error in 'getNewEmptyArray': malloc failed to allocate %zu"
+               " bytes of memory.\n", (size * sizeof(sample_t)));
+        exit(EXIT_FAILURE);
+    }
+    return array;
+}
+
+// Copies the next 'n' samples from the buffer to a new array, this is used
+// because the Windows port of FreeRTOS does not support Variable Length
+// Arrays. (otherwise copyArrayFromBuffer would be the preferred function) 
+// Because this uses malloc() a free() will need to be performed after 
+// using the array.
+sample_t *copyNewArrayFromBuffer(buffer_t *src, size_t n, size_t offset) {
+   sample_t *array = malloc(n * sizeof(sample_t));
+
+    if (array == NULL) {
+        printf("Error in 'copyNewArrayFromBuffer' (%s): malloc failed to" 
+               " allocate %zu bytes of memory.\n", src->name, 
+               (n * sizeof(sample_t)));
+        exit(EXIT_FAILURE);
+    }
+
+    if (n > src->used) {
+        printf("Error in 'copyNewArrayFromBuffer' (%s): trying to copy %zu"
+               " items from the source buffer, buffer only contains %zu" 
+               " items.\n", src->name, n, src->used);
+        exit(EXIT_FAILURE);
+    }
+
+    if (n + offset > src->used) {
+        printf("Error in 'copyNewArrayFromBuffer' (%s): trying to copy the"
+               " %zuth to %zuth item from the buffer, buffer only contains"
+               " %zu items.\n", src->name, offset, offset+n, src->used);
+        exit(EXIT_FAILURE);
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        array[i] = readFromBuffer(src, offset + i);
+    }
+    return array; 
+}
+
 // Copies the next 'n' samples from the buffer to an existing array.
 void copyArrayFromBuffer(sample_t dest[], buffer_t *src, size_t n, 
                                                          size_t offset) {

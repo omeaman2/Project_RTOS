@@ -1,73 +1,49 @@
-const SIZE_QUEUE = 3
-const SIZE_SQUEUE = 1 //small queue used as the Predict Queue and as Task Notification
+const SIZE_BUFFER = 1 //0: empty, 1: contains one or more items
 
-//-------- QUEUE --------//
-QUEUE = 					(xQueueCreate -> QUEUE[0]),
-QUEUE[i:0..SIZE_QUEUE] =	(when(i>0) xQueueReceive -> QUEUE[i-1]
-						 	|when(i<SIZE_QUEUE) xQueueSend -> QUEUE[i+1]).
+//------ BUFFER ------//
+BUFFER_T = (createBuffer -> BUFFER[0]),
+BUFFER[i:0..SIZE_BUFFER] = (when(i>0) readFromBuffer -> BUFFER[i]
+			   |when(i>0) removeFromBuffer -> BUFFER[i-1]
+			   |when(i<SIZE_BUFFER) insertIntoBuffer -> BUFFER[i+1]).
 
-//small queue used as the Predict Queue
-SQUEUE = 					(xQueueCreate -> SQUEUE[0]),
-SQUEUE[i:0..SIZE_SQUEUE] =	(when(i>0) xQueueReceive -> SQUEUE[i-1]
-						 	|when(i<SIZE_SQUEUE) xQueueSend -> SQUEUE[i+1]).
+//----- INPUT ------//
+TASKINPUT = (xTaskCreate -> doInput -> INPUT),
+INPUT = (takeSample -> insertIntoBuffer -> INPUT).
 
-//-------- INPUT TASK --------//
-MICROPHONE =	(create -> INPUT),
-// Send data to the Input Queue for the Recognize Task
-INPUT = 		(takeSample -> sendFrame -> INPUT).
+//------ OUTPUT ------//
+TASKOUTPUT = (xTaskCreate -> doOutput -> OUTPUT),
+OUTPUT = (readSample -> readFromBuffer -> removeFromBuffer -> outputSample -> OUTPUT).
 
-//-------- RECOGNIZE TASK --------//
-RECOGNIZE =					(create -> GETDATA[0]),
-GETDATA[i:0..SIZE_QUEUE] =	(when(i==SIZE_QUEUE) runRecognition -> 
-								(noiseFound -> RECOGNITION
-								|noiseNotFound -> GETDATA[0])
-// Read data from the Input Queue (from the Input Task)
-							|when(i<SIZE_QUEUE) readFrame -> GETDATA[i+1]),
-// Send metadata using the Predict Queue for the Predict Task
-RECOGNITION = 				(sendMetaData -> SETOUTPUT[0]),
-// Send all data to the NoiseCancel Queue for the NoiseCancel Task
-SETOUTPUT[j:0..SIZE_QUEUE] =(when(j<SIZE_QUEUE) sendFrame -> SETOUTPUT[j+1]
-							|when(j==SIZE_QUEUE) done -> GETDATA[0]).
+//------ RECOGNIZE ------//
+TASKRECOGNIZE = (xTaskCreate -> doRecognize -> RECOGNIZE),
+RECOGNIZE = (getNewEmptyArray -> copyArrayFromBuffer -> 
+             recognizeBegin -> (true -> BEGINRECOGNIZED
+                               |false -> removeFromBuffer -> RECOGNIZE)),
+BEGINRECOGNIZED = (getNewEmptyArray -> copyArrayFromBuffer ->
+                   recognizeEnd -> (true -> ENDRECOGNIZED
+                                   |false -> BEGINRECOGNIZED
+                                   |timeout -> removeFromBuffer -> RECOGNIZE)),
+ENDRECOGNIZED = (copyBuffer -> removeFromBuffer -> RECOGNIZE).
 
-//-------- PREDICT TASK --------//
-PREDICT =		(create -> PREDICTING),
-// Read metadata from the Predict Queue (from the Recognize Task)
-PREDICTING =	(readMetaData -> predict -> PREDICTING).
+//------ CANCEL ------//
+TASKCANCEL = (xTaskCreate -> doCancel -> CANCEL),
+CANCEL = (getNewEmptyArray -> copyArrayFromBuffer -> doFFT -> FFT),
+FFT = (kiss_fft -> cancel_interval -> ifft_and_restore -> FFT_RESULT),
+FFT_RESULT = (copyBufferFromArray -> removeFromBuffer -> CANCEL).
 
-//-------- NOISECANCEL TASK --------//
-NOISECANCEL = 	(create -> GETDATA[0]),
-GETDATA[i:0..SIZE_QUEUE] =	(when(i==SIZE_QUEUE) runNoiseCancelling -> NOISECANCELLING
-// Read data from the Input Queue (from the Input Task)
-							|when(i<SIZE_QUEUE) readFrame -> GETDATA[i+1]),
-NOISECANCELLING	=			(notifyTake -> SETOUTPUT[0]),
-// Send all data to the Output Queue (for the Output Task)
-SETOUTPUT[j:0..SIZE_QUEUE] =(when(j<SIZE_QUEUE) sendFrame -> SETOUTPUT[j+1]
-							|when(j==SIZE_QUEUE) done -> GETDATA[0]).
-
-//-------- OUTPUT TASK --------//
-HEADPHONES =	(create -> notifyGive -> GETDATA[0]),
-// Is this the last frame to be outputted? 
-// If yes, notify the NoiseCancel Task so it knowns it can send new frames when ready
-GETDATA[i:0..SIZE_QUEUE] = 	(when(i==(SIZE_QUEUE-1)) readFrame -> outputToSpeaker -> notifyGive -> GETDATA[0]
-							|when(i<(SIZE_QUEUE-1)) readFrame -> outputToSpeaker -> GETDATA[i+1]).
-
-//-------- PROJECT --------//
-||PROJECT = (in:MICROPHONE || rec:RECOGNIZE || pre:PREDICT || nc:NOISECANCEL || out:HEADPHONES 
-		|| qIn:QUEUE || qPre:SQUEUE || qNc:QUEUE || qOut:QUEUE || notify:SQUEUE)/{
-// All creates can be synchronized, 
-// since they're called before the scheduler is started
- {in,rec,pre,nc,out}.create/{qIn,qPre,qNc,qOut,notify}.xQueueCreate, 
- {in,rec,pre,nc,out}.create/{in,rec,pre,nc,out}.create,
-// These transitions are used to synchronize the Task Notification, 
-// a single item Queue is used to model the Task Notification
- {out}.notifyGive/{notify}.xQueueSend, {nc}.notifyTake/{notify}.xQueueReceive,
-// These transitions are synchronized with the queues
-// Input Queue
- {in}.sendFrame/{qIn}.xQueueSend, {rec}.readFrame/{qIn}.xQueueReceive,
-// Predict Queue
- {rec}.sendMetaData/{qPre}.xQueueSend, {pre}.readMetaData/{qPre}.xQueueReceive,
-// NoiseCancel Queue
- {rec}.sendFrame/{qNc}.xQueueSend, {nc}.readFrame/{qNc}.xQueueReceive,
-// Output Queue
- {nc}.sendFrame/{qOut}.xQueueSend, {out}.readFrame/{qOut}.xQueueReceive
+//------ PROJECT ------//
+||PROJECT = (in:TASKINPUT || out:TASKOUTPUT || rec:TASKRECOGNIZE || can:TASKCANCEL
+          || qIn:BUFFER_T || qRec:BUFFER_T  || qCan:BUFFER_T)/{
+// --- Buffer: Input to Recognize --- //
+in.insertIntoBuffer/qIn.insertIntoBuffer,
+rec.copyArrayFromBuffer/qIn.readFromBuffer,
+rec.removeFromBuffer/qIn.removeFromBuffer,
+// --- Buffer: Recognize to Cancel --- //
+rec.copyBuffer/qRec.insertIntoBuffer,
+can.copyArrayFromBuffer/qRec.readFromBuffer,
+can.removeFromBuffer/qRec.removeFromBuffer,
+// --- Buffer: Cancel to Output --- //
+can.copyBufferFromArray/qCan.insertIntoBuffer,
+out.readFromBuffer/qCan.readFromBuffer,
+out.removeFromBuffer/qCan.removeFromBuffer
 }.

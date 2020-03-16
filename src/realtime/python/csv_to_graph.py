@@ -27,6 +27,6 @@ with open(args.csvfile, newline='') as f:
     samples = [int(i) for i in content]
 
 # Plot, use the index of the last as x-value
-plt.scatter(range(len(samples)), values, color="r")
-plt.plot(range(len(samples)), values, color="b")
+plt.scatter(range(len(samples)), samples, color="r")
+plt.plot(range(len(samples)), samples, color="b")
 plt.show()

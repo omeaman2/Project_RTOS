@@ -3,11 +3,10 @@
 unsigned long long calculateAverage(sample_t array[], size_t sizeArray, 
                                                     sample_t lowerLimit);
 void addWithOverflowCheck(unsigned long long *sum, sample_t value);
-bool recognizeBegin(recognizeSettings_t *settings,
+bool recognizeBegin(recognizeSettings_t *settings, sample_t *array,
                     unsigned long long *previousAverage);
-bool recognizeEnd(recognizeSettings_t *settings,
-                  unsigned long long *previousAverage, 
-                  size_t samplesChecked);
+bool recognizeEnd(recognizeSettings_t *settings, sample_t *array, 
+                  unsigned long long *previousAverage);
 
 void vTaskRecognize(void *pvParameters) {
     recognizeSettings_t *settings = (recognizeSettings_t*) pvParameters;
@@ -27,9 +26,12 @@ void doRecognize(recognizeSettings_t *settings) {
     static unsigned long long previousAverage = 0;
     static size_t samplesChecked = 0;   
 
+    sample_t *array = getNewEmptyArray(settings->segmentSize);
+    copyArrayFromBuffer(array, settings->inBuffer, settings->segmentSize,
+                                                   samplesChecked);
+
     if (!beginRecognized) {
-        if (recognizeBegin(settings, &previousAverage)) {
-            getchar();
+        if (recognizeBegin(settings, array, &previousAverage)) {
             samplesChecked += settings->segmentSize;
             beginRecognized = true;
         } else {
@@ -37,9 +39,7 @@ void doRecognize(recognizeSettings_t *settings) {
             removeFromBuffer(settings->inBuffer, settings->segmentSize);
         } 
     } else {
-        if (recognizeEnd(settings, &previousAverage, samplesChecked)) {
-            getchar();
-
+        if (recognizeEnd(settings, array, &previousAverage)) {
             // Noise is considered to end at the end of this segment
             samplesChecked += settings->segmentSize;
             
@@ -59,22 +59,22 @@ void doRecognize(recognizeSettings_t *settings) {
             if (samplesChecked >= settings->maxSamplesNoise) {
                 // Maximum size of the noise has been exceeded, assume last
                 // recognize begin was a false positive.
+                removeFromBuffer(settings->inBuffer, samplesChecked);
                 beginRecognized = false;
                 samplesChecked = 0;
             }
         }
     }
+
+    free(array);
 }
 
-bool recognizeBegin(recognizeSettings_t *settings, 
+bool recognizeBegin(recognizeSettings_t *settings, sample_t *array, 
                     unsigned long long *previousAverage) {
-    sample_t array[settings->segmentSize];
-    copyArrayFromBuffer(array, settings->inBuffer, settings->segmentSize,
-                                                   0); 
-    unsigned long long average = calculateAverage(array, 
-                                                settings->segmentSize,
-                                                settings->lowerLimitBegin);
-    
+    unsigned long long average;
+    average = calculateAverage(array, settings->segmentSize,
+                                      settings->lowerLimitBegin);
+
     if (*previousAverage != 0 && //TODO: better way to exclude first period
         average > *previousAverage * settings->factorIncreaseBegin) {
         *previousAverage = average;
@@ -88,15 +88,11 @@ bool recognizeBegin(recognizeSettings_t *settings,
 // For recognizeEnd previousAverage revers to the average when the
 // begin of noise was first recognized, as such it's not replaced
 // if the end of noise is not found
-bool recognizeEnd(recognizeSettings_t *settings,
-                  unsigned long long *previousAverage,
-                  size_t samplesChecked) {
-    sample_t array[settings->segmentSize];
-    copyArrayFromBuffer(array, settings->inBuffer, settings->segmentSize,
-                                                   samplesChecked); 
-    unsigned long long average = calculateAverage(array, 
-                                                  settings->segmentSize,
-                                                  settings->lowerLimitEnd);
+bool recognizeEnd(recognizeSettings_t *settings, sample_t *array,
+                  unsigned long long *previousAverage) {
+    unsigned long long average;
+    average = calculateAverage(array, settings->segmentSize,
+                                      settings->lowerLimitEnd);
         
     if (average < *previousAverage * settings->factorDecreaseEnd) {
         *previousAverage = average;
@@ -109,7 +105,7 @@ bool recognizeEnd(recognizeSettings_t *settings,
 /* Calculates the average of sizeArray items of the array, 
     excluding values below lowerLimit */
 unsigned long long calculateAverage(sample_t array[], size_t sizeArray, 
-                                                    sample_t lowerLimit) {
+                                    sample_t lowerLimit) {
     unsigned long long sum = 0;
     size_t count = 0;    
 
@@ -129,6 +125,8 @@ unsigned long long calculateAverage(sample_t array[], size_t sizeArray,
 }
 
 void addWithOverflowCheck(unsigned long long *sum, sample_t value) {
+    // If ULLONG_MAX - value is smaller than *sum, than *sum + value
+    // exceeds ULLONG_MAX meaning an overflow will occur
     if (ULLONG_MAX - (unsigned long long) value < *sum) {
             printf("Error in 'addWithOveflowCheck': addition exceeds"
                    " maximum value of unsigned long long!\n");
