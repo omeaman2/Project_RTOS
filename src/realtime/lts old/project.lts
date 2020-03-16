@@ -1,0 +1,73 @@
+const SIZE_QUEUE = 3
+const SIZE_SQUEUE = 1 //small queue used as the Predict Queue and as Task Notification
+
+//-------- QUEUE --------//
+QUEUE = 					(xQueueCreate -> QUEUE[0]),
+QUEUE[i:0..SIZE_QUEUE] =	(when(i>0) xQueueReceive -> QUEUE[i-1]
+						 	|when(i<SIZE_QUEUE) xQueueSend -> QUEUE[i+1]).
+
+//small queue used as the Predict Queue
+SQUEUE = 					(xQueueCreate -> SQUEUE[0]),
+SQUEUE[i:0..SIZE_SQUEUE] =	(when(i>0) xQueueReceive -> SQUEUE[i-1]
+						 	|when(i<SIZE_SQUEUE) xQueueSend -> SQUEUE[i+1]).
+
+//-------- INPUT TASK --------//
+MICROPHONE =	(create -> INPUT),
+// Send data to the Input Queue for the Recognize Task
+INPUT = 		(takeSample -> sendFrame -> INPUT).
+
+//-------- RECOGNIZE TASK --------//
+RECOGNIZE =					(create -> GETDATA[0]),
+GETDATA[i:0..SIZE_QUEUE] =	(when(i==SIZE_QUEUE) runRecognition -> 
+								(noiseFound -> RECOGNITION
+								|noiseNotFound -> GETDATA[0])
+// Read data from the Input Queue (from the Input Task)
+							|when(i<SIZE_QUEUE) readFrame -> GETDATA[i+1]),
+// Send metadata using the Predict Queue for the Predict Task
+RECOGNITION = 				(sendMetaData -> SETOUTPUT[0]),
+// Send all data to the NoiseCancel Queue for the NoiseCancel Task
+SETOUTPUT[j:0..SIZE_QUEUE] =(when(j<SIZE_QUEUE) sendFrame -> SETOUTPUT[j+1]
+							|when(j==SIZE_QUEUE) done -> GETDATA[0]).
+
+//-------- PREDICT TASK --------//
+PREDICT =		(create -> PREDICTING),
+// Read metadata from the Predict Queue (from the Recognize Task)
+PREDICTING =	(readMetaData -> predict -> PREDICTING).
+
+//-------- NOISECANCEL TASK --------//
+NOISECANCEL = 	(create -> GETDATA[0]),
+GETDATA[i:0..SIZE_QUEUE] =	(when(i==SIZE_QUEUE) runNoiseCancelling -> NOISECANCELLING
+// Read data from the Input Queue (from the Input Task)
+							|when(i<SIZE_QUEUE) readFrame -> GETDATA[i+1]),
+NOISECANCELLING	=			(notifyTake -> SETOUTPUT[0]),
+// Send all data to the Output Queue (for the Output Task)
+SETOUTPUT[j:0..SIZE_QUEUE] =(when(j<SIZE_QUEUE) sendFrame -> SETOUTPUT[j+1]
+							|when(j==SIZE_QUEUE) done -> GETDATA[0]).
+
+//-------- OUTPUT TASK --------//
+HEADPHONES =	(create -> notifyGive -> GETDATA[0]),
+// Is this the last frame to be outputted? 
+// If yes, notify the NoiseCancel Task so it knowns it can send new frames when ready
+GETDATA[i:0..SIZE_QUEUE] = 	(when(i==(SIZE_QUEUE-1)) readFrame -> outputToSpeaker -> notifyGive -> GETDATA[0]
+							|when(i<(SIZE_QUEUE-1)) readFrame -> outputToSpeaker -> GETDATA[i+1]).
+
+//-------- PROJECT --------//
+||PROJECT = (in:MICROPHONE || rec:RECOGNIZE || pre:PREDICT || nc:NOISECANCEL || out:HEADPHONES 
+		|| qIn:QUEUE || qPre:SQUEUE || qNc:QUEUE || qOut:QUEUE || notify:SQUEUE)/{
+// All creates can be synchronized, 
+// since they're called before the scheduler is started
+ {in,rec,pre,nc,out}.create/{qIn,qPre,qNc,qOut,notify}.xQueueCreate, 
+ {in,rec,pre,nc,out}.create/{in,rec,pre,nc,out}.create,
+// These transitions are used to synchronize the Task Notification, 
+// a single item Queue is used to model the Task Notification
+ {out}.notifyGive/{notify}.xQueueSend, {nc}.notifyTake/{notify}.xQueueReceive,
+// These transitions are synchronized with the queues
+// Input Queue
+ {in}.sendFrame/{qIn}.xQueueSend, {rec}.readFrame/{qIn}.xQueueReceive,
+// Predict Queue
+ {rec}.sendMetaData/{qPre}.xQueueSend, {pre}.readMetaData/{qPre}.xQueueReceive,
+// NoiseCancel Queue
+ {rec}.sendFrame/{qNc}.xQueueSend, {nc}.readFrame/{qNc}.xQueueReceive,
+// Output Queue
+ {nc}.sendFrame/{qOut}.xQueueSend, {out}.readFrame/{qOut}.xQueueReceive
+}.
