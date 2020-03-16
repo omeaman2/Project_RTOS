@@ -1,10 +1,12 @@
 #ifndef RTES_H
 #define RTES_H
 
-#define USE_TEMPFREERTOS
+//#define USE_TEMPFREERTOS
 
 #ifdef USE_TEMPFREERTOS
 #include "tempFREERTOS.h"
+#else
+#include "FreeRTOS.h"
 #endif /* USE_TEMPFREERTOS */
 
 #include "data.h"

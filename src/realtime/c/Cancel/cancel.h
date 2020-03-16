@@ -3,6 +3,7 @@
 
 #include "../RTES.h"
 #include "../kissfft/kiss_fft.h"
+#include "../kissfft/kiss_fft.c"
 #include "../data.h"
 
 typedef struct {
