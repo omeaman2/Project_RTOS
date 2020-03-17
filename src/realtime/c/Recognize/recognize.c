@@ -26,6 +26,8 @@ void doRecognize(recognizeSettings_t *settings) {
     static unsigned long long previousAverage = 0;
     static size_t samplesChecked = 0;   
 
+	if (settings->inBuffer->used < settings->segmentSize) return;
+
     sample_t *array = getNewEmptyArray(settings->segmentSize);
     copyArrayFromBuffer(array, settings->inBuffer, settings->segmentSize,
                                                    samplesChecked);

@@ -22,5 +22,8 @@ void doInput(inputSettings_t *settings) {
 sample_t takeSample(void) {
     static size_t index = 0;
 
+	if (index % 1000 == 0) printf("%zu\n", index);
+	if (index % numberOfSamples == 0) index = 0;
+
     return readData(index++);
 }

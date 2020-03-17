@@ -5,6 +5,8 @@
 
 #ifdef USE_TEMPFREERTOS
 #include "tempFREERTOS.h"
+#else
+#include "FreeRTOS.h"
 #endif /* USE_TEMPFREERTOS */
 
 #include "data.h"

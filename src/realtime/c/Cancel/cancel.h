@@ -2,7 +2,13 @@
 #define CANCEL_H
 
 #include "../RTES.h"
+
 #include "../kissfft/kiss_fft.h"
+#ifndef USE_TEMPFREERTOS
+// The windows version only compiles if both .h and .c are included
+#include "../kissfft/kiss_fft.c"
+#endif /* USE_TEMPFREERTOS */
+
 #include "../data.h"
 
 typedef struct {

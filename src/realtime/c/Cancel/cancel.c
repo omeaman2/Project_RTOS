@@ -65,21 +65,21 @@ void doCancel(cancelSettings_t *settings) {
 }
 
 void doFFT(sample_t input[], sample_t output[], size_t size, double cancelPercentage) {
-    kiss_fft_cpx cx_cancelling_segment[size];
+    kiss_fft_cpx *cx_cancelling_segment = (kiss_fft_cpx*)malloc(size * sizeof(kiss_fft_cpx));
 
     /* State buffers used by kissfft */
     kiss_fft_cfg fft_state = kiss_fft_alloc(size, FOURIER, 0, 0);
     kiss_fft_cfg ifft_state = kiss_fft_alloc(size, INVERSE_FOURIER, 0, 0);
 
     /* 1. Get the noise segment from the input array */
-    kiss_fft_cpx cx_noise_segment[size];
+	kiss_fft_cpx *cx_noise_segment = (kiss_fft_cpx*)malloc(size * sizeof(kiss_fft_cpx));
     for (size_t i = 0; i < size; i++) {
         cx_noise_segment[i].r = input[i]; // Real
         cx_noise_segment[i].i = 0.0; // Imaginary
     }
 
     /* 2. Compute fourier to get the noise frequencies */
-    kiss_fft_cpx cx_noise_segment_fourier[size];
+	kiss_fft_cpx* cx_noise_segment_fourier = (kiss_fft_cpx*)malloc(size * sizeof(kiss_fft_cpx));
     kiss_fft(fft_state, cx_noise_segment, cx_noise_segment_fourier);
 
     /* 3. Perform algorithm to cancel only the highest absolute frequencies of the
@@ -98,6 +98,9 @@ void doFFT(sample_t input[], sample_t output[], size_t size, double cancelPercen
     /* Free all used resources */
     free(fft_state);
     free(ifft_state);
+	free(cx_cancelling_segment);
+	free(cx_noise_segment);
+	free(cx_noise_segment_fourier);
 }
 
 /***** Functions copied from main.c non-realtime *****/

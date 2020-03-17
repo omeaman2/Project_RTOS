@@ -25,14 +25,14 @@ void createSettings(uint32_t sampleRate,
     // This means the recognize tasks has to process 882 samples per period
 
     inputSettings.base.pcTaskName = "Input Task";
-    inputSettings.base.xTaskPeriod = 0; //TODO
+	inputSettings.base.xTaskPeriod = pdMS_TO_TICKS(1);
     // Ratio is compared to the input task, therefore this is 1
     inputSettings.base.ratio = 1;
     inputSettings.base.test = NULL;
     inputSettings.outBuffer = inputToRecognizeBuffer;
     
     outputSettings.base.pcTaskName = "Output Task";        
-    outputSettings.base.xTaskPeriod = 0; //TODO 
+    outputSettings.base.xTaskPeriod = pdMS_TO_TICKS(1);
     // Output happens at the same samplerate as the input
     outputSettings.base.ratio = 1;
     outputSettings.base.test = NULL;
@@ -40,7 +40,7 @@ void createSettings(uint32_t sampleRate,
     outputSettings.fpOutput = fpOutput;
 
     cancelSettings.base.pcTaskName = "Cancel Task";
-    cancelSettings.base.xTaskPeriod = 0; //TODO
+    cancelSettings.base.xTaskPeriod = pdMS_TO_TICKS(1);
     cancelSettings.base.ratio = 1;
     cancelSettings.base.test = NULL; 
     cancelSettings.inBuffer = recognizeToCancelBuffer;
@@ -48,7 +48,7 @@ void createSettings(uint32_t sampleRate,
     cancelSettings.cancelPercentage = 90;
 
     recognizeSettings.base.pcTaskName = "Recognize Task";
-    recognizeSettings.base.xTaskPeriod = 0; //TODO 
+    recognizeSettings.base.xTaskPeriod = pdMS_TO_TICKS(882); // Same as ratio
     recognizeSettings.base.ratio = 882; // Same as segmentSize
     recognizeSettings.base.test = NULL;
     recognizeSettings.inBuffer = inputToRecognizeBuffer;
